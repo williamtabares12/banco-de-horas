@@ -15,7 +15,7 @@ Se hacen en orden. Cada una termina cuando sus pruebas pasan y está commiteada.
 
 ## Fase 2: datos
 
-- [ ] T5. `Repositorio` y su implementación en localStorage. Exportar e importar JSON con validación (un JSON dañado no borra los datos actuales). Pruebas: guardar, leer, exportar, importar, importar archivo inválido.
+- [x] T5. `Repositorio` y su implementación en localStorage. Exportar e importar JSON con validación (un JSON dañado no borra los datos actuales). Pruebas: guardar, leer, exportar, importar, importar archivo inválido.
 
 ## Fase 3: pantallas
 
