@@ -1,0 +1,48 @@
+import { describe, it, expect } from "vitest";
+import { festivosDelAnio, esFestivo } from "../src/dominio/festivos";
+
+// Lista de referencia: calendario oficial de Colombia (ley Emiliani).
+// T1 queda confirmada solo cuando Alejandro valida estas fechas.
+const FESTIVOS_2026 = [
+  "2026-01-01", "2026-01-12", "2026-03-23", "2026-04-02", "2026-04-03",
+  "2026-05-01", "2026-05-18", "2026-06-08", "2026-06-15", "2026-06-29",
+  "2026-07-20", "2026-08-07", "2026-08-17", "2026-10-12", "2026-11-02",
+  "2026-11-16", "2026-12-08", "2026-12-25",
+];
+
+const FESTIVOS_2027 = [
+  "2027-01-01", "2027-01-11", "2027-03-22", "2027-03-25", "2027-03-26",
+  "2027-05-01", "2027-05-10", "2027-05-31", "2027-06-07", "2027-07-05",
+  "2027-07-20", "2027-08-07", "2027-08-16", "2027-10-18", "2027-11-01",
+  "2027-11-15", "2027-12-08", "2027-12-25",
+];
+
+describe("festivosDelAnio", () => {
+  it("2026 coincide con el calendario oficial", () => {
+    expect(festivosDelAnio(2026)).toEqual(FESTIVOS_2026);
+  });
+  it("2027 coincide con el calendario oficial", () => {
+    expect(festivosDelAnio(2027)).toEqual(FESTIVOS_2027);
+  });
+  it("un festivo en lunes no se mueve (29 de junio de 2026)", () => {
+    expect(festivosDelAnio(2026)).toContain("2026-06-29");
+  });
+  it("1 de noviembre en domingo pasa al lunes 2", () => {
+    expect(festivosDelAnio(2026)).toContain("2026-11-02");
+    expect(festivosDelAnio(2026)).not.toContain("2026-11-01");
+  });
+});
+
+describe("esFestivo", () => {
+  const sinCambios = { festivosAgregados: [], festivosQuitados: [] };
+  it("detecta un festivo calculado", () => {
+    expect(esFestivo("2026-10-12", sinCambios)).toBe(true);
+    expect(esFestivo("2026-10-13", sinCambios)).toBe(false);
+  });
+  it("aplica festivos agregados a mano", () => {
+    expect(esFestivo("2026-10-13", { festivosAgregados: ["2026-10-13"], festivosQuitados: [] })).toBe(true);
+  });
+  it("aplica festivos quitados a mano", () => {
+    expect(esFestivo("2026-10-12", { festivosAgregados: [], festivosQuitados: ["2026-10-12"] })).toBe(false);
+  });
+});
