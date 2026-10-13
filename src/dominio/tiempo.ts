@@ -54,3 +54,10 @@ export function horaAMinutos(hora: string): number {
   const [h, m] = hora.split(":").map(Number);
   return h * 60 + m;
 }
+
+/** Minutos entre dos fecha-hora locales "YYYY-MM-DDTHH:mm" (fin - inicio). */
+export function duracionMinutos(inicio: string, fin: string): number {
+  const [fechaIni, horaIni] = inicio.split("T");
+  const [fechaFin, horaFin] = fin.split("T");
+  return diasEntre(fechaIni, fechaFin) * 1440 + horaAMinutos(horaFin) - horaAMinutos(horaIni);
+}

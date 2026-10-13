@@ -1,0 +1,87 @@
+import { duracionMinutos } from "./tiempo";
+import type { Config, MovimientoBanco, Turno } from "./tipos";
+
+export type ConfigBanco = Pick<Config, "extrasDescuentanDeuda">;
+
+export type MovimientoAutomatico = {
+  fecha: string;
+  tipo: "prestamo" | "pago";
+  minutos: number; // + sube la deuda, - la baja
+};
+
+export type FilaExtracto = { movimiento: MovimientoBanco; saldoDespues: number };
+
+/**
+ * Movimiento de banco que genera un turno (sección 7 del spec), o null si no
+ * genera ninguno. La fecha es la del inicio del turno.
+ */
+export function movimientoDeTurno(turno: Turno, config: ConfigBanco): MovimientoAutomatico | null {
+  const fecha = turno.inicio.slice(0, 10);
+  const reales = duracionMinutos(turno.inicio, turno.fin);
+
+  if (turno.tipo === "alquiler") {
+    if (turno.destino === "deuda") return { fecha, tipo: "pago", minutos: -reales };
+    if (turno.destino === "semana") return null;
+    throw new Error("Un turno de alquiler necesita destino");
+  }
+
+  const delta = reales - turno.minutosProgramados;
+  if (delta < 0) return { fecha, tipo: "prestamo", minutos: -delta };
+  if (delta > 0 && config.extrasDescuentanDeuda) return { fecha, tipo: "pago", minutos: -delta };
+  return null;
+}
+
+/** Deuda en minutos: suma de todos los movimientos. */
+export function saldo(movimientos: MovimientoBanco[]): number {
+  return movimientos.reduce((suma, m) => suma + m.minutos, 0);
+}
+
+/** Aviso (no bloqueo) de que se pagó más de lo que se debía. */
+export function saldoNegativo(movimientos: MovimientoBanco[]): boolean {
+  return saldo(movimientos) < 0;
+}
+
+/** Movimientos por fecha (luego creadoEn), con el saldo acumulado después de cada uno. */
+export function extracto(movimientos: MovimientoBanco[]): FilaExtracto[] {
+  const ordenados = [...movimientos].sort(
+    (a, b) => a.fecha.localeCompare(b.fecha) || a.creadoEn.localeCompare(b.creadoEn),
+  );
+  let acumulado = 0;
+  return ordenados.map((movimiento) => {
+    acumulado += movimiento.minutos;
+    return { movimiento, saldoDespues: acumulado };
+  });
+}
+
+/** Corrige un movimiento a mano: queda marcado como manual y ya no se recalcula. */
+export function editarMovimiento(
+  movimiento: MovimientoBanco,
+  cambios: Partial<Pick<MovimientoBanco, "fecha" | "minutos" | "nota">>,
+  ahora: string,
+): MovimientoBanco {
+  return { ...movimiento, ...cambios, automatico: false, modificadoEn: ahora };
+}
+
+/**
+ * Sincroniza el movimiento automático de un turno al crearlo o editarlo.
+ * Si el movimiento ya fue editado a mano, no se toca. Devuelve una lista nueva.
+ */
+export function aplicarTurno(
+  movimientos: MovimientoBanco[],
+  turno: Turno,
+  config: ConfigBanco,
+  ahora: string,
+  nuevoId: () => string,
+): MovimientoBanco[] {
+  const existente = movimientos.find((m) => m.turnoId === turno.id);
+  if (existente && !existente.automatico) return movimientos;
+
+  const calculado = movimientoDeTurno(turno, config);
+  const resto = movimientos.filter((m) => m !== existente);
+  if (!calculado) return resto;
+
+  const nuevo: MovimientoBanco = existente
+    ? { ...existente, ...calculado, modificadoEn: ahora }
+    : { id: nuevoId(), ...calculado, turnoId: turno.id, automatico: true, creadoEn: ahora, modificadoEn: ahora };
+  return existente ? movimientos.map((m) => (m === existente ? nuevo : m)) : [...resto, nuevo];
+}

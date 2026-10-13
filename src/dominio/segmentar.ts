@@ -1,5 +1,5 @@
 import { esFestivo, type CambiosFestivos } from "./festivos";
-import { diaSemana, diasEntre, horaAMinutos, quincenaDe, sumarDias, type Quincena } from "./tiempo";
+import { diaSemana, duracionMinutos, horaAMinutos, quincenaDe, sumarDias, type Quincena } from "./tiempo";
 
 export type Categorias = {
   diurno: number;
@@ -26,9 +26,8 @@ const vacio = (): Categorias => ({ diurno: 0, nocturno: 0, dominicalDiurno: 0, d
  */
 export function segmentar(inicio: string, fin: string, config: ConfigSegmentar): Segmentacion {
   const [fechaIni, horaIni] = inicio.split("T");
-  const [fechaFin, horaFin] = fin.split("T");
   const desde = horaAMinutos(horaIni);
-  const duracion = diasEntre(fechaIni, fechaFin) * 1440 + horaAMinutos(horaFin) - desde;
+  const duracion = duracionMinutos(inicio, fin);
   if (duracion <= 0) throw new Error("El fin del turno debe ser posterior al inicio");
 
   const nocheDesde = horaAMinutos(config.nocturnoDesde);
