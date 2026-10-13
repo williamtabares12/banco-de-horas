@@ -6,16 +6,18 @@ import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { Ajustes } from "./ui/pantallas/Ajustes";
 import { Banco } from "./ui/pantallas/Banco";
 import { Inicio } from "./ui/pantallas/Inicio";
+import { Quincena } from "./ui/pantallas/Quincena";
 import { Turnos } from "./ui/pantallas/Turnos";
 import "./App.css";
 
 const repo = new RepositorioLocal(localStorage);
 
-type Pestana = "inicio" | "turnos" | "banco" | "ajustes";
+type Pestana = "inicio" | "turnos" | "banco" | "quincena" | "ajustes";
 const PESTANAS: { id: Pestana; nombre: string }[] = [
   { id: "inicio", nombre: "Inicio" },
   { id: "turnos", nombre: "Turnos" },
   { id: "banco", nombre: "Banco" },
+  { id: "quincena", nombre: "Quincena" },
   { id: "ajustes", nombre: "Ajustes" },
 ];
 
@@ -96,6 +98,7 @@ export default function App() {
       )}
       {pestana === "turnos" && <Turnos datos={datos} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}
       {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
+      {pestana === "quincena" && <Quincena datos={datos} />}
       {pestana === "ajustes" && (
         <Ajustes
           datos={datos}

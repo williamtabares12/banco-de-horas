@@ -243,3 +243,23 @@ section > .tarjeta + p.tarjeta,
 section > p.tarjeta {
   margin-top: 12px;
 }
+
+.selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.selector button {
+  min-width: 48px;
+  font-size: 1.4rem;
+}
+
+nav button {
+  min-width: 0;
+  padding: 0 4px;
+  font-size: 0.9rem;
+}
