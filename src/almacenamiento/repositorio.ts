@@ -3,6 +3,8 @@ import type { Config, MovimientoBanco, Turno } from "../dominio/tipos";
 /** Todo lo que la app guarda. `version` permite migrar el formato más adelante. */
 export type Datos = {
   version: 1;
+  /** Fecha "AAAA-MM-DD" de la última vez que se exportó un respaldo. */
+  ultimoRespaldo?: string;
   config: Config;
   turnos: Turno[];
   movimientos: MovimientoBanco[];

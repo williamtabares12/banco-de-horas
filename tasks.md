@@ -27,5 +27,5 @@ Se hacen en orden. Cada una termina cuando sus pruebas pasan y está commiteada.
 ## Fase 4: cierre
 
 - [ ] T10. Verificación opcional (CA8): si Alejandro quiere, carga los turnos de una quincena cuya colilla ya tiene y compara las horas por categoría con la línea de recargos. Si no coincide, se ajusta la regla en el spec primero y después en el código. No bloquea el resto.
-- [ ] T11. PWA con vite-plugin-pwa: instalable y funcional sin internet. Aviso de respaldo en Inicio.
+- [x] T11. PWA con vite-plugin-pwa: instalable y funcional sin internet. Aviso de respaldo en Inicio.
 - [ ] T12. README con cómo correr, probar y exportar los datos, y cómo publicar en un hosting estático gratuito.

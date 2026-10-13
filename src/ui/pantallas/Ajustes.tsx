@@ -29,7 +29,11 @@ export function Ajustes({ datos, cambiar, importarTexto }: Props) {
         }
       />
       <Festivos config={datos.config} onCambiar={(c) => cambiar((d) => ({ ...d, config: { ...d.config, ...c } }))} />
-      <Respaldo datos={datos} importarTexto={importarTexto} />
+      <Respaldo
+        datos={datos}
+        importarTexto={importarTexto}
+        alExportar={() => cambiar((d) => ({ ...d, ultimoRespaldo: hoy() }))}
+      />
     </section>
   );
 }
@@ -172,16 +176,28 @@ function Festivos({
   );
 }
 
-function Respaldo({ datos, importarTexto }: { datos: Datos; importarTexto: (t: string) => void }) {
+function Respaldo({
+  datos,
+  importarTexto,
+  alExportar,
+}: {
+  datos: Datos;
+  importarTexto: (t: string) => void;
+  alExportar: () => void;
+}) {
   const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
 
   function exportar() {
-    const url = URL.createObjectURL(new Blob([exportarJSON(datos)], { type: "application/json" }));
+    // la fecha del respaldo va dentro del archivo y también se recuerda en la app
+    const url = URL.createObjectURL(
+      new Blob([exportarJSON({ ...datos, ultimoRespaldo: hoy() })], { type: "application/json" }),
+    );
     const enlace = document.createElement("a");
     enlace.href = url;
     enlace.download = `banco-horas-${hoy()}.json`;
     enlace.click();
     URL.revokeObjectURL(url);
+    alExportar();
     setMensaje({ texto: "Respaldo descargado.", error: false });
   }
 
@@ -200,7 +216,10 @@ function Respaldo({ datos, importarTexto }: { datos: Datos; importarTexto: (t: s
   return (
     <div className="formulario">
       <h2>Respaldo</h2>
-      <p className="nota">Los datos viven solo en este dispositivo. Descarga un respaldo de vez en cuando.</p>
+      <p className="nota">
+        Los datos viven solo en este dispositivo. Descarga un respaldo de vez en cuando.{" "}
+        {datos.ultimoRespaldo ? `Último respaldo: ${datos.ultimoRespaldo}.` : "Todavía no has descargado ninguno."}
+      </p>
       <button type="button" onClick={exportar}>Exportar JSON</button>
       <label>
         Importar un respaldo

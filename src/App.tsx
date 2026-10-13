@@ -96,6 +96,7 @@ export default function App() {
             setAbrirTurnoNuevo(true);
             setPestana("turnos");
           }}
+          alIrARespaldo={() => setPestana("ajustes")}
         />
       )}
       {pestana === "turnos" && <Turnos datos={datos} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}

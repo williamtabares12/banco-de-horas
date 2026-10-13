@@ -1,5 +1,5 @@
 import type { Config, MovimientoBanco, Turno } from "../dominio/tipos";
-import { duracionMinutos } from "../dominio/tiempo";
+import { diasEntre, duracionMinutos } from "../dominio/tiempo";
 import type { Datos, Repositorio } from "./repositorio";
 
 export class ErrorImportacion extends Error {
@@ -14,10 +14,10 @@ export function exportarJSON(datos: Datos): string {
 }
 
 /** Valida el texto y devuelve los datos, o lanza ErrorImportacion. No guarda nada. */
-export function importarJSON(texto: string): Datos {
+export function importarJSON(contenido: string): Datos {
   let crudo: unknown;
   try {
-    crudo = JSON.parse(texto);
+    crudo = JSON.parse(contenido);
   } catch {
     throw new ErrorImportacion("El archivo no es un JSON válido");
   }
@@ -29,12 +29,27 @@ export function importarJSON(texto: string): Datos {
   sinRepetidos(turnos.map((t) => t.id), "turnos");
   sinRepetidos(movimientos.map((m) => m.id), "movimientos");
 
-  return { version: 1, config: validarConfig(raiz.config), turnos, movimientos };
+  const datos: Datos = { version: 1, config: validarConfig(raiz.config), turnos, movimientos };
+  if (raiz.ultimoRespaldo !== undefined) datos.ultimoRespaldo = texto(raiz, "ultimoRespaldo", "El archivo", FECHA);
+  return datos;
+}
+
+const DIAS_SIN_RESPALDO = 14;
+
+/**
+ * Avisa si hay datos y pasaron más de 14 días desde el último respaldo. Si nunca
+ * se exportó, cuenta desde el dato más antiguo.
+ */
+export function necesitaRespaldo(datos: Datos, hoy: string): boolean {
+  const creados = [...datos.turnos, ...datos.movimientos].map((x) => x.creadoEn.slice(0, 10));
+  if (creados.length === 0) return false;
+  const desde = datos.ultimoRespaldo ?? creados.reduce((a, b) => (a < b ? a : b));
+  return diasEntre(desde, hoy) > DIAS_SIN_RESPALDO;
 }
 
 /** Importa y reemplaza los datos actuales. Si el archivo es inválido, no toca nada. */
-export function importar(repo: Repositorio, texto: string): void {
-  repo.guardar(importarJSON(texto));
+export function importar(repo: Repositorio, contenido: string): void {
+  repo.guardar(importarJSON(contenido));
 }
 
 // --- Validación (se construyen objetos nuevos: lo desconocido se descarta) ---

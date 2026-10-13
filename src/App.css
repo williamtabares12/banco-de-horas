@@ -337,3 +337,7 @@ table.tabla-extracto {
     display: table-header-group;
   }
 }
+
+.aviso p {
+  margin: 0 0 8px;
+}
