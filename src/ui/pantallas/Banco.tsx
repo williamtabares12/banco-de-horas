@@ -46,7 +46,8 @@ export function Banco({ datos, cambiar }: Props) {
   }
 
   function borrar(m: MovimientoBanco) {
-    const texto = `¿Borrar este movimiento (${ETIQUETAS_MOVIMIENTO[m.tipo].toLowerCase()} del ${m.fecha}, ${conSigno(m.minutos)})?`;
+    const aviso = m.automatico && m.turnoId ? " Si luego editas el turno, se vuelve a generar." : "";
+    const texto = `¿Borrar este movimiento (${ETIQUETAS_MOVIMIENTO[m.tipo].toLowerCase()} del ${m.fecha}, ${conSigno(m.minutos)})?${aviso}`;
     if (window.confirm(texto)) cambiar((d) => ({ ...d, movimientos: d.movimientos.filter((x) => x.id !== m.id) }));
   }
 

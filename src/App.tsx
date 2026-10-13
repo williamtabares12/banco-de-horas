@@ -5,12 +5,16 @@ import { importar } from "./almacenamiento/respaldo";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { Ajustes } from "./ui/pantallas/Ajustes";
 import { Banco } from "./ui/pantallas/Banco";
+import { Inicio } from "./ui/pantallas/Inicio";
+import { Turnos } from "./ui/pantallas/Turnos";
 import "./App.css";
 
 const repo = new RepositorioLocal(localStorage);
 
-type Pestana = "banco" | "ajustes";
+type Pestana = "inicio" | "turnos" | "banco" | "ajustes";
 const PESTANAS: { id: Pestana; nombre: string }[] = [
+  { id: "inicio", nombre: "Inicio" },
+  { id: "turnos", nombre: "Turnos" },
   { id: "banco", nombre: "Banco" },
   { id: "ajustes", nombre: "Ajustes" },
 ];
@@ -27,7 +31,8 @@ function cargarInicial(): Estado {
 
 export default function App() {
   const [estado, setEstado] = useState<Estado>(cargarInicial);
-  const [pestana, setPestana] = useState<Pestana>("banco");
+  const [pestana, setPestana] = useState<Pestana>("inicio");
+  const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
   const [fallaGuardado, setFallaGuardado] = useState(false);
 
   if ("error" in estado) {
@@ -67,7 +72,10 @@ export default function App() {
       <h1>Banco de horas</h1>
       <nav aria-label="Secciones">
         {PESTANAS.map((p) => (
-          <button key={p.id} className={p.id === pestana ? "activa" : ""} onClick={() => setPestana(p.id)}>
+          <button key={p.id} className={p.id === pestana ? "activa" : ""} onClick={() => {
+              setAbrirTurnoNuevo(false);
+              setPestana(p.id);
+            }}>
             {p.nombre}
           </button>
         ))}
@@ -77,6 +85,16 @@ export default function App() {
           No se pudo guardar en este dispositivo (¿poco espacio o navegación privada?). Descarga un respaldo en Ajustes.
         </p>
       )}
+      {pestana === "inicio" && (
+        <Inicio
+          datos={datos}
+          alRegistrar={() => {
+            setAbrirTurnoNuevo(true);
+            setPestana("turnos");
+          }}
+        />
+      )}
+      {pestana === "turnos" && <Turnos datos={datos} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}
       {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
       {pestana === "ajustes" && (
         <Ajustes

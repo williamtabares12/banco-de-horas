@@ -119,3 +119,14 @@ export function nuevoMovimiento(entrada: EntradaMovimiento, ahora: string, id: s
   if (nota) movimiento.nota = nota;
   return movimiento;
 }
+
+/** Total prestado y total pagado, en minutos positivos. */
+export function totales(movimientos: MovimientoBanco[]): { prestado: number; pagado: number } {
+  let prestado = 0;
+  let pagado = 0;
+  for (const m of movimientos) {
+    if (m.tipo === "prestamo") prestado += m.minutos;
+    if (m.tipo === "pago") pagado -= m.minutos;
+  }
+  return { prestado, pagado };
+}
