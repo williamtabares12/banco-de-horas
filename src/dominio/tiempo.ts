@@ -43,3 +43,14 @@ export function quincenaDeCobro(fecha: string, desfase: 0 | 1): Quincena {
     ? { anio: q.anio + 1, mes: 1, numero: 1 }
     : { anio: q.anio, mes: q.mes + 1, numero: 1 };
 }
+
+/** Días calendario entre dos fechas (b - a). */
+export function diasEntre(a: string, b: string): number {
+  return Math.round((aUtc(b) - aUtc(a)) / MS_DIA);
+}
+
+/** "19:00" -> minutos desde la medianoche. */
+export function horaAMinutos(hora: string): number {
+  const [h, m] = hora.split(":").map(Number);
+  return h * 60 + m;
+}
