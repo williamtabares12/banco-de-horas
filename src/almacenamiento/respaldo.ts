@@ -29,7 +29,7 @@ export function importarJSON(texto: string): Datos {
   sinRepetidos(turnos.map((t) => t.id), "turnos");
   sinRepetidos(movimientos.map((m) => m.id), "movimientos");
 
-  return { version: 1, config: leerConfig(raiz.config), turnos, movimientos };
+  return { version: 1, config: validarConfig(raiz.config), turnos, movimientos };
 }
 
 /** Importa y reemplaza los datos actuales. Si el archivo es inválido, no toca nada. */
@@ -139,7 +139,7 @@ function leerMovimiento(v: unknown, i: number): MovimientoBanco {
   return mov;
 }
 
-function leerConfig(v: unknown): Config {
+export function validarConfig(v: unknown): Config {
   const donde = "Configuración";
   const o = objeto(v, donde);
   const fechas = (campo: string) =>

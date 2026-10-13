@@ -85,3 +85,37 @@ export function aplicarTurno(
     : { id: nuevoId(), ...calculado, turnoId: turno.id, automatico: true, creadoEn: ahora, modificadoEn: ahora };
   return existente ? movimientos.map((m) => (m === existente ? nuevo : m)) : [...resto, nuevo];
 }
+
+/** Signo que corresponde a cada tipo: la deuda sube con saldo inicial y préstamo, baja con pago. */
+export function minutosConSigno(tipo: MovimientoBanco["tipo"], minutos: number): number {
+  if (tipo === "pago") return -Math.abs(minutos);
+  if (tipo === "ajuste") return minutos;
+  return Math.abs(minutos);
+}
+
+export type EntradaMovimiento = {
+  tipo: MovimientoBanco["tipo"];
+  fecha: string;
+  minutos: number;
+  nota?: string;
+};
+
+/** Movimiento cargado a mano (saldo inicial, préstamo, pago o ajuste). */
+export function nuevoMovimiento(entrada: EntradaMovimiento, ahora: string, id: string): MovimientoBanco {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(entrada.fecha)) throw new Error("La fecha debe ser AAAA-MM-DD");
+  if (!Number.isInteger(entrada.minutos) || entrada.minutos === 0) {
+    throw new Error("Los minutos deben ser un entero distinto de 0");
+  }
+  const movimiento: MovimientoBanco = {
+    id,
+    fecha: entrada.fecha,
+    tipo: entrada.tipo,
+    minutos: minutosConSigno(entrada.tipo, entrada.minutos),
+    automatico: false,
+    creadoEn: ahora,
+    modificadoEn: ahora,
+  };
+  const nota = entrada.nota?.trim();
+  if (nota) movimiento.nota = nota;
+  return movimiento;
+}

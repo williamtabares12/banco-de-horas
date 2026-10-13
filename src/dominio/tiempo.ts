@@ -61,3 +61,28 @@ export function duracionMinutos(inicio: string, fin: string): number {
   const [fechaFin, horaFin] = fin.split("T");
   return diasEntre(fechaIni, fechaFin) * 1440 + horaAMinutos(horaFin) - horaAMinutos(horaIni);
 }
+
+/**
+ * Lee una duración escrita por la persona: "8", "8:30", "2,5" o "2.5" horas.
+ * Devuelve minutos enteros, o null si el texto no se entiende.
+ */
+export function parsearDuracion(texto: string): number | null {
+  const t = texto.trim();
+  const hm = /^(\d+):(\d{2})$/.exec(t);
+  if (hm) {
+    const minutos = Number(hm[2]);
+    return minutos < 60 ? Number(hm[1]) * 60 + minutos : null;
+  }
+  if (/^\d+([.,]\d+)?$/.test(t)) return Math.round(Number(t.replace(",", ".")) * 60);
+  return null;
+}
+
+/** 150 -> "2 h 30 min". */
+export function formatearDuracion(minutos: number): string {
+  const signo = minutos < 0 ? "-" : "";
+  const abs = Math.abs(minutos);
+  const h = Math.floor(abs / 60);
+  const m = abs % 60;
+  if (h === 0 && m > 0) return `${signo}${m} min`;
+  return m === 0 ? `${signo}${h} h` : `${signo}${h} h ${m} min`;
+}

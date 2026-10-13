@@ -19,7 +19,7 @@ Se hacen en orden. Cada una termina cuando sus pruebas pasan y está commiteada.
 
 ## Fase 3: pantallas
 
-- [ ] T6. Ajustes y Banco: configuración, saldo inicial, préstamos, pagos y ajustes manuales con nota.
+- [x] T6. Ajustes y Banco: configuración, saldo inicial, préstamos, pagos y ajustes manuales con nota.
 - [ ] T7. Turnos e Inicio: formulario de turno con desglose de horas y movimiento de banco antes de confirmar, lista editable, tarjetas de Inicio.
 - [ ] T8. Quincena: selector, horas por categoría y colilla donde se cobran.
 - [ ] T9. Extracto: vista imprimible con saldo corriente y botón para imprimir o guardar como PDF.

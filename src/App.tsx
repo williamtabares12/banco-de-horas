@@ -1,122 +1,132 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { RepositorioLocal } from "./almacenamiento/local";
+import type { Datos } from "./almacenamiento/repositorio";
+import { importar } from "./almacenamiento/respaldo";
+import { CONFIG_POR_DEFECTO } from "./dominio/config";
+import { Ajustes } from "./ui/pantallas/Ajustes";
+import { Banco } from "./ui/pantallas/Banco";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const repo = new RepositorioLocal(localStorage);
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+type Pestana = "banco" | "ajustes";
+const PESTANAS: { id: Pestana; nombre: string }[] = [
+  { id: "banco", nombre: "Banco" },
+  { id: "ajustes", nombre: "Ajustes" },
+];
 
-      <div className="ticks"></div>
+type Estado = { datos: Datos } | { error: string };
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+function cargarInicial(): Estado {
+  try {
+    return { datos: repo.cargar() };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "No se pudieron leer los datos guardados" };
+  }
 }
 
-export default App
+export default function App() {
+  const [estado, setEstado] = useState<Estado>(cargarInicial);
+  const [pestana, setPestana] = useState<Pestana>("banco");
+  const [fallaGuardado, setFallaGuardado] = useState(false);
+
+  if ("error" in estado) {
+    return (
+      <main>
+        <h1>Banco de horas</h1>
+        <PantallaError
+          mensaje={estado.error}
+          alImportar={(texto) => {
+            importar(repo, texto);
+            setEstado({ datos: repo.cargar() });
+          }}
+          alEmpezarDeCero={() => {
+            repo.guardar({ version: 1, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+            setEstado({ datos: repo.cargar() });
+          }}
+        />
+      </main>
+    );
+  }
+
+  const { datos } = estado;
+
+  function cambiar(fn: (d: Datos) => Datos) {
+    const siguiente = fn(datos);
+    try {
+      repo.guardar(siguiente);
+      setFallaGuardado(false);
+    } catch {
+      setFallaGuardado(true); // se ve en pantalla, pero no se pierde lo que acaba de hacer
+    }
+    setEstado({ datos: siguiente });
+  }
+
+  return (
+    <main>
+      <h1>Banco de horas</h1>
+      <nav aria-label="Secciones">
+        {PESTANAS.map((p) => (
+          <button key={p.id} className={p.id === pestana ? "activa" : ""} onClick={() => setPestana(p.id)}>
+            {p.nombre}
+          </button>
+        ))}
+      </nav>
+      {fallaGuardado && (
+        <p className="error" role="alert">
+          No se pudo guardar en este dispositivo (¿poco espacio o navegación privada?). Descarga un respaldo en Ajustes.
+        </p>
+      )}
+      {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
+      {pestana === "ajustes" && (
+        <Ajustes
+          datos={datos}
+          cambiar={cambiar}
+          importarTexto={(texto) => {
+            importar(repo, texto);
+            setEstado({ datos: repo.cargar() });
+          }}
+        />
+      )}
+    </main>
+  );
+}
+
+function PantallaError(props: {
+  mensaje: string;
+  alImportar: (texto: string) => void;
+  alEmpezarDeCero: () => void;
+}) {
+  const [problema, setProblema] = useState("");
+  return (
+    <div className="formulario">
+      <p className="error" role="alert">
+        Los datos guardados en este dispositivo están dañados: {props.mensaje}. No se ha borrado nada.
+      </p>
+      <label>
+        Importar un respaldo
+        <input
+          type="file"
+          accept="application/json,.json"
+          onChange={async (e) => {
+            const archivo = e.target.files?.[0];
+            if (!archivo) return;
+            try {
+              props.alImportar(await archivo.text());
+            } catch (err) {
+              setProblema(err instanceof Error ? err.message : "No se pudo importar");
+            }
+          }}
+        />
+      </label>
+      {problema && <p className="error">{problema}</p>}
+      <button
+        onClick={() => {
+          if (window.confirm("Se borran los datos dañados y empiezas de cero. ¿Seguir?")) props.alEmpezarDeCero();
+        }}
+      >
+        Empezar de cero
+      </button>
+    </div>
+  );
+}

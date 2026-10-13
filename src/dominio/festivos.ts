@@ -67,3 +67,33 @@ export function esFestivo(f: string, cambios: CambiosFestivos): boolean {
   if (cambios.festivosAgregados.includes(f)) return true;
   return festivosDelAnio(Number(f.slice(0, 4))).includes(f);
 }
+
+/** Festivos del año con los cambios manuales aplicados, ordenados. */
+export function festivosEfectivos(anio: number, cambios: CambiosFestivos): string[] {
+  const delAnio = (f: string) => f.startsWith(`${anio}-`);
+  const lista = festivosDelAnio(anio).filter((f) => !cambios.festivosQuitados.includes(f));
+  for (const f of cambios.festivosAgregados) {
+    if (delAnio(f) && !lista.includes(f)) lista.push(f);
+  }
+  return lista.sort();
+}
+
+/** Agrega un festivo a mano. Si era uno oficial que se había quitado, lo restaura. */
+export function agregarFestivo(cambios: CambiosFestivos, f: string): CambiosFestivos {
+  const oficial = festivosDelAnio(Number(f.slice(0, 4))).includes(f);
+  return {
+    festivosQuitados: cambios.festivosQuitados.filter((x) => x !== f),
+    festivosAgregados:
+      oficial || cambios.festivosAgregados.includes(f) ? cambios.festivosAgregados : [...cambios.festivosAgregados, f],
+  };
+}
+
+/** Quita un festivo: si era agregado a mano se borra, si era oficial pasa a "quitados". */
+export function quitarFestivo(cambios: CambiosFestivos, f: string): CambiosFestivos {
+  const oficial = festivosDelAnio(Number(f.slice(0, 4))).includes(f);
+  return {
+    festivosAgregados: cambios.festivosAgregados.filter((x) => x !== f),
+    festivosQuitados:
+      oficial && !cambios.festivosQuitados.includes(f) ? [...cambios.festivosQuitados, f] : cambios.festivosQuitados,
+  };
+}
