@@ -263,3 +263,77 @@ nav button {
   padding: 0 4px;
   font-size: 0.9rem;
 }
+
+.solo-imprimir {
+  display: none;
+}
+
+table.tabla-extracto {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 0.9rem;
+}
+
+.tabla-extracto th,
+.tabla-extracto td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+  vertical-align: top;
+}
+
+.tabla-extracto .num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-extracto tfoot td {
+  font-weight: bold;
+  border-bottom: none;
+}
+
+.tabla-extracto .nota {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+}
+
+/* Impresión y PDF: blanco y negro, sin menús ni botones */
+@media print {
+  :root {
+    --fondo: #fff;
+    --tarjeta: #fff;
+    --texto: #000;
+    --suave: #333;
+    --borde: #999;
+    color-scheme: light;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  main > h1,
+  nav,
+  .no-imprimir {
+    display: none;
+  }
+
+  .solo-imprimir {
+    display: block;
+  }
+
+  .tabla-extracto tr {
+    break-inside: avoid;
+  }
+
+  .tabla-extracto thead {
+    display: table-header-group;
+  }
+}
