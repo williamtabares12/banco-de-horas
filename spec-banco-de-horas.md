@@ -1,6 +1,6 @@
 # Spec: App de banco de horas
 
-Estado: borrador v0.6. Sin parte monetaria. Confirmadas las reglas de horas prestadas y de domingo a lunes. Plan técnico en plan.md, tareas en tasks.md.
+Estado: borrador v0.7. Sin parte monetaria. Agrega los descansos (alimentación) que la clínica descuenta de cada turno. Plan técnico en plan.md, tareas en tasks.md.
 
 ## 1. Problema
 
@@ -27,19 +27,29 @@ Una app personal que responda cuatro preguntas, con fechas y respaldo:
 
 Alejandro, desde el celular o el computador, muchas veces saliendo de turno. Registrar un turno debe tomar menos de 30 segundos. Si funciona, la usarían compañeros del servicio (ver sección 11).
 
-## 5. Datos de la colilla que importan
+## 5. Datos de la colilla y de la clínica que importan
 
 - Los recargos se listan en horas por tipo. En la 2a quincena de septiembre de 2026 fueron 33 horas de recargo nocturno y 17 de recargo diurno dominical y festivo. Es solo un ejemplo: cada quincena varía y a veces es cero.
 - Esas horas se trabajaron del 1 al 15 de septiembre. Los recargos se cobran en la colilla de la quincena siguiente (desfase 1).
 - Jornada nocturna desde las 19:00 (confirmado).
 - Jornada semanal: 42 horas.
 - Quincenas: 1 al 15 y 16 al fin de mes.
+- La clínica descuenta tiempo de alimentación y descanso de cada turno:
+  - Turno diurno de 8 h: 1 h de almuerzo.
+  - Turno diurno de 12 h: 1 h de almuerzo, 30 min de desayuno y 30 min de la tarde (2 h en total).
+  - Turno nocturno de 12 h: 2 h de descanso.
+  - Turnos de quirófano de alquiler: sin descuento.
+- Las horas asignadas ya son netas. Un turno de "8 horas" va de 07:00 a 16:00: 9 h de reloj menos 1 h de almuerzo.
 
 ## 6. Conceptos
 
-Turno: bloque de trabajo con fecha, hora de inicio, hora de fin (puede cruzar medianoche), horas programadas y tipo: ordinario o quirófano de alquiler.
+Turno: bloque de trabajo con fecha, hora de inicio y de fin (de reloj, puede cruzar medianoche), descanso en minutos, horas programadas netas y tipo: ordinario o quirófano de alquiler.
 
-Segmentación: la app parte cada turno por hora y por día, y clasifica cada fracción como diurna, nocturna, dominical/festiva diurna o dominical/festiva nocturna.
+Minutos netos de un turno = (fin - inicio) - descanso. Todo el banco, la semana y el conteo por categoría usan minutos netos.
+
+Plantilla de turno: atajo con nombre, hora de inicio, hora de fin y descanso (por ejemplo "Día 8 h": 07:00 a 16:00, 60 min). Las horas programadas de un turno creado con plantilla son sus minutos netos. Las plantillas se editan en Ajustes. Cambiar una plantilla no modifica turnos ya guardados.
+
+Segmentación: la app parte cada turno por hora y por día, y clasifica cada fracción como diurna, nocturna, dominical/festiva diurna o dominical/festiva nocturna. El descanso se resta de la categoría que tenga más minutos en ese turno (suposición, ver sección 13).
 
 Movimiento de banco, de cuatro tipos:
 
@@ -52,13 +62,13 @@ Saldo de deuda: saldo inicial + préstamos - pagos +/- ajustes, en horas y minut
 
 ## 7. Reglas del banco
 
-Turno ordinario. Tiene horas programadas y horas reales. La diferencia genera un movimiento automático:
+Turno ordinario. La diferencia entre minutos netos y minutos programados genera un movimiento automático:
 
-- Reales menor que programadas: préstamo por la diferencia.
-- Reales mayor que programadas: pago por la diferencia, 1 a 1.
-- Ejemplo: programado de 8 h, hecho de 12 h, pago de 4 h.
+- Netos menor que programados: préstamo por la diferencia.
+- Netos mayor que programados: pago por la diferencia, 1 a 1.
+- Ejemplo: turno de 07:00 a 16:00 con 60 min de descanso (8 h programadas). Si sale a las 19:00 trabajó 11 h netas, y genera un pago de 3 h.
 
-Turno de quirófano de alquiler. Cada turno lleva un destino que Alejandro elige: "pagar deuda" o "completar semana de 42 h". Con "pagar deuda", todas sus horas generan un pago.
+Turno de quirófano de alquiler. Cada turno lleva un destino que Alejandro elige: "pagar deuda" o "completar semana de 42 h". Con "pagar deuda", todos sus minutos netos generan un pago.
 
 Las horas extra se compensan contra el banco. Hay un interruptor de configuración (extras descuentan deuda, activo por defecto) por si la clínica cambia la regla y empieza a pagarlas aparte.
 
@@ -66,9 +76,9 @@ Alejandro puede editar o borrar cualquier movimiento automático. Lo editado que
 
 ## 8. Requisitos funcionales
 
-RF1. Registrar un turno con fecha, inicio, fin, horas programadas, tipo y, si es de alquiler, destino.
+RF1. Registrar un turno con fecha, inicio, fin, descanso, horas programadas, tipo y, si es de alquiler, destino.
 
-RF2. Al guardar, mostrar el desglose de horas: diurnas, nocturnas, dominicales/festivas diurnas y dominicales/festivas nocturnas.
+RF2. Al guardar, mostrar el desglose de horas netas: diurnas, nocturnas, dominicales/festivas diurnas y dominicales/festivas nocturnas.
 
 RF3. Generar el movimiento de banco automático según la sección 7 y mostrarlo antes de confirmar.
 
@@ -80,7 +90,7 @@ RF6. Vista por quincena: horas por categoría y en qué colilla deberían aparec
 
 RF7. Historial de turnos y movimientos, editable y borrable. Cada registro guarda cuándo se creó y cuándo se modificó por última vez.
 
-RF8. Extracto de horas: una vista imprimible (guardable como PDF) con el saldo inicial, cada movimiento con fecha y nota, y el saldo después de cada uno. Sirve para mostrárselo a la coordinadora.
+RF8. Extracto de horas: una vista imprimible (guardable como PDF) con el saldo inicial, cada movimiento con fecha y nota, y el saldo después de cada uno.
 
 RF9. Configuración: horas semanales (42), inicio de jornada nocturna (19:00), desfase de pago de recargos (por defecto 1 quincena), interruptor de extras, festivos a agregar o quitar.
 
@@ -88,11 +98,16 @@ RF10. Festivos de Colombia calculados por código (ley Emiliani y Semana Santa),
 
 RF11. Exportar e importar los datos en JSON.
 
+RF12. Plantillas de turno: crear, editar y borrar en Ajustes. Al registrar un turno, elegir una plantilla rellena inicio, fin, descanso y horas programadas, y todo sigue editable. Vienen tres de ejemplo para ajustar: Día 8 h (07:00 a 16:00, 60 min), Día 12 h (07:00 a 19:00, 120 min) y Noche 12 h (19:00 a 07:00, 120 min). Los turnos de alquiler no llevan plantilla y su descanso es 0.
+
+RF13. Los datos ya guardados en el dispositivo se conservan al actualizar la app. Los turnos anteriores al cambio quedan con descanso 0.
+
 ## 9. Reglas de cálculo
 
 - Todo se mide en minutos enteros y se muestra en horas y minutos.
 - Cada minuto se clasifica por su fecha calendario y su hora. Domingo y festivo cuentan por la fecha en que cae el minuto. Confirmado: un turno de domingo a lunes cuenta como dominical nocturna hasta la medianoche y como nocturna ordinaria después.
-- Semana de lunes a domingo, configurable. Horas de la semana = programadas de turnos ordinarios + reales de turnos de alquiler con destino "completar semana". Las horas prestadas cuentan como cumplidas (confirmado).
+- El descanso se resta de los minutos de la categoría con más minutos en el turno, sin bajar de cero.
+- Semana de lunes a domingo, configurable. Horas de la semana = programadas netas de turnos ordinarios + netas de turnos de alquiler con destino "completar semana". Las horas prestadas cuentan como cumplidas (confirmado).
 - Cada fracción de hora cuenta en la quincena de la fecha en que se trabajó. Se cobra en la colilla de la quincena siguiente.
 
 ## 10. Requisitos no funcionales
@@ -104,13 +119,13 @@ RF11. Exportar e importar los datos en JSON.
 
 ## 11. Escalar a compañeros
 
-Cada compañero tendría su propio banco en su dispositivo, sin compartir nada. Lo único que cambia entre personas es el saldo inicial y las horas semanales. Compartirla requiere un sitio estático gratuito (ver plan.md).
+Cada compañero tendría su propio banco en su dispositivo, sin compartir nada. Lo único que cambia entre personas es el saldo inicial, las horas semanales y las plantillas de turno. Compartirla requiere un sitio estático gratuito (ver plan.md).
 
 ## 12. Criterios de aceptación
 
-CA1. Un turno de sábado 19:00 a domingo 03:00 se parte en 5 h nocturnas de sábado y 3 h dominicales nocturnas.
+CA1. Un turno de alquiler de sábado 19:00 a domingo 03:00 (descanso 0) se parte en 5 h nocturnas de sábado y 3 h dominicales nocturnas.
 
-CA2. Turno programado de 8 h con 12 h reales genera un pago de 4 h.
+CA2. Turno de 07:00 a 16:00 con 60 min de descanso (8 h programadas) y salida real a las 19:00 genera un pago de 3 h.
 
 CA3. Con saldo inicial de 40 h, préstamo de 6 h y pago de 4 h, el saldo muestra 42 h.
 
@@ -126,7 +141,19 @@ CA8 (verificación opcional). Si Alejandro quiere, carga los turnos de una quinc
 
 CA9. Una quincena sin turnos nocturnos ni dominicales muestra 0 h en esas categorías, sin errores.
 
+CA10. Un turno diurno de lunes de 07:00 a 16:00 con 60 min de descanso muestra 8 h netas, todas diurnas.
+
+CA11. Un turno de lunes 19:00 a martes 07:00 con 120 min de descanso muestra 10 h netas: 9 h nocturnas y 1 h diurna. Antes del descanso son 11 h nocturnas (5 h del lunes y 6 h del martes hasta las 06:00) y 1 h diurna (06:00 a 07:00). El descanso se resta de la categoría con más minutos, la nocturna.
+
+CA12. Elegir la plantilla "Día 8 h" rellena inicio 07:00, fin 16:00, descanso 60 y programadas 8 h, y los cuatro campos se pueden cambiar.
+
+CA13. Actualizar la app conserva el saldo inicial y los movimientos ya guardados.
+
 ## 13. Preguntas abiertas
 
 1. Confirmar con la coordinadora si la hora extra seguirá compensándose en banco.
 2. Una hora nocturna en domingo, ¿en qué línea de la colilla aparece? No bloquea: la app la cuenta aparte como dominical nocturna.
+3. Las 42 horas semanales, ¿se cuentan en horas netas (sin descansos)? Por ahora sí. Se verifica contra una semana real.
+4. El descanso se resta de la categoría con más minutos del turno. Si la clínica lo descuenta de otra forma, solo cambia el conteo por categoría, no el banco.
+5. Horarios de los turnos de 12 h. Los de las plantillas son un ejemplo (07:00 a 19:00 y 19:00 a 07:00) y se ajustan en Ajustes.
+6. Turnos de otras duraciones (6, 4, 10 h): sin descanso hasta que Alejandro cree una plantilla.
