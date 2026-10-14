@@ -33,6 +33,7 @@ export function FormularioTurno({ inicial, onContinuar, onCancelar }: Props) {
       }
       onContinuar({
         ...fechasDeTurno(fecha, horaInicio, horaFin),
+        descansoMin: inicial?.descansoMin, // la pantalla de descansos llega en T15: mientras tanto se conserva
         minutosProgramados,
         tipo,
         destino: tipo === "alquiler" ? (destino as EntradaTurno["destino"]) : undefined,

@@ -50,7 +50,7 @@ export default function App() {
             setEstado({ datos: repo.cargar() });
           }}
           alEmpezarDeCero={() => {
-            repo.guardar({ version: 1, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+            repo.guardar({ schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
             setEstado({ datos: repo.cargar() });
           }}
         />

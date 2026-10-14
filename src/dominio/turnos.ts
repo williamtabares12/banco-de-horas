@@ -4,6 +4,7 @@ import type { MovimientoBanco, Turno } from "./tipos";
 export type EntradaTurno = {
   inicio: string; // "2026-09-12T19:00"
   fin: string;
+  descansoMin?: number; // minutos de alimentación y descanso; 0 si no se indica
   minutosProgramados: number;
   tipo: Turno["tipo"];
   destino?: Turno["destino"];
@@ -27,25 +28,34 @@ export function fechasDeTurno(fecha: string, horaInicio: string, horaFin: string
   return { inicio: `${fecha}T${horaInicio}`, fin: `${finFecha}T${horaFin}` };
 }
 
+type TurnoNormalizado = Omit<Turno, "id" | "creadoEn" | "modificadoEn">;
+
 /** Valida y deja la entrada lista para guardar (sin id ni fechas de registro). */
-function normalizar(entrada: EntradaTurno): EntradaTurno {
+function normalizar(entrada: EntradaTurno): TurnoNormalizado {
   if (!FECHA_HORA.test(entrada.inicio) || !FECHA_HORA.test(entrada.fin)) {
     throw new Error("El inicio y el fin deben ser AAAA-MM-DDTHH:mm");
   }
-  if (duracionMinutos(entrada.inicio, entrada.fin) <= 0) throw new Error("El fin debe ser posterior al inicio");
+  const duracion = duracionMinutos(entrada.inicio, entrada.fin);
+  if (duracion <= 0) throw new Error("El fin debe ser posterior al inicio");
 
   const base = { inicio: entrada.inicio, fin: entrada.fin, tipo: entrada.tipo };
-  let resultado: EntradaTurno;
+  let resultado: TurnoNormalizado;
   if (entrada.tipo === "alquiler") {
     if (entrada.destino !== "deuda" && entrada.destino !== "semana") {
       throw new Error("Un turno de alquiler necesita destino: pagar deuda o completar semana");
     }
-    resultado = { ...base, minutosProgramados: 0, destino: entrada.destino };
+    // el quirófano de alquiler no tiene descuentos
+    resultado = { ...base, descansoMin: 0, minutosProgramados: 0, destino: entrada.destino };
   } else {
+    const descansoMin = entrada.descansoMin ?? 0;
+    if (!Number.isInteger(descansoMin) || descansoMin < 0) {
+      throw new Error("El descanso debe ser un número entero de minutos, 0 o más");
+    }
+    if (descansoMin > duracion) throw new Error("El descanso no puede ser mayor que el turno");
     if (!Number.isInteger(entrada.minutosProgramados) || entrada.minutosProgramados < 0) {
       throw new Error("Las horas programadas deben ser un número entero de minutos, 0 o más");
     }
-    resultado = { ...base, minutosProgramados: entrada.minutosProgramados };
+    resultado = { ...base, descansoMin, minutosProgramados: entrada.minutosProgramados };
   }
   const nota = entrada.nota?.trim();
   if (nota) resultado.nota = nota;

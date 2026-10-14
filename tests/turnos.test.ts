@@ -44,6 +44,7 @@ describe("nuevoTurno", () => {
     expect(nuevoTurno({ ...ordinario, nota: "  Cirugía cancelada " }, AHORA, "t1")).toEqual({
       id: "t1",
       ...ordinario,
+      descansoMin: 0,
       nota: "Cirugía cancelada",
       creadoEn: AHORA,
       modificadoEn: AHORA,

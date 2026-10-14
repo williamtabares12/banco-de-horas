@@ -18,13 +18,14 @@ const AHORA = "2026-09-20T10:00:00";
 
 function datosEjemplo(): Datos {
   return {
-    version: 1,
+    schemaVersion: 2,
     config: { ...CONFIG_POR_DEFECTO, festivosAgregados: ["2026-10-13"] },
     turnos: [
       {
         id: "t1",
         inicio: "2026-09-12T19:00",
         fin: "2026-09-13T03:00",
+        descansoMin: 60,
         minutosProgramados: 360,
         tipo: "ordinario",
         nota: "turno de prueba",
@@ -35,6 +36,7 @@ function datosEjemplo(): Datos {
         id: "t2",
         inicio: "2026-09-14T07:00",
         fin: "2026-09-14T15:00",
+        descansoMin: 0,
         minutosProgramados: 0,
         tipo: "alquiler",
         destino: "deuda",
@@ -70,7 +72,7 @@ function datosEjemplo(): Datos {
 describe("RepositorioLocal", () => {
   it("sin datos guardados devuelve datos vacíos con la configuración por defecto", () => {
     const repo = new RepositorioLocal(almacenFalso());
-    expect(repo.cargar()).toEqual({ version: 1, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+    expect(repo.cargar()).toEqual({ schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
   });
 
   it("guarda y lee los mismos datos", () => {
@@ -100,7 +102,7 @@ describe("exportar e importar JSON", () => {
 
   it("el JSON exportado es texto legible con la versión", () => {
     const parsed = JSON.parse(exportarJSON(datosEjemplo()));
-    expect(parsed.version).toBe(1);
+    expect(parsed.schemaVersion).toBe(2);
     expect(parsed.turnos).toHaveLength(2);
   });
 
@@ -124,7 +126,7 @@ describe("importar archivo inválido", () => {
   const casos: [string, string][] = [
     ["texto que no es JSON", "esto no es json"],
     ["JSON que no es un objeto", "[1, 2, 3]"],
-    ["versión desconocida", conCambio((d) => (d.version = 99))],
+    ["versión desconocida", conCambio((d) => (d.schemaVersion = 99))],
     ["falta la lista de turnos", conCambio((d) => delete d.turnos)],
     ["falta la configuración", conCambio((d) => delete d.config)],
     ["turno sin inicio", conCambio((d) => delete d.turnos[0].inicio)],
@@ -165,7 +167,7 @@ describe("importar archivo inválido", () => {
 
   it("un archivo válido reemplaza los datos actuales", () => {
     const repo = new RepositorioLocal(almacenFalso());
-    repo.guardar({ version: 1, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+    repo.guardar({ schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
     importar(repo, exportarJSON(datosEjemplo()));
     expect(repo.cargar()).toEqual(datosEjemplo());
   });

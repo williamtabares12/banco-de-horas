@@ -1,8 +1,12 @@
 import { CONFIG_POR_DEFECTO } from "../dominio/config";
+import { VERSION_ESQUEMA } from "./migracion";
 import type { Datos, Repositorio } from "./repositorio";
-import { importarJSON } from "./respaldo";
+import { leerDatos } from "./respaldo";
 
 const CLAVE = "banco-horas:datos";
+
+/** Copia intacta de los datos del formato 1, que se guarda una vez al migrarlos. */
+export const CLAVE_COPIA_FORMATO_1 = "banco-horas:datos:formato-1";
 
 type Almacen = Pick<Storage, "getItem" | "setItem">;
 
@@ -16,10 +20,19 @@ export class RepositorioLocal implements Repositorio {
   cargar(): Datos {
     const texto = this.almacen.getItem(CLAVE);
     if (texto === null) {
-      return { version: 1, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] };
+      return { schemaVersion: VERSION_ESQUEMA, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] };
     }
     // Se valida igual que una importación: si está dañado, no se inventan datos vacíos.
-    return importarJSON(texto);
+    // Leer NO reescribe lo guardado: el original sigue igual hasta el primer guardar().
+    const { datos, migrado } = leerDatos(texto);
+    if (migrado && this.almacen.getItem(CLAVE_COPIA_FORMATO_1) === null) {
+      try {
+        this.almacen.setItem(CLAVE_COPIA_FORMATO_1, texto);
+      } catch {
+        // sin espacio para la copia: igual se puede seguir, el original no se ha tocado
+      }
+    }
+    return datos;
   }
 
   guardar(datos: Datos): void {

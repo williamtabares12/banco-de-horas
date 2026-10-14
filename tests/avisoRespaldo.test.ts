@@ -6,7 +6,7 @@ import { CONFIG_POR_DEFECTO } from "../src/dominio/config";
 const HOY = "2026-10-13";
 
 function datos(parcial: Partial<Datos> = {}): Datos {
-  return { version: 1, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [], ...parcial };
+  return { schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [], ...parcial };
 }
 
 /** Datos con un movimiento creado en `creadoEn`. */
@@ -34,7 +34,7 @@ describe("necesitaRespaldo", () => {
 
   it("usa el dato más antiguo, sea turno o movimiento", () => {
     const turno = {
-      id: "t1", inicio: "2026-09-01T07:00", fin: "2026-09-01T15:00", minutosProgramados: 480,
+      id: "t1", inicio: "2026-09-01T07:00", fin: "2026-09-01T15:00", descansoMin: 0, minutosProgramados: 480,
       tipo: "ordinario" as const, creadoEn: "2026-09-01T16:00:00", modificadoEn: "2026-09-01T16:00:00",
     };
     expect(necesitaRespaldo(datos({ turnos: [turno] }), HOY)).toBe(true);

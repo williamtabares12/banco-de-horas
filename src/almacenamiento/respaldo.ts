@@ -1,5 +1,6 @@
-import type { Config, MovimientoBanco, Turno } from "../dominio/tipos";
+import type { Config, MovimientoBanco, PlantillaTurno, Turno } from "../dominio/tipos";
 import { diasEntre, duracionMinutos } from "../dominio/tiempo";
+import { migrar, VERSION_ESQUEMA } from "./migracion";
 import type { Datos, Repositorio } from "./repositorio";
 
 export class ErrorImportacion extends Error {
@@ -13,25 +14,40 @@ export function exportarJSON(datos: Datos): string {
   return JSON.stringify(datos, null, 2);
 }
 
-/** Valida el texto y devuelve los datos, o lanza ErrorImportacion. No guarda nada. */
-export function importarJSON(contenido: string): Datos {
+/**
+ * Valida el texto (migrándolo antes si viene de un formato anterior) y devuelve
+ * los datos, diciendo si hubo migración. No guarda nada: lanza ErrorImportacion
+ * si algo está mal.
+ */
+export function leerDatos(contenido: string): { datos: Datos; migrado: boolean } {
   let crudo: unknown;
   try {
     crudo = JSON.parse(contenido);
   } catch {
     throw new ErrorImportacion("El archivo no es un JSON válido");
   }
-  const raiz = objeto(crudo, "El archivo");
-  if (raiz.version !== 1) throw new ErrorImportacion("Versión del archivo desconocida");
+  const { datos: actual, migrado } = migrar(crudo);
+  const raiz = objeto(actual, "El archivo");
+  if (raiz.schemaVersion !== VERSION_ESQUEMA) {
+    const masNueva = typeof raiz.schemaVersion === "number" && raiz.schemaVersion > VERSION_ESQUEMA;
+    throw new ErrorImportacion(
+      masNueva ? "El archivo es de una versión más nueva de la app: actualízala para poder leerlo" : "Versión del archivo desconocida",
+    );
+  }
 
   const turnos = lista(raiz.turnos, "turnos").map((t, i) => leerTurno(t, i));
   const movimientos = lista(raiz.movimientos, "movimientos").map((m, i) => leerMovimiento(m, i));
   sinRepetidos(turnos.map((t) => t.id), "turnos");
   sinRepetidos(movimientos.map((m) => m.id), "movimientos");
 
-  const datos: Datos = { version: 1, config: validarConfig(raiz.config), turnos, movimientos };
+  const datos: Datos = { schemaVersion: VERSION_ESQUEMA, config: validarConfig(raiz.config), turnos, movimientos };
   if (raiz.ultimoRespaldo !== undefined) datos.ultimoRespaldo = texto(raiz, "ultimoRespaldo", "El archivo", FECHA);
-  return datos;
+  return { datos, migrado };
+}
+
+/** Valida el texto y devuelve los datos, o lanza ErrorImportacion. No guarda nada. */
+export function importarJSON(contenido: string): Datos {
+  return leerDatos(contenido).datos;
 }
 
 const DIAS_SIN_RESPALDO = 14;
@@ -116,6 +132,11 @@ function leerTurno(v: unknown, i: number): Turno {
   const inicio = texto(o, "inicio", donde, FECHA_HORA);
   const fin = texto(o, "fin", donde, FECHA_HORA);
   if (duracionMinutos(inicio, fin) <= 0) throw new ErrorImportacion(`${donde}: el fin debe ser posterior al inicio`);
+  const descansoMin = entero(o, "descansoMin", donde);
+  if (descansoMin < 0) throw new ErrorImportacion(`${donde}: "descansoMin" no puede ser negativo`);
+  if (descansoMin > duracionMinutos(inicio, fin)) {
+    throw new ErrorImportacion(`${donde}: el descanso no puede ser mayor que el turno`);
+  }
   const minutosProgramados = entero(o, "minutosProgramados", donde);
   if (minutosProgramados < 0) throw new ErrorImportacion(`${donde}: "minutosProgramados" no puede ser negativo`);
   const tipo = uno(o, "tipo", ["ordinario", "alquiler"], donde);
@@ -124,6 +145,7 @@ function leerTurno(v: unknown, i: number): Turno {
     id: texto(o, "id", donde),
     inicio,
     fin,
+    descansoMin,
     minutosProgramados,
     tipo,
     creadoEn: texto(o, "creadoEn", donde),
@@ -177,5 +199,26 @@ export function validarConfig(v: unknown): Config {
     extrasDescuentanDeuda: booleano(o, "extrasDescuentanDeuda", donde),
     festivosAgregados: fechas("festivosAgregados"),
     festivosQuitados: fechas("festivosQuitados"),
+    plantillas: leerPlantillas(o.plantillas),
   };
+}
+
+function leerPlantillas(v: unknown): PlantillaTurno[] {
+  const plantillas = lista(v, "plantillas").map((p, i): PlantillaTurno => {
+    const donde = `Plantilla ${i + 1}`;
+    const o = objeto(p, donde);
+    const nombre = texto(o, "nombre", donde);
+    if (nombre.trim() === "") throw new ErrorImportacion(`${donde}: falta el nombre`);
+    const descansoMin = entero(o, "descansoMin", donde);
+    if (descansoMin < 0) throw new ErrorImportacion(`${donde}: "descansoMin" no puede ser negativo`);
+    return {
+      id: texto(o, "id", donde),
+      nombre,
+      inicio: texto(o, "inicio", donde, HORA),
+      fin: texto(o, "fin", donde, HORA),
+      descansoMin,
+    };
+  });
+  sinRepetidos(plantillas.map((p) => p.id), "plantillas");
+  return plantillas;
 }

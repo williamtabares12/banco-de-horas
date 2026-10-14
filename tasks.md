@@ -34,7 +34,7 @@ Se hacen en orden. Cada una termina cuando sus pruebas pasan y está commiteada.
 
 Se hacen después de lo que ya esté construido, en este orden. La app ya tiene datos reales guardados en el celular de Alejandro, así que primero se protege eso.
 
-- [ ] T13. Modelo y migración. Agregar `descansoMin` al turno, `plantillas` a la configuración y `schemaVersion` al almacenamiento. Migrar los datos viejos: turnos con descanso 0 y plantillas de ejemplo (Día 8 h, Día 12 h, Noche 12 h). Pruebas: CA13 con un JSON del formato anterior, importar un respaldo viejo.
+- [x] T13. Modelo y migración. Agregar `descansoMin` al turno, `plantillas` a la configuración y `schemaVersion` al almacenamiento. Migrar los datos viejos: turnos con descanso 0 y plantillas de ejemplo (Día 8 h, Día 12 h, Noche 12 h). Pruebas: CA13 con un JSON del formato anterior, importar un respaldo viejo.
 - [ ] T14. Dominio con descanso. Minutos netos en `segmentar.ts`, `banco.ts` y `semana.ts`. Pruebas: CA2, CA10, CA11, CA5 con minutos netos, descanso mayor que la categoría mayoritaria no baja de cero.
 - [ ] T15. Plantillas en pantalla: crear, editar y borrar en Ajustes. En el formulario de turno, elegir plantilla rellena inicio, fin, descanso y programadas, todo editable. El desglose y el movimiento de banco usan minutos netos. Prueba: CA12.
 - [ ] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas.

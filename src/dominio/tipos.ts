@@ -2,7 +2,8 @@ export type Turno = {
   id: string;
   inicio: string; // "2026-09-12T19:00"
   fin: string; // "2026-09-13T03:00" (siempre posterior a inicio)
-  minutosProgramados: number;
+  descansoMin: number; // minutos descontados (almuerzo, desayuno, tarde); 0 en turnos viejos y de alquiler
+  minutosProgramados: number; // netos, ya sin descanso
   tipo: "ordinario" | "alquiler";
   destino?: "deuda" | "semana"; // solo si tipo = alquiler
   nota?: string;
@@ -22,6 +23,15 @@ export type MovimientoBanco = {
   modificadoEn: string;
 };
 
+/** Atajo para registrar turnos: nombre, horario y descanso. */
+export type PlantillaTurno = {
+  id: string;
+  nombre: string; // "Día 8 h"
+  inicio: string; // "07:00"
+  fin: string; // "16:00" (si es menor que inicio, cruza medianoche)
+  descansoMin: number; // 60
+};
+
 export type Config = {
   minutosSemana: number; // 42 * 60
   nocturnoDesde: string; // "19:00"
@@ -30,4 +40,5 @@ export type Config = {
   extrasDescuentanDeuda: boolean;
   festivosAgregados: string[];
   festivosQuitados: string[];
+  plantillas: PlantillaTurno[];
 };
