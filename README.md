@@ -7,11 +7,11 @@ App web personal para llevar el banco de horas con una clínica: cuántas horas 
 ## Qué hace
 
 - **Inicio:** saldo de deuda, total prestado, total pagado y avance de la semana (horas / 42).
-- **Turnos:** registra un turno (ordinario o quirófano de alquiler). Antes de guardar muestra el desglose de horas y el movimiento de banco que se genera.
+- **Turnos:** registra un turno (ordinario o quirófano de alquiler), con su descanso de alimentación. Puedes elegir una plantilla (Día 8 h, Día 12 h, Noche 12 h) que rellena el horario, el descanso y las horas programadas; todo se puede cambiar. Antes de guardar muestra el desglose de horas netas y el movimiento de banco que se genera.
 - **Banco:** saldo inicial, préstamos, pagos y ajustes manuales, con nota. Todo se puede editar o borrar.
 - **Quincena:** horas diurnas, nocturnas, dominicales o festivas diurnas y dominicales o festivas nocturnas de cada quincena, y en qué colilla deberían aparecer.
 - **Extracto:** hoja imprimible (o PDF) con cada movimiento y el saldo después de cada uno.
-- **Ajustes:** horas semanales, inicio de la jornada nocturna, desfase de recargos, interruptor de horas extra, festivos y respaldo de datos.
+- **Ajustes:** horas semanales, inicio de la jornada nocturna, desfase de recargos, interruptor de horas extra, plantillas de turno (crear, editar y borrar; los horarios de ejemplo se ajustan aquí), festivos y respaldo de datos.
 
 Las reglas completas están en [spec-banco-de-horas.md](spec-banco-de-horas.md).
 

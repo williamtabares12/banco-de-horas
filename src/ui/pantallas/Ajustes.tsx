@@ -2,9 +2,10 @@ import { useState, type FormEvent } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
 import { ErrorImportacion, exportarJSON, validarConfig } from "../../almacenamiento/respaldo";
 import { agregarFestivo, festivosEfectivos, quitarFestivo, festivosDelAnio } from "../../dominio/festivos";
-import { diaSemana, parsearDuracion } from "../../dominio/tiempo";
-import type { Config } from "../../dominio/tipos";
-import { aTextoHoras, hoy } from "../utilidades";
+import { borrarPlantilla, duracionPlantilla, editarPlantilla, nuevaPlantilla } from "../../dominio/plantillas";
+import { diaSemana, formatearDuracion, parsearDuracion } from "../../dominio/tiempo";
+import type { Config, PlantillaTurno } from "../../dominio/tipos";
+import { aTextoHoras, hoy, nuevoId } from "../utilidades";
 
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
 
@@ -23,10 +24,19 @@ export function Ajustes({ datos, cambiar, importarTexto }: Props) {
         onGuardar={(nueva) =>
           cambiar((d) => ({
             ...d,
-            // los festivos se editan en su propia sección: no se pisan aquí
-            config: { ...nueva, festivosAgregados: d.config.festivosAgregados, festivosQuitados: d.config.festivosQuitados },
+            // los festivos y las plantillas se editan en su propia sección: no se pisan aquí
+            config: {
+              ...nueva,
+              festivosAgregados: d.config.festivosAgregados,
+              festivosQuitados: d.config.festivosQuitados,
+              plantillas: d.config.plantillas,
+            },
           }))
         }
+      />
+      <Plantillas
+        plantillas={datos.config.plantillas}
+        onCambiar={(plantillas) => cambiar((d) => ({ ...d, config: { ...d.config, plantillas } }))}
       />
       <Festivos config={datos.config} onCambiar={(c) => cambiar((d) => ({ ...d, config: { ...d.config, ...c } }))} />
       <Respaldo
@@ -98,6 +108,133 @@ function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c
         </p>
       )}
       <button type="submit" className="primario">Guardar configuración</button>
+    </form>
+  );
+}
+
+type EdicionPlantilla = { plantilla?: PlantillaTurno } | null;
+
+function Plantillas({
+  plantillas,
+  onCambiar,
+}: {
+  plantillas: PlantillaTurno[];
+  onCambiar: (p: PlantillaTurno[]) => void;
+}) {
+  const [edicion, setEdicion] = useState<EdicionPlantilla>(null);
+
+  function borrar(p: PlantillaTurno) {
+    if (window.confirm(`¿Borrar la plantilla "${p.nombre}"? Los turnos ya guardados no cambian.`)) {
+      onCambiar(borrarPlantilla(plantillas, p.id));
+    }
+  }
+
+  return (
+    <div className="formulario">
+      <h2>Plantillas de turno</h2>
+      <p className="nota">
+        Atajos para registrar turnos más rápido: llenan el horario, el descanso y las horas programadas. Cambiar una
+        plantilla no modifica los turnos ya guardados.
+      </p>
+      {plantillas.length === 0 ? (
+        <p className="vacio">No hay plantillas.</p>
+      ) : (
+        <ul className="lista">
+          {plantillas.map((p) => (
+            <li key={p.id} className="tarjeta">
+              <div className="fila">
+                <strong>{p.nombre}</strong>
+                <span>{formatearDuracion(duracionPlantilla(p) - p.descansoMin)} netas</span>
+              </div>
+              <p className="nota">
+                {p.inicio} a {p.fin} · descanso {formatearDuracion(p.descansoMin)}
+              </p>
+              <div className="botones pequeno">
+                <button type="button" onClick={() => setEdicion({ plantilla: p })}>Editar</button>
+                <button type="button" onClick={() => borrar(p)}>Borrar</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      {edicion ? (
+        <FormularioPlantilla
+          key={edicion.plantilla?.id ?? "nueva"}
+          inicial={edicion.plantilla}
+          onGuardar={(entrada) => {
+            const lista = edicion.plantilla
+              ? plantillas.map((p) => (p.id === edicion.plantilla!.id ? editarPlantilla(p, entrada) : p))
+              : [...plantillas, nuevaPlantilla(entrada, nuevoId())];
+            onCambiar(lista);
+            setEdicion(null);
+          }}
+          onCancelar={() => setEdicion(null)}
+        />
+      ) : (
+        <button type="button" onClick={() => setEdicion({})}>Nueva plantilla</button>
+      )}
+    </div>
+  );
+}
+
+function FormularioPlantilla({
+  inicial,
+  onGuardar,
+  onCancelar,
+}: {
+  inicial?: PlantillaTurno;
+  /** Puede lanzar un Error con el motivo; el formulario lo muestra. */
+  onGuardar: (entrada: { nombre: string; inicio: string; fin: string; descansoMin: number }) => void;
+  onCancelar: () => void;
+}) {
+  const [nombre, setNombre] = useState(inicial?.nombre ?? "");
+  const [inicio, setInicio] = useState(inicial?.inicio ?? "");
+  const [fin, setFin] = useState(inicial?.fin ?? "");
+  const [descanso, setDescanso] = useState(String(inicial?.descansoMin ?? 0));
+  const [error, setError] = useState("");
+
+  function enviar(e: FormEvent) {
+    e.preventDefault();
+    try {
+      onGuardar({ nombre, inicio, fin, descansoMin: Number(descanso.trim() === "" ? "0" : descanso) });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Revisa los datos de la plantilla");
+    }
+  }
+
+  return (
+    <form className="tarjeta formulario" onSubmit={enviar}>
+      <h3>{inicial ? "Editar plantilla" : "Nueva plantilla"}</h3>
+      <label>
+        Nombre
+        <input type="text" placeholder="ej. Día 8 h" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+      </label>
+      <div className="dos-columnas">
+        <label>
+          Hora de inicio
+          <input type="time" value={inicio} onChange={(e) => setInicio(e.target.value)} required />
+        </label>
+        <label>
+          Hora de fin
+          <input type="time" value={fin} onChange={(e) => setFin(e.target.value)} required />
+        </label>
+      </div>
+      <label>
+        Descanso (minutos)
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          step={5}
+          value={descanso}
+          onChange={(e) => setDescanso(e.target.value)}
+        />
+      </label>
+      {error && <p className="error" role="alert">{error}</p>}
+      <div className="botones">
+        <button type="submit" className="primario">Guardar plantilla</button>
+        <button type="button" onClick={onCancelar}>Cancelar</button>
+      </div>
     </form>
   );
 }

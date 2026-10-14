@@ -4,7 +4,7 @@ import { aplicarTurno, movimientoDeTurno } from "../../dominio/banco";
 import { segmentar } from "../../dominio/segmentar";
 import { duracionMinutos, formatearDuracion } from "../../dominio/tiempo";
 import type { Turno } from "../../dominio/tipos";
-import { borrarTurno, editarTurno, nuevoTurno, type EntradaTurno } from "../../dominio/turnos";
+import { borrarTurno, editarTurno, minutosNetos, nuevoTurno, type EntradaTurno } from "../../dominio/turnos";
 import { FormularioTurno } from "../componentes/FormularioTurno";
 import { ahora, nuevoId } from "../utilidades";
 
@@ -51,6 +51,7 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
       <section>
         <FormularioTurno
           inicial={vista.entrada ?? vista.editando}
+          plantillas={datos.config.plantillas}
           onContinuar={(entrada) => {
             // nuevoTurno valida; si algo está mal lanza y el formulario muestra el motivo
             nuevoTurno(entrada, "", "");
@@ -94,8 +95,13 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
                     {t.tipo === "ordinario" ? "ordinario" : `alquiler · ${t.destino === "deuda" ? "paga deuda" : "completa semana"}`}
                   </span>
                 </span>
-                <strong>{formatearDuracion(duracionMinutos(t.inicio, t.fin))}</strong>
+                <strong>{formatearDuracion(minutosNetos(t))}</strong>
               </div>
+              {t.descansoMin > 0 && (
+                <p className="nota">
+                  De reloj: {formatearDuracion(duracionMinutos(t.inicio, t.fin))} · descanso: {formatearDuracion(t.descansoMin)}
+                </p>
+              )}
               {t.tipo === "ordinario" && (
                 <p className="nota">Programadas: {formatearDuracion(t.minutosProgramados)}</p>
               )}
@@ -121,8 +127,9 @@ function Revision(props: {
 }) {
   const { datos, editando, entrada } = props;
   const turno = editando ? editarTurno(editando, entrada, "") : nuevoTurno(entrada, "", "previo");
-  const { total } = segmentar(turno.inicio, turno.fin, datos.config);
-  const reales = duracionMinutos(turno.inicio, turno.fin);
+  const { total } = segmentar(turno.inicio, turno.fin, datos.config, turno.descansoMin);
+  const reloj = duracionMinutos(turno.inicio, turno.fin);
+  const netos = minutosNetos(turno);
   const movimiento = movimientoDeTurno(turno, datos.config);
   const editadoAMano = editando
     ? datos.movimientos.some((m) => m.turnoId === editando.id && !m.automatico)
@@ -136,7 +143,7 @@ function Revision(props: {
       movimiento.tipo === "prestamo"
         ? `Préstamo de ${formatearDuracion(movimiento.minutos)}: la deuda sube.`
         : `Pago de ${formatearDuracion(-movimiento.minutos)}: la deuda baja.`;
-  } else if (turno.tipo === "ordinario" && reales > turno.minutosProgramados) {
+  } else if (turno.tipo === "ordinario" && netos > turno.minutosProgramados) {
     textoMovimiento = "Sin movimiento: las horas extra no descuentan deuda (así está en Ajustes).";
   } else {
     textoMovimiento = "Sin movimiento de banco.";
@@ -150,8 +157,13 @@ function Revision(props: {
           <span>
             {turno.inicio.slice(0, 10)} · {hora(turno.inicio)} a {hora(turno.fin)}
           </span>
-          <strong>{formatearDuracion(reales)}</strong>
+          <strong>{formatearDuracion(netos)} netas</strong>
         </p>
+        {turno.descansoMin > 0 && (
+          <p className="nota">
+            De reloj: {formatearDuracion(reloj)} · descanso: {formatearDuracion(turno.descansoMin)}
+          </p>
+        )}
         {turno.tipo === "ordinario" && (
           <p className="nota">Programadas: {formatearDuracion(turno.minutosProgramados)}</p>
         )}
