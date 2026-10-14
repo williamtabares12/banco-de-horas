@@ -72,7 +72,7 @@ La app usa rutas relativas, así que funciona tanto en la raíz de un dominio co
 
 Dos opciones gratuitas:
 
-- **GitHub Pages:** subes el proyecto a un repositorio de GitHub y publicas el contenido de `dist/` (lo más cómodo es con una GitHub Action que corra `npm ci`, `npm test` y `npm run build`, y despliegue `dist/`).
+- **GitHub Pages:** el proyecto ya trae el flujo `.github/workflows/publicar.yml`, que en cada subida a la rama principal corre las pruebas, compila y publica `dist/`. Solo hay que subir el código a un repositorio público de GitHub y, en el repositorio, ir a Settings > Pages y elegir "GitHub Actions" como fuente. La app queda en `https://TU-USUARIO.github.io/NOMBRE-DEL-REPO/`.
 - **Cloudflare Pages:** conectas el repositorio, y como comando de build pones `npm run build` y como carpeta de salida `dist`.
 
 Los pasos exactos de cada servicio cambian con el tiempo; sigue la guía oficial de la opción que elijas. Una vez publicada: abre la dirección en el celular y usa "Instalar" o "Agregar a la pantalla de inicio".
