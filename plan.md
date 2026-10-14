@@ -128,7 +128,7 @@ Semana (`semana.ts`). De lunes a domingo. Minutos de la semana = suma de minutos
 - Turnos: lista y formulario (plantilla opcional, fecha, inicio, fin, descanso, programadas, tipo, destino). Al guardar muestra el desglose de horas y el movimiento de banco antes de confirmar.
 - Banco: movimientos, botones de saldo inicial, préstamo, pago y ajuste.
 - Quincena: selector, horas por categoría y en qué colilla se cobran.
-- Extracto: vista imprimible con saldo corriente, botón "Imprimir / guardar PDF".
+- Extracto: vista imprimible con saldo corriente. Botón "Guardar / compartir PDF": genera el PDF dentro de la app (`ui/pdf.ts`, sin librerías) y lo entrega con la hoja de compartir del sistema en el celular, o lo descarga en el computador. `window.print()` no funciona en el iPhone con la app instalada, así que el botón "Imprimir" solo aparece en dispositivos sin pantalla táctil.
 - Ajustes: configuración, plantillas de turno, festivos, exportar/importar JSON.
 
 ## 6. Pruebas

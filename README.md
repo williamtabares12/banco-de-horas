@@ -10,7 +10,7 @@ App web personal para llevar el banco de horas con una clínica: cuántas horas 
 - **Turnos:** registra un turno (ordinario o quirófano de alquiler), con su descanso de alimentación. Puedes elegir una plantilla (Día 8 h, Día 12 h, Noche 12 h) que rellena el horario, el descanso y las horas programadas; todo se puede cambiar. Antes de guardar muestra el desglose de horas netas y el movimiento de banco que se genera.
 - **Banco:** saldo inicial, préstamos, pagos y ajustes manuales, con nota. Todo se puede editar o borrar.
 - **Quincena:** horas diurnas, nocturnas, dominicales o festivas diurnas y dominicales o festivas nocturnas de cada quincena, y en qué colilla deberían aparecer.
-- **Extracto:** hoja imprimible (o PDF) con cada movimiento y el saldo después de cada uno.
+- **Extracto:** cada movimiento con su fecha, nota y el saldo después de cada uno. Se guarda o comparte como PDF (en el celular abre la hoja de compartir: Archivos, WhatsApp, correo) o se imprime desde el computador.
 - **Ajustes:** horas semanales, inicio de la jornada nocturna, desfase de recargos, interruptor de horas extra, plantillas de turno (crear, editar y borrar; los horarios de ejemplo se ajustan aquí), festivos y respaldo de datos.
 
 Las reglas completas están en [spec-banco-de-horas.md](spec-banco-de-horas.md).
@@ -60,7 +60,7 @@ El riesgo es que **si borras los datos del navegador, se pierden**. Por eso:
 - **Exportar:** en Ajustes, "Exportar JSON" descarga un archivo con todos tus datos. Guárdalo en un lugar seguro (tu correo, la nube).
 - **Importar:** en Ajustes, "Importar un respaldo" reemplaza los datos actuales con los del archivo. Si el archivo está dañado o no es válido, no cambia nada.
 - **Aviso:** Inicio te avisa si pasaron más de 14 días sin descargar un respaldo.
-- **Extracto en PDF:** sirve de segundo respaldo y para mostrárselo a la coordinadora. En Extracto, "Imprimir / guardar PDF".
+- **Extracto en PDF:** sirve de segundo respaldo y para mostrárselo a la coordinadora. En Extracto, "Guardar / compartir PDF".
 
 Para pasar tus datos de un dispositivo a otro: exporta en uno e importa en el otro.
 

@@ -38,3 +38,7 @@ Se hacen después de lo que ya esté construido, en este orden. La app ya tiene 
 - [x] T14. Dominio con descanso. Minutos netos en `segmentar.ts`, `banco.ts` y `semana.ts`. Pruebas: CA2, CA10, CA11, CA5 con minutos netos, descanso mayor que la categoría mayoritaria no baja de cero.
 - [x] T15. Plantillas en pantalla: crear, editar y borrar en Ajustes. En el formulario de turno, elegir plantilla rellena inicio, fin, descanso y programadas, todo editable. El desglose y el movimiento de banco usan minutos netos. Prueba: CA12.
 - [x] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas.
+
+## Fase 6: ajustes tras probar en el celular
+
+- [x] T17. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Pruebas: estructura válida del archivo, tildes y símbolos, reparto en páginas, el saldo del PDF es el de la pantalla principal (CA7). Verificado leyendo y dibujando los PDF con pdf.js.

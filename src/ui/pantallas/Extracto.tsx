@@ -1,39 +1,48 @@
+import { useState } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
-import { extracto, saldo } from "../../dominio/banco";
+import { saldo } from "../../dominio/banco";
 import { formatearDuracion } from "../../dominio/tiempo";
-import type { MovimientoBanco, Turno } from "../../dominio/tipos";
-import { ETIQUETAS_MOVIMIENTO, hoy } from "../utilidades";
+import { filasExtracto } from "../extractoFilas";
+import { construirExtractoPdf } from "../extractoPdf";
+import { guardarPdf, puedeImprimir } from "../guardarArchivo";
+import { hoy } from "../utilidades";
 
 type Props = {
   datos: Datos;
 };
 
-const conSigno = (minutos: number) => (minutos > 0 ? "+" : "") + formatearDuracion(minutos);
-
-/** Texto de apoyo de un movimiento: el turno que lo originó, si todavía existe, y la nota. */
-function detalle(m: MovimientoBanco, turnos: Turno[]): string[] {
-  const lineas: string[] = [];
-  const turno = m.turnoId ? turnos.find((t) => t.id === m.turnoId) : undefined;
-  if (turno) {
-    const tipo = turno.tipo === "alquiler" ? "quirófano de alquiler" : "turno";
-    lineas.push(`${tipo} del ${turno.inicio.slice(0, 10)}, ${turno.inicio.slice(11)} a ${turno.fin.slice(11)}`);
-  }
-  if (m.nota) lineas.push(m.nota);
-  return lineas;
-}
-
 export function Extracto({ datos }: Props) {
-  const filas = extracto(datos.movimientos);
+  const filas = filasExtracto(datos);
   const total = saldo(datos.movimientos);
+  const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
+
+  async function guardar() {
+    setMensaje(null);
+    try {
+      const fecha = hoy();
+      const resultado = await guardarPdf(construirExtractoPdf(datos, fecha), `extracto-horas-${fecha}.pdf`);
+      if (resultado === "descargado") setMensaje({ texto: "PDF descargado.", error: false });
+    } catch {
+      setMensaje({ texto: "No se pudo generar el PDF. Intenta de nuevo.", error: true });
+    }
+  }
 
   return (
     <section className="extracto">
       <div className="fila no-imprimir">
         <h2>Extracto de horas</h2>
-        <button className="primario" onClick={() => window.print()}>
-          Imprimir / guardar PDF
-        </button>
+        <div className="botones">
+          <button className="primario" onClick={guardar}>
+            Guardar / compartir PDF
+          </button>
+          {puedeImprimir() && <button onClick={() => window.print()}>Imprimir</button>}
+        </div>
       </div>
+      {mensaje && (
+        <p className={`${mensaje.error ? "error" : "ok"} no-imprimir`} role="status">
+          {mensaje.texto}
+        </p>
+      )}
       <h2 className="solo-imprimir">Extracto de horas</h2>
       <p className="nota">Generado el {hoy()}. Horas que se deben a la clínica, con el saldo después de cada movimiento.</p>
 
@@ -50,17 +59,17 @@ export function Extracto({ datos }: Props) {
             </tr>
           </thead>
           <tbody>
-            {filas.map(({ movimiento: m, saldoDespues }) => (
-              <tr key={m.id}>
-                <td>{m.fecha}</td>
+            {filas.map((fila) => (
+              <tr key={fila.id}>
+                <td>{fila.fecha}</td>
                 <td>
-                  <strong>{ETIQUETAS_MOVIMIENTO[m.tipo]}</strong>
-                  {detalle(m, datos.turnos).map((linea) => (
+                  <strong>{fila.tipo}</strong>
+                  {fila.detalle.map((linea) => (
                     <div key={linea} className="nota">{linea}</div>
                   ))}
                 </td>
-                <td className="num">{conSigno(m.minutos)}</td>
-                <td className="num">{formatearDuracion(saldoDespues)}</td>
+                <td className="num">{fila.horas}</td>
+                <td className="num">{fila.saldo}</td>
               </tr>
             ))}
           </tbody>
