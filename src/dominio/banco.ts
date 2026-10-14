@@ -1,4 +1,4 @@
-import { duracionMinutos } from "./tiempo";
+import { minutosNetos } from "./turnos";
 import type { Config, MovimientoBanco, Turno } from "./tipos";
 
 export type ConfigBanco = Pick<Config, "extrasDescuentanDeuda">;
@@ -17,7 +17,7 @@ export type FilaExtracto = { movimiento: MovimientoBanco; saldoDespues: number }
  */
 export function movimientoDeTurno(turno: Turno, config: ConfigBanco): MovimientoAutomatico | null {
   const fecha = turno.inicio.slice(0, 10);
-  const reales = duracionMinutos(turno.inicio, turno.fin);
+  const reales = minutosNetos(turno);
 
   if (turno.tipo === "alquiler") {
     if (turno.destino === "deuda") return { fecha, tipo: "pago", minutos: -reales };

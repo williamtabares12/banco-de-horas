@@ -1,10 +1,11 @@
-import { duracionMinutos, inicioSemana } from "./tiempo";
+import { inicioSemana } from "./tiempo";
+import { minutosNetos } from "./turnos";
 import type { Turno } from "./tipos";
 
 /** Minutos que un turno aporta a las 42 h de la semana. */
 function aporteSemana(turno: Turno): number {
   if (turno.tipo === "ordinario") return turno.minutosProgramados;
-  if (turno.destino === "semana") return duracionMinutos(turno.inicio, turno.fin);
+  if (turno.destino === "semana") return minutosNetos(turno);
   if (turno.destino === "deuda") return 0;
   throw new Error("Un turno de alquiler necesita destino");
 }

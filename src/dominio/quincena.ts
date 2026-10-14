@@ -15,7 +15,7 @@ const MESES = [
 export function horasDeQuincena(turnos: Turno[], q: Quincena, config: ConfigSegmentar): Categorias {
   const suma: Categorias = { diurno: 0, nocturno: 0, dominicalDiurno: 0, dominicalNocturno: 0 };
   for (const turno of turnos) {
-    for (const parte of segmentar(turno.inicio, turno.fin, config).porQuincena) {
+    for (const parte of segmentar(turno.inicio, turno.fin, config, turno.descansoMin).porQuincena) {
       if (parte.quincena.anio !== q.anio || parte.quincena.mes !== q.mes || parte.quincena.numero !== q.numero) continue;
       suma.diurno += parte.minutos.diurno;
       suma.nocturno += parte.minutos.nocturno;

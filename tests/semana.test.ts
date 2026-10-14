@@ -10,6 +10,7 @@ function turno(parcial: Partial<Turno> = {}): Turno {
     id: `t${Math.random()}`,
     inicio: "2026-09-14T07:00", // lunes
     fin: "2026-09-14T15:00", // 8 h reales
+    descansoMin: 0,
     minutosProgramados: 8 * H,
     tipo: "ordinario",
     creadoEn: AHORA,

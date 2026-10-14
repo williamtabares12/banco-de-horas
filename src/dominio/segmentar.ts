@@ -20,15 +20,52 @@ export type Segmentacion = {
 
 const vacio = (): Categorias => ({ diurno: 0, nocturno: 0, dominicalDiurno: 0, dominicalNocturno: 0 });
 
+/** Orden de desempate cuando dos categorías tienen los mismos minutos: gana la primera. */
+const ORDEN_DESEMPATE: (keyof Categorias)[] = ["nocturno", "dominicalNocturno", "dominicalDiurno", "diurno"];
+
+/**
+ * Resta el descanso de la categoría con más minutos del turno (suposición del
+ * spec, sección 13 punto 4: si la clínica lo descuenta de otra forma, solo cambia
+ * esta función). Sin bajar de cero: lo que no quepa en esa categoría no se toma
+ * de las demás.
+ *
+ * Si el turno cruza dos quincenas, se resta primero de la quincena que tenga más
+ * minutos de esa categoría y, si no alcanza, de las otras (siempre de la misma
+ * categoría). Modifica `total` y `porQuincena` (en orden cronológico).
+ */
+function restarDescanso(total: Categorias, porQuincena: Categorias[], descansoMin: number): void {
+  if (descansoMin === 0) return;
+  let mayor = ORDEN_DESEMPATE[0];
+  for (const categoria of ORDEN_DESEMPATE) {
+    if (total[categoria] > total[mayor]) mayor = categoria;
+  }
+  const orden = porQuincena
+    .map((_, i) => i)
+    .sort((a, b) => porQuincena[b][mayor] - porQuincena[a][mayor] || a - b);
+  let resto = descansoMin;
+  for (const i of orden) {
+    const quita = Math.min(resto, porQuincena[i][mayor]);
+    porQuincena[i][mayor] -= quita;
+    total[mayor] -= quita;
+    resto -= quita;
+    if (resto === 0) break;
+  }
+}
+
 /**
  * Parte un turno minuto a minuto. Cada minuto se clasifica por su fecha
- * calendario y su hora, y se asigna a la quincena de esa fecha.
+ * calendario y su hora, y se asigna a la quincena de esa fecha. Después se resta
+ * el descanso (en minutos) de la categoría mayoritaria, así que el resultado son
+ * minutos netos.
  */
-export function segmentar(inicio: string, fin: string, config: ConfigSegmentar): Segmentacion {
+export function segmentar(inicio: string, fin: string, config: ConfigSegmentar, descansoMin = 0): Segmentacion {
   const [fechaIni, horaIni] = inicio.split("T");
   const desde = horaAMinutos(horaIni);
   const duracion = duracionMinutos(inicio, fin);
   if (duracion <= 0) throw new Error("El fin del turno debe ser posterior al inicio");
+  if (!Number.isInteger(descansoMin) || descansoMin < 0) {
+    throw new Error("El descanso debe ser un número entero de minutos, 0 o más");
+  }
 
   const nocheDesde = horaAMinutos(config.nocturnoDesde);
   const nocheHasta = horaAMinutos(config.nocturnoHasta);
@@ -67,5 +104,7 @@ export function segmentar(inicio: string, fin: string, config: ConfigSegmentar):
     dia.minutos[categoria]++;
   }
 
-  return { total, porQuincena: [...porQuincena.values()] };
+  const grupos = [...porQuincena.values()];
+  restarDescanso(total, grupos.map((g) => g.minutos), descansoMin);
+  return { total, porQuincena: grupos };
 }

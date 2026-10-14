@@ -17,6 +17,7 @@ function turno(parcial: Partial<Turno> = {}): Turno {
     id: "t1",
     inicio: "2026-09-14T07:00",
     fin: "2026-09-14T15:00", // 8 h reales
+    descansoMin: 0,
     minutosProgramados: 8 * H,
     tipo: "ordinario",
     creadoEn: AHORA,

@@ -28,6 +28,11 @@ export function fechasDeTurno(fecha: string, horaInicio: string, horaFin: string
   return { inicio: `${fecha}T${horaInicio}`, fin: `${finFecha}T${horaFin}` };
 }
 
+/** Minutos netos de un turno: los de reloj menos el descanso. Es lo que usan el banco y la semana. */
+export function minutosNetos(turno: Pick<Turno, "inicio" | "fin" | "descansoMin">): number {
+  return duracionMinutos(turno.inicio, turno.fin) - turno.descansoMin;
+}
+
 type TurnoNormalizado = Omit<Turno, "id" | "creadoEn" | "modificadoEn">;
 
 /** Valida y deja la entrada lista para guardar (sin id ni fechas de registro). */
