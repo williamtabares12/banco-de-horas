@@ -19,14 +19,38 @@ h3 {
   margin: 12px 0 4px;
 }
 
+/* Seis pestañas no caben en un celular: la barra se desplaza de lado y cada botón conserva su tamaño. */
 nav {
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+nav::-webkit-scrollbar {
+  display: none;
 }
 
 nav button {
-  flex: 1;
+  flex: 1 0 auto; /* crece si sobra espacio, nunca se achica por debajo de su texto */
+  white-space: nowrap;
+}
+
+/* Degradado en el borde donde hay más pestañas por ver (lo marca App.tsx al desplazar) */
+nav[data-mas-derecha="true"] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+}
+
+nav[data-mas-izquierda="true"] {
+  -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent);
+}
+
+nav[data-mas-izquierda="true"][data-mas-derecha="true"] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
 }
 
 button {
@@ -256,12 +280,6 @@ section > p.tarjeta {
 .selector button {
   min-width: 48px;
   font-size: 1.4rem;
-}
-
-nav button {
-  min-width: 0;
-  padding: 0 4px;
-  font-size: 0.9rem;
 }
 
 .solo-imprimir {

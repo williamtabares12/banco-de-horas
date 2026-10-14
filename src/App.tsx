@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RepositorioLocal } from "./almacenamiento/local";
 import type { Datos } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
@@ -39,6 +39,22 @@ export default function App() {
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
   const [fallaGuardado, setFallaGuardado] = useState(false);
 
+  // En pantallas angostas la barra de pestañas se desplaza: la pestaña activa queda siempre a la vista
+  // y un degradado en el borde avisa de que hay más pestañas a ese lado.
+  const barra = useRef<HTMLElement>(null);
+  function marcarBordes() {
+    const n = barra.current;
+    if (!n) return;
+    n.dataset.masIzquierda = String(n.scrollLeft > 1);
+    n.dataset.masDerecha = String(n.scrollLeft + n.clientWidth < n.scrollWidth - 1);
+  }
+  useEffect(() => {
+    document.querySelector("nav .activa")?.scrollIntoView({ inline: "center", block: "nearest" });
+    marcarBordes();
+    window.addEventListener("resize", marcarBordes);
+    return () => window.removeEventListener("resize", marcarBordes);
+  }, [pestana]);
+
   if ("error" in estado) {
     return (
       <main>
@@ -74,7 +90,7 @@ export default function App() {
   return (
     <main>
       <h1>Banco de horas</h1>
-      <nav aria-label="Secciones">
+      <nav aria-label="Secciones" ref={barra} onScroll={marcarBordes}>
         {PESTANAS.map((p) => (
           <button key={p.id} className={p.id === pestana ? "activa" : ""} onClick={() => {
               setAbrirTurnoNuevo(false);
