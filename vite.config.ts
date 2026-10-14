@@ -12,6 +12,8 @@ export default defineConfig({
       // El service worker se actualiza solo cuando hay una versión nueva publicada.
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png'],
+      // la tipografía (woff2) también se guarda para que la app se vea igual sin internet
+      workbox: { globPatterns: ['**/*.{js,css,html,woff2}'] },
       manifest: {
         name: 'Banco de horas',
         short_name: 'Banco de horas',
@@ -20,8 +22,8 @@ export default defineConfig({
         start_url: './',
         scope: './',
         display: 'standalone',
-        background_color: '#f6f7f9',
-        theme_color: '#1b6ec2',
+        background_color: '#ffffff',
+        theme_color: '#163300',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

@@ -42,3 +42,4 @@ Se hacen después de lo que ya esté construido, en este orden. La app ya tiene 
 ## Fase 6: ajustes tras probar en el celular
 
 - [x] T17. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Pruebas: estructura válida del archivo, tildes y símbolos, reparto en páginas, el saldo del PDF es el de la pantalla principal (CA7). Verificado leyendo y dibujando los PDF con pdf.js.
+- [x] T18. Diseño estilo Wise: paleta verde bosque y lima, botones en píldora, saldo como tarjeta oscura con el número en lima, pestañas segmentadas, Inter empaquetada (con caché para uso sin internet), ícono nuevo y colores de la app instalada. Solo CSS y recursos: no cambia la lógica. Revisado en celular y escritorio, y contrastes medidos.

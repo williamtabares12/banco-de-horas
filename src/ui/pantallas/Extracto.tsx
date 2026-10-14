@@ -52,7 +52,6 @@ export function Extracto({ datos }: Props) {
         <table className="tabla-extracto">
           <thead>
             <tr>
-              <th>Fecha</th>
               <th>Movimiento</th>
               <th>Horas</th>
               <th>Saldo</th>
@@ -61,8 +60,8 @@ export function Extracto({ datos }: Props) {
           <tbody>
             {filas.map((fila) => (
               <tr key={fila.id}>
-                <td>{fila.fecha}</td>
                 <td>
+                  <div className="fecha-fila">{fila.fecha}</div>
                   <strong>{fila.tipo}</strong>
                   {fila.detalle.map((linea) => (
                     <div key={linea} className="nota">{linea}</div>
@@ -75,7 +74,7 @@ export function Extracto({ datos }: Props) {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={3}>Saldo actual</td>
+              <td colSpan={2}>Saldo actual</td>
               <td className="num">{formatearDuracion(total)}</td>
             </tr>
           </tfoot>

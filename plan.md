@@ -9,7 +9,7 @@ Deriva de spec-banco-de-horas.md (v0.5). Si algo de aquí contradice el spec, ma
 - Sin librería de fechas. Los turnos se manejan en minutos enteros y las fechas como texto local ("2026-09-12T19:00"). Colombia no tiene horario de verano, así que no hay saltos de hora que cuidar.
 - Datos en localStorage detrás de una interfaz `Repositorio`. Son pocos datos (cientos de turnos), y la interfaz permite cambiar a IndexedDB sin tocar el resto. El respaldo es exportar/importar JSON.
 - Sin router. Cinco pestañas con un estado simple.
-- Estilos con CSS plano, pensado primero para celular. Estilos de impresión para el extracto.
+- Estilos con CSS plano, pensado primero para celular. Estilos de impresión para el extracto. Diseño visual estilo Wise: verde bosque (#163300) con lima (#9fe870) solo en acciones primarias y estados activos, botones en píldora, tipografía Inter con el título y el saldo en peso 900. Los tokens están en `src/index.css`. Solo tema claro. Inter va empaquetada con la app (`@fontsource-variable/inter`, solo el subconjunto latino, ~48 KB) y el service worker la guarda para que se vea igual sin internet.
 - PWA con vite-plugin-pwa, en una tarea aparte y solo cuando todo lo demás funcione.
 - Sin servidor, sin cuentas, sin analítica.
 - Los datos guardados llevan un número de versión (`schemaVersion`). Cuando cambia el modelo se escribe una migración, para no perder lo que ya está en el celular.

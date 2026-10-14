@@ -51,6 +51,8 @@ export default function App() {
   useEffect(() => {
     document.querySelector("nav .activa")?.scrollIntoView({ inline: "center", block: "nearest" });
     marcarBordes();
+    // la tipografía puede terminar de cargar después y cambiar los anchos
+    void document.fonts?.ready.then(marcarBordes);
     window.addEventListener("resize", marcarBordes);
     return () => window.removeEventListener("resize", marcarBordes);
   }, [pestana]);

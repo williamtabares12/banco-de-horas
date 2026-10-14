@@ -1,31 +1,51 @@
+/* ---------- Base ---------- */
+
 main {
-  max-width: 560px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 16px 16px 48px;
+  padding: 24px 16px 56px;
 }
 
+/* La voz de la marca: Inter negra (900), mayúsculas y tracking apretado (sustituto de Wise Sans) */
 h1 {
-  font-size: 1.4rem;
-  margin: 0 0 12px;
+  margin: 0 0 20px;
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--bosque);
 }
 
 h2 {
-  font-size: 1.1rem;
-  margin: 24px 0 8px;
+  margin: 32px 0 12px;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--obsidiana);
 }
 
 h3 {
-  font-size: 1rem;
   margin: 12px 0 4px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--obsidiana);
 }
+
+/* ---------- Pestañas: píldora segmentada, la activa en lima ---------- */
 
 /* Seis pestañas no caben en un celular: la barra se desplaza de lado y cada botón conserva su tamaño. */
 nav {
   display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding: 4px;
   overflow-x: auto;
   scrollbar-width: none;
+  background: var(--niebla);
+  border-radius: 9999px;
 }
 
 nav::-webkit-scrollbar {
@@ -34,7 +54,22 @@ nav::-webkit-scrollbar {
 
 nav button {
   flex: 1 0 auto; /* crece si sobra espacio, nunca se achica por debajo de su texto */
+  min-height: 40px;
+  padding: 0 16px;
   white-space: nowrap;
+  border: 0;
+  background: transparent;
+  color: var(--carbon);
+}
+
+nav button:hover:not(:disabled) {
+  background: var(--lino);
+}
+
+nav button.activa,
+nav button.activa:hover {
+  background: var(--lima);
+  color: var(--bosque);
 }
 
 /* Degradado en el borde donde hay más pestañas por ver (lo marca App.tsx al desplazar) */
@@ -53,71 +88,66 @@ nav[data-mas-izquierda="true"][data-mas-derecha="true"] {
   mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent);
 }
 
+/* ---------- Botones: siempre píldora ---------- */
+
 button {
-  font: inherit;
   min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--borde);
-  border-radius: 8px;
-  background: var(--tarjeta);
-  color: var(--texto);
+  padding: 0 24px;
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: -0.006em;
+  color: var(--bosque);
+  background: var(--papel);
+  border: 1px solid var(--bosque);
+  border-radius: 9999px;
   cursor: pointer;
 }
 
+button:hover:not(:disabled) {
+  background: var(--lino);
+}
+
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 
-button.activa,
+button:focus-visible {
+  outline: 2px solid var(--bosque);
+  outline-offset: 2px;
+}
+
+/* Acción principal: relleno lima. Una por zona de pantalla. */
 button.primario {
-  background: var(--acento);
-  border-color: var(--acento);
-  color: #fff;
+  background: var(--lima);
+  border-color: var(--lima);
+  color: var(--bosque);
 }
 
-input,
-select {
-  font: inherit;
-  min-height: 44px;
-  padding: 0 10px;
-  border: 1px solid var(--borde);
-  border-radius: 8px;
-  background: var(--tarjeta);
-  color: var(--texto);
+button.primario:hover:not(:disabled) {
+  background: var(--lima);
+  filter: brightness(0.94);
 }
 
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.9rem;
-  color: var(--suave);
+/* Junto a una acción principal, la secundaria es un enlace subrayado (nunca dos botones rellenos) */
+button.primario + button {
+  padding: 0 12px;
+  background: transparent;
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-label.casilla {
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  color: var(--texto);
+button.primario + button:hover:not(:disabled) {
+  background: transparent;
+  text-decoration-thickness: 2px;
 }
 
-label.casilla input {
-  min-height: auto;
-  width: 20px;
-  height: 20px;
-}
-
-.formulario {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.formulario h2,
-.formulario h3 {
-  margin: 0;
+button.grande {
+  width: 100%;
+  min-height: 56px;
+  margin-bottom: 16px;
+  font-size: 1.125rem;
 }
 
 .botones {
@@ -126,108 +156,148 @@ label.casilla input {
   gap: 8px;
 }
 
-.tarjeta {
-  background: var(--tarjeta);
-  border: 1px solid var(--borde);
-  border-radius: 10px;
-  padding: 12px;
+.pequeno button {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 0.875rem;
 }
 
-.tarjeta.saldo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 12px;
-}
+/* ---------- Campos ---------- */
 
-.tarjeta.saldo strong {
-  font-size: 2rem;
-}
-
-.etiqueta,
-.nota,
-.pequeno,
-.vacio {
-  color: var(--suave);
-}
-
-.nota {
-  margin: 6px 0 0;
-  font-size: 0.9rem;
-}
-
-.pequeno {
-  font-size: 0.85rem;
-  margin-top: 8px;
-}
-
-.lista {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.lista.compacta {
-  gap: 4px;
-}
-
-.fila {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.chip {
-  margin-left: 8px;
-  padding: 2px 8px;
-  border-radius: 99px;
-  background: var(--borde);
-  color: var(--suave);
-  font-size: 0.75rem;
-}
-
-.sube {
-  color: var(--sube);
-}
-
-.baja {
-  color: var(--baja);
-}
-
-.error {
-  color: var(--error);
-  margin: 0;
-}
-
-.ok {
-  color: var(--baja);
-  margin: 0;
-}
-
-.aviso {
-  border: 1px solid var(--sube);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin: 0 0 12px;
-}
-
-button.grande {
+input,
+select {
   width: 100%;
-  min-height: 56px;
-  font-size: 1.1rem;
-  margin-bottom: 16px;
+  min-width: 0; /* deja que el campo se encoja dentro de su columna en vez de salirse de la pantalla */
+  min-height: 48px;
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 400;
+  color: var(--obsidiana);
+  background: var(--papel);
+  border: 1px solid var(--guijarro);
+  border-radius: 10px;
+}
+
+/* El foco cambia el borde a verde bosque, sin halo */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--bosque);
+  box-shadow: inset 0 0 0 1px var(--bosque);
+}
+
+input::placeholder {
+  color: var(--suave); /* Pebble daría 3,6:1; este gris da 6,6:1 sobre blanco */
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--carbon);
+}
+
+label.casilla {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+label.casilla input {
+  width: 22px;
+  min-height: auto;
+  height: 22px;
+  accent-color: var(--bosque);
+}
+
+progress {
+  display: block;
+  width: 100%;
+  height: 12px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--bosque);
+  -webkit-appearance: none;
+  appearance: none;
+  overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+  background: var(--bosque);
+  border-radius: 9999px;
+}
+
+progress::-webkit-progress-value {
+  background: var(--lima);
+  border-radius: 9999px;
+}
+
+progress::-moz-progress-bar {
+  background: var(--lima);
+  border-radius: 9999px;
+}
+
+/* ---------- Formularios ---------- */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.formulario h2,
+.formulario h3 {
+  margin: 0;
 }
 
 .dos-columnas {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 12px;
+}
+
+.formulario .dos-columnas {
+  margin-bottom: 0;
+}
+
+/* ---------- Tarjetas ---------- */
+
+.tarjeta {
+  padding: 20px;
+  background: var(--niebla);
+  border-radius: 10px;
+}
+
+/* El saldo: la pieza que grita. Superficie oscura invertida con el número en lima. */
+.tarjeta.saldo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 28px 24px;
+  color: var(--papel);
+  background: var(--bosque);
+  border-radius: 28px;
+}
+
+.tarjeta.saldo .etiqueta {
+  color: var(--lino);
+}
+
+.tarjeta.saldo strong {
+  font-size: clamp(2rem, 10.5vw, 3.25rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--lima);
+  overflow-wrap: anywhere;
 }
 
 .dos-columnas .tarjeta {
@@ -237,13 +307,139 @@ button.grande {
 }
 
 .dos-columnas .tarjeta strong {
-  font-size: 1.3rem;
+  font-size: 1.5625rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.009em;
+  color: var(--obsidiana);
 }
 
-progress {
-  width: 100%;
-  height: 14px;
-  margin-top: 8px;
+.etiqueta {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--suave);
+}
+
+.nota {
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  color: var(--suave);
+}
+
+.pequeno {
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: var(--suave);
+}
+
+.vacio {
+  color: var(--suave);
+}
+
+section > .tarjeta + .tarjeta,
+section > .tarjeta + p.tarjeta,
+section > p.tarjeta {
+  margin-top: 12px;
+}
+
+/* ---------- Listas ---------- */
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lista.compacta {
+  gap: 0;
+}
+
+.lista.compacta li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--niebla);
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fila.pequeno {
+  margin-top: 12px;
+}
+
+/* ---------- Etiquetas y mensajes ---------- */
+
+.chip {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--bosque);
+  background: var(--lino);
+  border-radius: 9999px;
+}
+
+.sube {
+  font-weight: 700;
+  color: var(--obsidiana);
+}
+
+.baja {
+  font-weight: 700;
+  color: var(--abeto);
+}
+
+.error {
+  margin: 0;
+  font-weight: 500;
+  color: var(--alarma);
+}
+
+.ok {
+  margin: 0;
+  font-weight: 500;
+  color: var(--abeto);
+}
+
+.aviso {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  color: var(--carbon);
+  background: var(--papel);
+  border: 1px solid var(--alarma);
+  border-radius: 10px;
+}
+
+.aviso p {
+  margin: 0 0 8px;
+}
+
+/* ---------- Quincena ---------- */
+
+.selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--obsidiana);
+}
+
+.selector button {
+  min-width: 44px;
+  padding: 0;
+  font-size: 1.4rem;
 }
 
 table.desglose {
@@ -253,34 +449,18 @@ table.desglose {
 }
 
 table.desglose td {
-  padding: 6px 0;
-  border-top: 1px solid var(--borde);
+  padding: 8px 0;
+  border-top: 1px solid rgba(14, 15, 12, 0.12);
 }
 
 table.desglose td:last-child {
   text-align: right;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: var(--obsidiana);
 }
 
-section > .tarjeta + .tarjeta,
-section > .tarjeta + p.tarjeta,
-section > p.tarjeta {
-  margin-top: 12px;
-}
-
-.selector {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.selector button {
-  min-width: 48px;
-  font-size: 1.4rem;
-}
+/* ---------- Extracto ---------- */
 
 .solo-imprimir {
   display: none;
@@ -288,17 +468,23 @@ section > p.tarjeta {
 
 table.tabla-extracto {
   width: 100%;
-  border-collapse: collapse;
   margin-top: 12px;
+  border-collapse: collapse;
   font-size: 0.9rem;
 }
 
 .tabla-extracto th,
 .tabla-extracto td {
-  padding: 8px 6px;
-  border-bottom: 1px solid var(--borde);
+  padding: 10px 6px;
   text-align: left;
   vertical-align: top;
+  border-bottom: 1px solid var(--niebla);
+}
+
+.tabla-extracto th {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--suave);
 }
 
 .tabla-extracto .num {
@@ -308,7 +494,8 @@ table.tabla-extracto {
 }
 
 .tabla-extracto tfoot td {
-  font-weight: bold;
+  font-weight: 700;
+  color: var(--obsidiana);
   border-bottom: none;
 }
 
@@ -317,18 +504,17 @@ table.tabla-extracto {
   font-size: 0.8rem;
 }
 
+/* La fecha va como línea pequeña sobre el movimiento: así caben tres columnas en un celular */
+.tabla-extracto .fecha-fila {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--suave);
+}
+
 /* Impresión y PDF: blanco y negro, sin menús ni botones */
 @media print {
-  :root {
-    --fondo: #fff;
-    --tarjeta: #fff;
-    --texto: #000;
-    --suave: #333;
-    --borde: #999;
-    color-scheme: light;
-  }
-
   body {
+    color: #000;
     background: #fff;
   }
 
@@ -347,6 +533,21 @@ table.tabla-extracto {
     display: block;
   }
 
+  h2,
+  .tabla-extracto tfoot td {
+    color: #000;
+  }
+
+  .nota,
+  .tabla-extracto th {
+    color: #333;
+  }
+
+  .tabla-extracto th,
+  .tabla-extracto td {
+    border-bottom-color: #999;
+  }
+
   .tabla-extracto tr {
     break-inside: avoid;
   }
@@ -354,8 +555,4 @@ table.tabla-extracto {
   .tabla-extracto thead {
     display: table-header-group;
   }
-}
-
-.aviso p {
-  margin: 0 0 8px;
 }
