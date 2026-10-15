@@ -60,6 +60,7 @@ type MovimientoBanco = {
   tipo: "saldo_inicial" | "prestamo" | "pago" | "ajuste"
   minutos: number           // + sube la deuda, - la baja
   turnoId?: string          // si lo generó un turno
+  motivo?: "capacitacion_reunion" | "otro"   // solo en pagos manuales; vacío en el resto
   automatico: boolean       // false si Alejandro lo editó a mano
   nota?: string
   creadoEn: string
@@ -120,15 +121,17 @@ Banco (`banco.ts`). Por cada turno:
 
 Si Alejandro edita un movimiento automático, `automatico` pasa a false y editar el turno después ya no lo sobrescribe. Saldo = suma de `minutos` de todos los movimientos. Extracto = movimientos ordenados por fecha y luego por creadoEn, con el saldo acumulado después de cada uno.
 
+Pago por capacitación o reunión. Es un `MovimientoBanco` de tipo "pago" con `motivo: "capacitacion_reunion"`, sin `turnoId`, y `automatico: false`. No pasa por `segmentar.ts` ni `semana.ts`, así que no cuenta como categoría ni como horas de la semana. El campo `motivo` es opcional, por eso los datos viejos funcionan sin migración. El extracto muestra una etiqueta según el motivo.
+
 Semana (`semana.ts`). De lunes a domingo. Minutos de la semana = suma de minutosProgramados de los turnos ordinarios + minutos netos de los de alquiler con destino "semana". Los ordinarios cuentan lo programado porque las horas prestadas cuentan como cumplidas (confirmado).
 
 ## 5. Pantallas
 
 - Inicio: saldo de deuda, prestado, pagado, barra de la semana (horas / 42), botón grande "Registrar turno".
 - Turnos: lista y formulario (plantilla opcional, fecha, inicio, fin, descanso, programadas, tipo, destino). Al guardar muestra el desglose de horas y el movimiento de banco antes de confirmar.
-- Banco: movimientos, botones de saldo inicial, préstamo, pago y ajuste.
+- Banco: movimientos, botones de saldo inicial, préstamo, pago y ajuste. El botón de pago pregunta el motivo: capacitación o reunión, u otro.
 - Quincena: selector, horas por categoría y en qué colilla se cobran.
-- Extracto: vista imprimible con saldo corriente. Botón "Guardar / compartir PDF": genera el PDF dentro de la app (`ui/pdf.ts`, sin librerías) y lo entrega con la hoja de compartir del sistema en el celular, o lo descarga en el computador. `window.print()` no funciona en el iPhone con la app instalada, así que el botón "Imprimir" solo aparece en dispositivos sin pantalla táctil.
+- Extracto: vista imprimible con saldo corriente. Botón "Guardar / compartir PDF": genera el PDF dentro de la app (`ui/pdf.ts`, sin librerías) y lo entrega con la hoja de compartir del sistema en el celular, o lo descarga en el computador. `window.print()` no funciona en el iPhone con la app instalada, así que el botón "Imprimir" solo aparece en dispositivos sin pantalla táctil. Una capacitación o reunión sale con su etiqueta.
 - Ajustes: configuración, plantillas de turno, festivos, exportar/importar JSON.
 
 ## 6. Pruebas
@@ -149,6 +152,7 @@ Cada criterio del spec es una prueba, escrita antes del código:
 | CA10, CA11 descanso | tests/segmentar.test.ts |
 | CA12 plantillas | tests/plantillas.test.ts |
 | CA13 migración | tests/migracion.test.ts |
+| CA14, CA15 capacitación o reunión | tests/banco.test.ts, tests/semana.test.ts |
 
 Datos de prueba de festivos 2026: 12 de octubre, 2 de noviembre (el 1 cae domingo), 16 de noviembre (el 11 cae miércoles), 8 y 25 de diciembre. Verificar contra el calendario oficial.
 

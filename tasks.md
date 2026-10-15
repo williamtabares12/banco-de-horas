@@ -38,8 +38,11 @@ Se hacen después de lo que ya esté construido, en este orden. La app ya tiene 
 - [x] T14. Dominio con descanso. Minutos netos en `segmentar.ts`, `banco.ts` y `semana.ts`. Pruebas: CA2, CA10, CA11, CA5 con minutos netos, descanso mayor que la categoría mayoritaria no baja de cero.
 - [x] T15. Plantillas en pantalla: crear, editar y borrar en Ajustes. En el formulario de turno, elegir plantilla rellena inicio, fin, descanso y programadas, todo editable. El desglose y el movimiento de banco usan minutos netos. Prueba: CA12.
 - [x] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas.
+- [ ] T17. Pago por capacitación o reunión (spec v0.8). Agregar `motivo` opcional al movimiento. En Banco, el botón de pago pide el motivo (capacitación o reunión, u otro), con fecha, duración y nota. Extracto con etiqueta. Pruebas: CA14, CA15, y que los pagos manuales viejos sigan funcionando como "Otro". No requiere migración de datos.
 
 ## Fase 6: ajustes tras probar en el celular
 
-- [x] T17. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Pruebas: estructura válida del archivo, tildes y símbolos, reparto en páginas, el saldo del PDF es el de la pantalla principal (CA7). Verificado leyendo y dibujando los PDF con pdf.js.
-- [x] T18. Diseño estilo Wise: paleta verde bosque y lima, botones en píldora, saldo como tarjeta oscura con el número en lima, pestañas segmentadas, Inter empaquetada (con caché para uso sin internet), ícono nuevo y colores de la app instalada. Solo CSS y recursos: no cambia la lógica. Revisado en celular y escritorio, y contrastes medidos.
+Estas dos ya estaban hechas cuando llegó la T17 de arriba. En el historial de git figuran con los números T17 y T18.
+
+- [x] T18. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Verificado leyendo y dibujando los PDF con pdf.js. (Commit "T17: extracto en PDF…")
+- [x] T19. Diseño estilo Wise: paleta verde bosque y lima, botones en píldora, saldo como tarjeta oscura con el número en lima, pestañas segmentadas, Inter empaquetada (con caché para uso sin internet), ícono nuevo y colores de la app instalada. Solo CSS y recursos. (Commit "T18: diseño estilo Wise…")

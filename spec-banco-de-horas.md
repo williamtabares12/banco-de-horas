@@ -1,6 +1,6 @@
 # Spec: App de banco de horas
 
-Estado: borrador v0.7. Sin parte monetaria. Agrega los descansos (alimentación) que la clínica descuenta de cada turno. Plan técnico en plan.md, tareas en tasks.md.
+Estado: borrador v0.8. Sin parte monetaria. Incluye los descansos (alimentación) que la clínica descuenta de cada turno y el pago de horas por capacitaciones o reuniones. Plan técnico en plan.md, tareas en tasks.md.
 
 ## 1. Problema
 
@@ -55,7 +55,7 @@ Movimiento de banco, de cuatro tipos:
 
 - Saldo inicial: lo carga Alejandro una vez, con fecha y total de horas debidas.
 - Préstamo: la clínica acortó o canceló un turno. La deuda sube.
-- Pago: horas trabajadas que devuelven deuda. La deuda baja.
+- Pago: horas que devuelven deuda. La deuda baja. Puede venir de un turno (horas extra o alquiler) o de una capacitación o reunión.
 - Ajuste manual: corrección con nota.
 
 Saldo de deuda: saldo inicial + préstamos - pagos +/- ajustes, en horas y minutos.
@@ -69,6 +69,8 @@ Turno ordinario. La diferencia entre minutos netos y minutos programados genera 
 - Ejemplo: turno de 07:00 a 16:00 con 60 min de descanso (8 h programadas). Si sale a las 19:00 trabajó 11 h netas, y genera un pago de 3 h.
 
 Turno de quirófano de alquiler. Cada turno lleva un destino que Alejandro elige: "pagar deuda" o "completar semana de 42 h". Con "pagar deuda", todos sus minutos netos generan un pago.
+
+Capacitación o reunión. Es un pago manual con fecha, duración y nota. No es un turno: no se parte en categorías (nocturna, dominical), no lleva descanso y por defecto no suma a las 42 h de la semana. Baja la deuda 1 a 1 y se ve en el extracto con la etiqueta "Capacitación o reunión".
 
 Las horas extra se compensan contra el banco. Hay un interruptor de configuración (extras descuentan deuda, activo por defecto) por si la clínica cambia la regla y empieza a pagarlas aparte.
 
@@ -101,6 +103,8 @@ RF11. Exportar e importar los datos en JSON.
 RF12. Plantillas de turno: crear, editar y borrar en Ajustes. Al registrar un turno, elegir una plantilla rellena inicio, fin, descanso y horas programadas, y todo sigue editable. Vienen tres de ejemplo para ajustar: Día 8 h (07:00 a 16:00, 60 min), Día 12 h (07:00 a 19:00, 120 min) y Noche 12 h (19:00 a 07:00, 120 min). Los turnos de alquiler no llevan plantilla y su descanso es 0.
 
 RF13. Los datos ya guardados en el dispositivo se conservan al actualizar la app. Los turnos anteriores al cambio quedan con descanso 0.
+
+RF14. Al registrar un pago en Banco, elegir el motivo: "Capacitación o reunión" u "Otro". Para capacitación o reunión se piden fecha, duración (horas y minutos) y nota opcional (nombre del evento o quién lo convocó). El pago aparece en Banco y en el extracto con su etiqueta. Los pagos manuales que ya existen quedan como "Otro".
 
 ## 9. Reglas de cálculo
 
@@ -149,6 +153,10 @@ CA12. Elegir la plantilla "Día 8 h" rellena inicio 07:00, fin 16:00, descanso 6
 
 CA13. Actualizar la app conserva el saldo inicial y los movimientos ya guardados.
 
+CA14. Con saldo de 33 h, un pago por capacitación de 2 h deja el saldo en 31 h y aparece en el extracto con la etiqueta "Capacitación o reunión".
+
+CA15. Un pago por capacitación o reunión no cambia las horas por categoría de ninguna quincena ni el avance de la semana, aunque su fecha sea domingo o festivo.
+
 ## 13. Preguntas abiertas
 
 1. Confirmar con la coordinadora si la hora extra seguirá compensándose en banco.
@@ -157,3 +165,5 @@ CA13. Actualizar la app conserva el saldo inicial y los movimientos ya guardados
 4. El descanso se resta de la categoría con más minutos del turno. Si la clínica lo descuenta de otra forma, solo cambia el conteo por categoría, no el banco.
 5. Horarios de los turnos de 12 h. Los de las plantillas son un ejemplo (07:00 a 19:00 y 19:00 a 07:00) y se ajustan en Ajustes.
 6. Turnos de otras duraciones (6, 4, 10 h): sin descanso hasta que Alejandro cree una plantilla.
+7. Las horas de capacitación o reunión, ¿cuentan para las 42 semanales? Por ahora no.
+8. Si una capacitación o reunión cae de noche o en domingo, ¿la clínica la cuenta como recargo? Por ahora no se cuenta como categoría.
