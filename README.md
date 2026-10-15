@@ -51,6 +51,14 @@ npm test
 
 Corre todas las pruebas una vez. Cada criterio de aceptación del spec (CA1 a CA9) tiene su prueba en la carpeta `tests/`, salvo CA8, que es una comparación manual con tu colilla. Para dejarlas corriendo mientras editas: `npx vitest`.
 
+Para revisar que el código siga el estilo visual (estilo-visual.md):
+
+```bash
+npm run check:estilo
+```
+
+Falla si encuentra un color que no esté definido en `src/ui/estilo/tokens.css`. Con `-- --estricto` también revisa sombras, tema oscuro, pesos de letra, radios y tamaños de letra.
+
 ## Tus datos y el respaldo
 
 Todo se guarda en el navegador de cada dispositivo (`localStorage`). No hay servidor: nada sale de tu dispositivo, y el celular y el computador **no comparten** datos.

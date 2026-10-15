@@ -1,0 +1,20 @@
+/*
+ * TEMPORAL. Se borra en T20.
+ *
+ * Los estilos de las pantallas de antes (App.css) usan nombres de variables del diseño anterior.
+ * Este archivo los apunta a los colores nuevos para que la app siga legible mientras T19 y T20 rehacen
+ * los componentes y las pantallas. No agrega ningún color: solo reasigna tokens.
+ */
+:root {
+  --bosque: var(--color-texto);
+  --lima: var(--color-accion);
+  --abeto: var(--color-texto);
+  --lino: var(--color-relleno);
+  --alarma: var(--color-texto);
+  --carbon: var(--color-texto);
+  --obsidiana: var(--color-texto);
+  --guijarro: var(--color-linea);
+  --suave: var(--color-texto-suave);
+  --niebla: var(--color-relleno);
+  --papel: var(--color-lienzo);
+}

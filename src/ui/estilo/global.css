@@ -1,0 +1,29 @@
+/* Estilos globales: lienzo, letra del sistema y cifras tabulares. Solo tema claro. */
+
+:root {
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-lienzo);
+  color: var(--color-texto);
+  font-family: var(--fuente);
+  font-size: var(--texto-cuerpo);
+  font-weight: var(--peso-normal);
+  line-height: var(--interlinea-cuerpo);
+  letter-spacing: var(--espaciado-cuerpo);
+  /* Las cifras de horas ocupan siempre el mismo ancho: las columnas del extracto quedan alineadas */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}

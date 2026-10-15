@@ -1,0 +1,86 @@
+/*
+ * Tokens de estilo. Salen de estilo-visual.md: ese documento manda.
+ * Los componentes usan solo estas variables: no llevan colores, tamaños de letra ni radios propios.
+ * Un script (npm run check:estilo) falla si aparece un color que no esté definido aquí.
+ */
+
+:root {
+  /* Colores (sección 2). No hay verde ni rojo. */
+  --color-texto: #1d1d1f;
+  --color-texto-suave: #707070;
+  --color-lienzo: #f5f5f7;
+  --color-realce: #f4f8fb;
+  --color-relleno: #e2e2e5;
+  --color-linea: #d2d2d7;
+  --color-accion: #0071e3;
+  --color-enlace: #0066cc;
+  --color-decorativo: #2997ff;
+  --color-icono: #858585;
+
+  /* Letra del sistema (sección 3): no se descarga ninguna fuente, así la app funciona sin internet. */
+  --fuente: "SF Pro Text", -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+
+  /* Tamaño, interlineado y espaciado de letras de cada rol */
+  --texto-caption: 12px;
+  --interlinea-caption: 1.33;
+  --espaciado-caption: -0.264px;
+
+  --texto-pequeno: 14px;
+  --interlinea-pequeno: 1.29;
+  --espaciado-pequeno: -0.224px;
+
+  --texto-cuerpo: 17px;
+  --interlinea-cuerpo: 1.47;
+  --espaciado-cuerpo: -0.272px;
+
+  --texto-subtitulo: 21px;
+  --interlinea-subtitulo: 1.24;
+  --espaciado-subtitulo: -0.105px;
+
+  --texto-titulo: 28px;
+  --interlinea-titulo: 1.18;
+  --espaciado-titulo: 0.196px;
+
+  --texto-cifra: 44px;
+  --interlinea-cifra: 1.18;
+  --espaciado-cifra: -0.44px;
+
+  /* Pesos permitidos: nunca 700 */
+  --peso-ligero: 300;
+  --peso-normal: 400;
+  --peso-fuerte: 600;
+
+  /* Espacio (sección 4): unidad base de 4 px */
+  --esp-4: 4px;
+  --esp-8: 8px;
+  --esp-12: 12px;
+  --esp-16: 16px;
+  --esp-20: 20px;
+  --esp-24: 24px;
+  --esp-40: 40px;
+  --esp-48: 48px;
+  --esp-56: 56px;
+
+  /* Radios: solo dos */
+  --radio-pastilla: 980px;
+  --radio-caja: 8px;
+}
+
+/*
+ * Al imprimir (CA21): fondo blanco, texto negro, líneas finas y nada de azul.
+ * Se logra cambiando los tokens, así los componentes no necesitan reglas de impresión para el color.
+ */
+@media print {
+  :root {
+    --color-texto: #000;
+    --color-texto-suave: #000;
+    --color-lienzo: #fff;
+    --color-realce: #fff;
+    --color-relleno: #fff;
+    --color-linea: #000;
+    --color-accion: #000;
+    --color-enlace: #000;
+    --color-decorativo: #000;
+    --color-icono: #000;
+  }
+}
