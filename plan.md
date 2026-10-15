@@ -9,7 +9,7 @@ Deriva de spec-banco-de-horas.md (v0.5). Si algo de aquí contradice el spec, ma
 - Sin librería de fechas. Los turnos se manejan en minutos enteros y las fechas como texto local ("2026-09-12T19:00"). Colombia no tiene horario de verano, así que no hay saltos de hora que cuidar.
 - Datos en localStorage detrás de una interfaz `Repositorio`. Son pocos datos (cientos de turnos), y la interfaz permite cambiar a IndexedDB sin tocar el resto. El respaldo es exportar/importar JSON.
 - Sin router. Cinco pestañas con un estado simple.
-- Estilos con CSS plano, pensado primero para celular. Estilos de impresión para el extracto. Diseño visual estilo Wise: verde bosque (#163300) con lima (#9fe870) solo en acciones primarias y estados activos, botones en píldora, tipografía Inter con el título y el saldo en peso 900. Los tokens están en `src/index.css`. Solo tema claro. Inter va empaquetada con la app (`@fontsource-variable/inter`, solo el subconjunto latino, ~48 KB) y el service worker la guarda para que se vea igual sin internet.
+- Estilos con CSS plano y variables en `src/ui/estilo/tokens.css`, tomadas de estilo-visual.md. Pensado primero para celular. Estilos de impresión para el extracto. Sin librerías de UI ni fuentes descargadas: la letra es la del sistema.
 - PWA con vite-plugin-pwa, en una tarea aparte y solo cuando todo lo demás funcione.
 - Sin servidor, sin cuentas, sin analítica.
 - Los datos guardados llevan un número de versión (`schemaVersion`). Cuando cambia el modelo se escribe una migración, para no perder lo que ya está en el celular.
@@ -31,9 +31,11 @@ src/
     respaldo.ts     exportar/importar JSON
   ui/
     pantallas/      Inicio, Turnos, Banco, Quincena, Extracto, Ajustes
-    componentes/
+    componentes/    botón, pestañas, campo, fila, barra de avance, interruptor, diálogo
+    estilo/         tokens.css (variables) y estilos globales
   App.tsx
 tests/              una prueba por criterio de aceptación
+scripts/            check-estilo.mjs (falla si hay colores fuera de tokens.css)
 ```
 
 Regla: `dominio/` no importa nada de `ui/` ni de `almacenamiento/`.
@@ -153,6 +155,8 @@ Cada criterio del spec es una prueba, escrita antes del código:
 | CA12 plantillas | tests/plantillas.test.ts |
 | CA13 migración | tests/migracion.test.ts |
 | CA14, CA15 capacitación o reunión | tests/banco.test.ts, tests/semana.test.ts |
+| CA16 colores fuera de tokens | scripts/check-estilo.mjs (`npm run check:estilo`) |
+| CA17 a CA21 estilo | Revisión manual en el celular, tarea T21 |
 
 Datos de prueba de festivos 2026: 12 de octubre, 2 de noviembre (el 1 cae domingo), 16 de noviembre (el 11 cae miércoles), 8 y 25 de diciembre. Verificar contra el calendario oficial.
 
@@ -174,4 +178,5 @@ Para uso diario en el celular hace falta publicar los archivos de `npm run build
 - Reglas sin confirmar: si la coordinadora mantiene la compensación de extras en banco, y en qué línea de la colilla aparece una nocturna de domingo. Están aisladas en funciones pequeñas para cambiarlas sin reescribir.
 - localStorage puede borrarse si se limpia el navegador. Mitigación: exportar JSON desde Ajustes y un aviso en Inicio si pasaron más de 14 días sin exportar. El extracto en PDF es un segundo respaldo.
 - Festivos calculados de memoria: se verifican en T1.
+- Estilo: la referencia es de un sitio de productos, no de una app de datos. Se adaptó (sin tarjetas, cifras grandes, filas con líneas finas, tema solo claro). Si algo no se lee bien en el celular, manda la legibilidad. El cambio de estilo no toca el dominio ni los datos guardados.
 - Migración de datos: Alejandro ya tiene un saldo inicial guardado en su celular. La migración de T13 no puede borrarlo ni reordenarlo. Se prueba con un JSON del formato anterior antes de tocar nada más.

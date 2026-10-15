@@ -1,6 +1,6 @@
 # Spec: App de banco de horas
 
-Estado: borrador v0.8. Sin parte monetaria. Incluye los descansos (alimentación) que la clínica descuenta de cada turno y el pago de horas por capacitaciones o reuniones. Plan técnico en plan.md, tareas en tasks.md.
+Estado: borrador v0.9. Estilo visual nuevo (estilo-visual.md). Sin parte monetaria. Incluye los descansos (alimentación) que la clínica descuenta de cada turno y el pago de horas por capacitaciones o reuniones. Plan técnico en plan.md, tareas en tasks.md.
 
 ## 1. Problema
 
@@ -167,3 +167,28 @@ CA15. Un pago por capacitación o reunión no cambia las horas por categoría de
 6. Turnos de otras duraciones (6, 4, 10 h): sin descanso hasta que Alejandro cree una plantilla.
 7. Las horas de capacitación o reunión, ¿cuentan para las 42 semanales? Por ahora no.
 8. Si una capacitación o reunión cae de noche o en domingo, ¿la clínica la cuenta como recargo? Por ahora no se cuenta como categoría.
+9. Avisos y errores sin color rojo, solo con texto y una palabra delante ("Aviso", "Error"). Si Alejandro prefiere un rojo para errores, se agrega un color a estilo-visual.md.
+
+## 14. Estilo visual
+
+La interfaz sigue estilo-visual.md (lienzo claro, tipografía como protagonista, un solo azul de acción). Reglas que cuentan como requisitos:
+
+- Solo tema claro. Se retira el tema oscuro actual.
+- Solo se usan los colores, tamaños de letra, radios y espacios de estilo-visual.md.
+- Sin sombras. La jerarquía sale del tamaño de letra, las líneas finas y las superficies.
+- El azul de acción (#0071e3) solo rellena botones principales y marca lo seleccionado.
+- Los datos no cambian: este cambio es solo de apariencia y no toca saldos, turnos ni movimientos guardados.
+
+Criterios de aceptación del estilo:
+
+CA16. Un script revisa el código y falla si encuentra un color que no esté definido en `tokens.css`.
+
+CA17. Botones, pestañas, filas que se pueden tocar y campos miden al menos 44 px de alto.
+
+CA18. Con una pantalla de 360 px de ancho se llega a todas las pestañas y ningún texto queda cortado.
+
+CA19. El texto tiene contraste mínimo de 4,5 a 1 sobre su fondo. El gris más claro permitido para texto es #707070.
+
+CA20. Los campos de formulario usan letra de 16 px o más, para que el iPhone no haga zoom al tocarlos.
+
+CA21. El extracto impreso sale en blanco y negro con líneas finas, sin azul.

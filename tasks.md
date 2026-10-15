@@ -37,12 +37,21 @@ Se hacen después de lo que ya esté construido, en este orden. La app ya tiene 
 - [x] T13. Modelo y migración. Agregar `descansoMin` al turno, `plantillas` a la configuración y `schemaVersion` al almacenamiento. Migrar los datos viejos: turnos con descanso 0 y plantillas de ejemplo (Día 8 h, Día 12 h, Noche 12 h). Pruebas: CA13 con un JSON del formato anterior, importar un respaldo viejo.
 - [x] T14. Dominio con descanso. Minutos netos en `segmentar.ts`, `banco.ts` y `semana.ts`. Pruebas: CA2, CA10, CA11, CA5 con minutos netos, descanso mayor que la categoría mayoritaria no baja de cero.
 - [x] T15. Plantillas en pantalla: crear, editar y borrar en Ajustes. En el formulario de turno, elegir plantilla rellena inicio, fin, descanso y programadas, todo editable. El desglose y el movimiento de banco usan minutos netos. Prueba: CA12.
-- [x] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas.
+- [x] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas. Si ya se hizo T19, queda cubierta por el criterio CA18.
 - [x] T17. Pago por capacitación o reunión (spec v0.8). Agregar `motivo` opcional al movimiento. En Banco, el botón de pago pide el motivo (capacitación o reunión, u otro), con fecha, duración y nota. Extracto con etiqueta. Pruebas: CA14, CA15, y que los pagos manuales viejos sigan funcionando como "Otro". No requiere migración de datos.
 
-## Fase 6: ajustes tras probar en el celular
+## Fase 5b: estilo visual (cambio del spec v0.9)
 
-Estas dos ya estaban hechas cuando llegó la T17 de arriba. En el historial de git figuran con los números T17 y T18.
+Solo cambia la apariencia. No se toca `src/dominio/` ni los datos guardados, y las pruebas existentes deben seguir en verde.
 
-- [x] T18. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Verificado leyendo y dibujando los PDF con pdf.js. (Commit "T17: extracto en PDF…")
-- [x] T19. Diseño estilo Wise: paleta verde bosque y lima, botones en píldora, saldo como tarjeta oscura con el número en lima, pestañas segmentadas, Inter empaquetada (con caché para uso sin internet), ícono nuevo y colores de la app instalada. Solo CSS y recursos. (Commit "T18: diseño estilo Wise…")
+- [ ] T18. Tokens y base. Crear `src/ui/estilo/tokens.css` con las variables de estilo-visual.md sección 8, estilos globales (fondo `--color-lienzo`, letra del sistema, 17 px de base, cifras tabulares), color de tema en el manifiesto y en la etiqueta meta, y `scripts/check-estilo.mjs` con `npm run check:estilo`. Hecho cuando CA16 pasa.
+- [ ] T19. Componentes. Botón relleno, botón de contorno, enlace, pestañas con desplazamiento de lado (activa en azul), campo de formulario, fila de lista, barra de avance, interruptor y diálogo de confirmación, según la sección 5 del documento de estilo. Hecho cuando CA17 y CA18 se cumplen.
+- [ ] T20. Pantallas. Rehacer Inicio, Turnos, Banco, Quincena, Extracto (con estilos de impresión) y Ajustes con esos componentes. Sin tarjetas con fondo, sin sombras y sin tema oscuro. Hecho cuando CA21 se cumple y `npm run check:estilo` pasa.
+- [ ] T21. Revisión en el celular de Alejandro (iPhone, en Safari y con la app instalada): contraste, tamaños táctiles, campos sin zoom, pestañas sin cortar. Lista de hallazgos para corregir. Hecho cuando CA19 y CA20 se cumplen.
+
+## Fase 6: hechas antes de la Fase 5b
+
+Ya estaban hechas y publicadas cuando llegaron las T18 a T21 de arriba, por eso llevan los números T22 y T23. En el historial de git figuran como "T17: extracto en PDF…" y "T18: diseño estilo Wise…".
+
+- [x] T22. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Verificado leyendo y dibujando los PDF con pdf.js.
+- [x] T23. Diseño estilo Wise (verde bosque y lima, Inter empaquetada). Reemplazado por el estilo de la Fase 5b (estilo-visual.md): la T18 retira la fuente empaquetada y la paleta verde.

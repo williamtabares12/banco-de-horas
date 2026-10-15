@@ -7,8 +7,9 @@ App web personal para llevar el banco de horas de una clínica (horas que se deb
 - spec-banco-de-horas.md: qué hace la app y las reglas. Manda sobre todo lo demás.
 - plan.md: cómo se construye (stack, carpetas, algoritmos).
 - tasks.md: orden de trabajo. Se hace una tarea a la vez.
+- estilo-visual.md: colores, letra, espacios y componentes de la interfaz.
 
-Lee los tres antes de escribir código.
+Lee los cuatro antes de escribir código.
 
 ## Forma de trabajar
 
@@ -29,6 +30,8 @@ Si el spec no alcanza para decidir una regla, pregunta. No inventes horarios ni 
 - Pocas dependencias. Antes de agregar una, explica por qué hace falta.
 - No guardar datos personales: nada de cédula, salario ni datos de la colilla. Solo horas, fechas y notas.
 - Interfaz en español colombiano, pensada primero para celular.
+- Estilo visual: solo los colores, tamaños de letra, radios y espacios de `src/ui/estilo/tokens.css` (sale de estilo-visual.md). Sin colores sueltos en los componentes, sin sombras, sin tema oscuro y sin librerías de UI. Si hace falta algo que el documento no define (un color de error, por ejemplo), pregunta antes de inventarlo.
+- Un cambio de estilo no toca `src/dominio/` ni los datos guardados.
 
 ## Sobre Alejandro
 
