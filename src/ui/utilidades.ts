@@ -1,4 +1,4 @@
-import type { MovimientoBanco } from "../dominio/tipos";
+import type { MotivoPago, MovimientoBanco } from "../dominio/tipos";
 
 const dos = (n: number) => String(n).padStart(2, "0");
 
@@ -32,3 +32,14 @@ export const ETIQUETAS_MOVIMIENTO: Record<MovimientoBanco["tipo"], string> = {
   pago: "Pago",
   ajuste: "Ajuste",
 };
+
+export const ETIQUETAS_MOTIVO: Record<MotivoPago, string> = {
+  capacitacion_reunion: "Capacitación o reunión",
+  otro: "Otro",
+};
+
+/** Cómo se llama un movimiento en pantalla y en el extracto: una capacitación o reunión lleva su propia etiqueta. */
+export function etiquetaMovimiento(m: MovimientoBanco): string {
+  if (m.tipo === "pago" && m.motivo === "capacitacion_reunion") return ETIQUETAS_MOTIVO.capacitacion_reunion;
+  return ETIQUETAS_MOVIMIENTO[m.tipo];
+}

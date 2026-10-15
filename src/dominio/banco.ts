@@ -1,5 +1,5 @@
 import { minutosNetos } from "./turnos";
-import type { Config, MovimientoBanco, Turno } from "./tipos";
+import type { Config, MotivoPago, MovimientoBanco, Turno } from "./tipos";
 
 export type ConfigBanco = Pick<Config, "extrasDescuentanDeuda">;
 
@@ -56,7 +56,7 @@ export function extracto(movimientos: MovimientoBanco[]): FilaExtracto[] {
 /** Corrige un movimiento a mano: queda marcado como manual y ya no se recalcula. */
 export function editarMovimiento(
   movimiento: MovimientoBanco,
-  cambios: Partial<Pick<MovimientoBanco, "fecha" | "minutos" | "nota">>,
+  cambios: Partial<Pick<MovimientoBanco, "fecha" | "minutos" | "nota" | "motivo">>,
   ahora: string,
 ): MovimientoBanco {
   return { ...movimiento, ...cambios, automatico: false, modificadoEn: ahora };
@@ -98,13 +98,30 @@ export type EntradaMovimiento = {
   fecha: string;
   minutos: number;
   nota?: string;
+  /** Solo para pagos: capacitación o reunión, u otro. */
+  motivo?: MotivoPago;
 };
+
+const MOTIVOS: readonly MotivoPago[] = ["capacitacion_reunion", "otro"];
+
+/**
+ * Motivo de un pago manual. Los pagos de antes no lo tienen y cuentan como "otro".
+ * Un pago que salió de un turno, y cualquier otro tipo de movimiento, no tiene motivo.
+ */
+export function motivoDe(movimiento: MovimientoBanco): MotivoPago | undefined {
+  if (movimiento.tipo !== "pago" || movimiento.turnoId) return undefined;
+  return movimiento.motivo ?? "otro";
+}
 
 /** Movimiento cargado a mano (saldo inicial, préstamo, pago o ajuste). */
 export function nuevoMovimiento(entrada: EntradaMovimiento, ahora: string, id: string): MovimientoBanco {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(entrada.fecha)) throw new Error("La fecha debe ser AAAA-MM-DD");
   if (!Number.isInteger(entrada.minutos) || entrada.minutos === 0) {
     throw new Error("Los minutos deben ser un entero distinto de 0");
+  }
+  if (entrada.motivo !== undefined) {
+    if (!MOTIVOS.includes(entrada.motivo)) throw new Error("El motivo debe ser capacitación o reunión, u otro");
+    if (entrada.tipo !== "pago") throw new Error("El motivo solo aplica a los pagos");
   }
   const movimiento: MovimientoBanco = {
     id,
@@ -117,6 +134,7 @@ export function nuevoMovimiento(entrada: EntradaMovimiento, ahora: string, id: s
   };
   const nota = entrada.nota?.trim();
   if (nota) movimiento.nota = nota;
+  if (entrada.motivo !== undefined) movimiento.motivo = entrada.motivo;
   return movimiento;
 }
 

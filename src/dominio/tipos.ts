@@ -11,12 +11,16 @@ export type Turno = {
   modificadoEn: string;
 };
 
+/** Para qué fue un pago manual. Los pagos viejos no lo tienen y se tratan como "otro". */
+export type MotivoPago = "capacitacion_reunion" | "otro";
+
 export type MovimientoBanco = {
   id: string;
   fecha: string; // "2026-09-12"
   tipo: "saldo_inicial" | "prestamo" | "pago" | "ajuste";
   minutos: number; // + sube la deuda, - la baja
   turnoId?: string; // si lo generó un turno
+  motivo?: MotivoPago; // solo en pagos manuales (sin turno); vacío en el resto
   automatico: boolean; // false si Alejandro lo editó a mano
   nota?: string;
   creadoEn: string;

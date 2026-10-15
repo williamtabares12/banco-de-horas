@@ -4,7 +4,7 @@ import { editarMovimiento, extracto, minutosConSigno, nuevoMovimiento, saldo, sa
 import { formatearDuracion } from "../../dominio/tiempo";
 import type { MovimientoBanco } from "../../dominio/tipos";
 import { FormularioMovimiento, type ValoresMovimiento } from "../componentes/FormularioMovimiento";
-import { ahora, ETIQUETAS_MOVIMIENTO, nuevoId } from "../utilidades";
+import { ahora, etiquetaMovimiento, nuevoId } from "../utilidades";
 
 type Tipo = MovimientoBanco["tipo"];
 type Abierto = { tipo: Tipo; editando?: MovimientoBanco } | null;
@@ -32,7 +32,12 @@ export function Banco({ datos, cambiar }: Props) {
           m.id === editando.id
             ? editarMovimiento(
                 m,
-                { fecha: valores.fecha, minutos: minutosConSigno(tipo, valores.minutos), nota: valores.nota.trim() || undefined },
+                {
+                  fecha: valores.fecha,
+                  minutos: minutosConSigno(tipo, valores.minutos),
+                  nota: valores.nota.trim() || undefined,
+                  ...(valores.motivo ? { motivo: valores.motivo } : {}),
+                },
                 ahora(),
               )
             : m,
@@ -47,7 +52,7 @@ export function Banco({ datos, cambiar }: Props) {
 
   function borrar(m: MovimientoBanco) {
     const aviso = m.automatico && m.turnoId ? " Si luego editas el turno, se vuelve a generar." : "";
-    const texto = `¿Borrar este movimiento (${ETIQUETAS_MOVIMIENTO[m.tipo].toLowerCase()} del ${m.fecha}, ${conSigno(m.minutos)})?${aviso}`;
+    const texto = `¿Borrar este movimiento (${etiquetaMovimiento(m).toLowerCase()} del ${m.fecha}, ${conSigno(m.minutos)})?${aviso}`;
     if (window.confirm(texto)) cambiar((d) => ({ ...d, movimientos: d.movimientos.filter((x) => x.id !== m.id) }));
   }
 
@@ -91,7 +96,7 @@ export function Banco({ datos, cambiar }: Props) {
             <li key={m.id} className="tarjeta">
               <div className="fila">
                 <span>
-                  <strong>{ETIQUETAS_MOVIMIENTO[m.tipo]}</strong> · {m.fecha}
+                  <strong>{etiquetaMovimiento(m)}</strong> · {m.fecha}
                   {m.automatico && <span className="chip">automático</span>}
                 </span>
                 <strong className={m.minutos < 0 ? "baja" : "sube"}>{conSigno(m.minutos)}</strong>

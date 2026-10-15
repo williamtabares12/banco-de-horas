@@ -2,7 +2,7 @@ import type { Datos } from "../almacenamiento/repositorio";
 import { extracto } from "../dominio/banco";
 import { formatearDuracion } from "../dominio/tiempo";
 import type { MovimientoBanco, Turno } from "../dominio/tipos";
-import { ETIQUETAS_MOVIMIENTO } from "./utilidades";
+import { etiquetaMovimiento } from "./utilidades";
 
 /** Una fila del extracto ya convertida a texto: la usan la pantalla y el PDF, para que digan lo mismo. */
 export type FilaTexto = {
@@ -33,7 +33,7 @@ export function filasExtracto(datos: Datos): FilaTexto[] {
   return extracto(datos.movimientos).map(({ movimiento: m, saldoDespues }) => ({
     id: m.id,
     fecha: m.fecha,
-    tipo: ETIQUETAS_MOVIMIENTO[m.tipo],
+    tipo: etiquetaMovimiento(m),
     detalle: detalle(m, datos.turnos),
     horas: conSigno(m.minutos),
     saldo: formatearDuracion(saldoDespues),

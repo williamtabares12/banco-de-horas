@@ -171,6 +171,10 @@ function leerMovimiento(v: unknown, i: number): MovimientoBanco {
   };
   const turnoId = textoOpcional(o, "turnoId", donde);
   if (turnoId !== undefined) mov.turnoId = turnoId;
+  if (o.motivo !== undefined) {
+    if (mov.tipo !== "pago") throw new ErrorImportacion(`${donde}: solo los pagos pueden tener "motivo"`);
+    mov.motivo = uno(o, "motivo", ["capacitacion_reunion", "otro"], donde);
+  }
   const nota = textoOpcional(o, "nota", donde);
   if (nota !== undefined) mov.nota = nota;
   return mov;

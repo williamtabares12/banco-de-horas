@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 2,
+  "config": {
+    "minutosSemana": 2520,
+    "nocturnoDesde": "19:00",
+    "nocturnoHasta": "06:00",
+    "desfaseQuincenas": 1,
+    "extrasDescuentanDeuda": true,
+    "festivosAgregados": [
+      "2026-10-13"
+    ],
+    "festivosQuitados": [],
+    "plantillas": [
+      {
+        "id": "plantilla-dia-8",
+        "nombre": "Día 8 h",
+        "inicio": "07:00",
+        "fin": "16:00",
+        "descansoMin": 60
+      },
+      {
+        "id": "plantilla-dia-12",
+        "nombre": "Día 12 h",
+        "inicio": "07:00",
+        "fin": "19:00",
+        "descansoMin": 120
+      },
+      {
+        "id": "plantilla-noche-12",
+        "nombre": "Noche 12 h",
+        "inicio": "19:00",
+        "fin": "07:00",
+        "descansoMin": 120
+      }
+    ]
+  },
+  "turnos": [
+    {
+      "id": "turno-1",
+      "inicio": "2026-09-14T07:00",
+      "fin": "2026-09-14T19:00",
+      "descansoMin": 0,
+      "minutosProgramados": 480,
+      "tipo": "ordinario",
+      "creadoEn": "2026-09-14T20:00:00",
+      "modificadoEn": "2026-09-14T20:00:00",
+      "nota": "Salí tarde"
+    },
+    {
+      "id": "turno-2",
+      "inicio": "2026-09-16T07:00",
+      "fin": "2026-09-16T11:00",
+      "descansoMin": 0,
+      "minutosProgramados": 480,
+      "tipo": "ordinario",
+      "creadoEn": "2026-09-16T12:00:00",
+      "modificadoEn": "2026-09-16T12:00:00"
+    },
+    {
+      "id": "turno-3",
+      "inicio": "2026-09-19T08:00",
+      "fin": "2026-09-19T16:00",
+      "descansoMin": 0,
+      "minutosProgramados": 0,
+      "tipo": "alquiler",
+      "creadoEn": "2026-09-19T17:00:00",
+      "modificadoEn": "2026-09-19T17:00:00",
+      "destino": "deuda"
+    },
+    {
+      "id": "turno-4",
+      "inicio": "2026-09-12T19:00",
+      "fin": "2026-09-13T03:00",
+      "descansoMin": 0,
+      "minutosProgramados": 0,
+      "tipo": "alquiler",
+      "creadoEn": "2026-09-13T04:00:00",
+      "modificadoEn": "2026-09-13T04:00:00",
+      "destino": "semana"
+    },
+    {
+      "id": "turno-5",
+      "inicio": "2026-10-05T07:00",
+      "fin": "2026-10-05T19:00",
+      "tipo": "ordinario",
+      "descansoMin": 60,
+      "minutosProgramados": 480,
+      "nota": "Salí a las siete",
+      "creadoEn": "2026-10-05T20:00:00",
+      "modificadoEn": "2026-10-05T20:00:00"
+    },
+    {
+      "id": "turno-6",
+      "inicio": "2026-10-10T19:00",
+      "fin": "2026-10-11T07:00",
+      "tipo": "ordinario",
+      "descansoMin": 120,
+      "minutosProgramados": 600,
+      "creadoEn": "2026-10-11T08:00:00",
+      "modificadoEn": "2026-10-11T08:00:00"
+    }
+  ],
+  "movimientos": [
+    {
+      "id": "mov-saldo-inicial",
+      "fecha": "2026-08-10",
+      "tipo": "saldo_inicial",
+      "minutos": 2430,
+      "automatico": false,
+      "creadoEn": "2026-10-01T08:00:00",
+      "modificadoEn": "2026-10-01T08:00:00",
+      "nota": "Saldo tras el terremoto"
+    },
+    {
+      "id": "mov-prestamo-1",
+      "fecha": "2026-09-02",
+      "tipo": "prestamo",
+      "minutos": 360,
+      "automatico": false,
+      "creadoEn": "2026-10-01T08:05:00",
+      "modificadoEn": "2026-10-01T08:05:00",
+      "nota": "Autorizó la coordinadora"
+    },
+    {
+      "id": "mov-auto-1",
+      "fecha": "2026-09-14",
+      "tipo": "pago",
+      "minutos": -240,
+      "automatico": true,
+      "creadoEn": "2026-09-14T20:00:00",
+      "modificadoEn": "2026-09-14T20:00:00",
+      "turnoId": "turno-1"
+    },
+    {
+      "id": "mov-auto-2",
+      "fecha": "2026-09-16",
+      "tipo": "prestamo",
+      "minutos": 210,
+      "automatico": false,
+      "creadoEn": "2026-09-16T12:00:00",
+      "modificadoEn": "2026-09-20T09:00:00",
+      "turnoId": "turno-2",
+      "nota": "La clínica reconoció 3 h 30"
+    },
+    {
+      "id": "mov-auto-3",
+      "fecha": "2026-09-19",
+      "tipo": "pago",
+      "minutos": -480,
+      "automatico": true,
+      "creadoEn": "2026-09-19T17:00:00",
+      "modificadoEn": "2026-09-19T17:00:00",
+      "turnoId": "turno-3"
+    },
+    {
+      "id": "mov-ajuste-1",
+      "fecha": "2026-09-25",
+      "tipo": "ajuste",
+      "minutos": -30,
+      "automatico": false,
+      "creadoEn": "2026-09-25T10:00:00",
+      "modificadoEn": "2026-09-25T10:00:00",
+      "nota": "Corrección"
+    },
+    {
+      "id": "mov-auto-v2-1",
+      "fecha": "2026-10-05",
+      "tipo": "pago",
+      "minutos": -180,
+      "turnoId": "turno-5",
+      "automatico": true,
+      "creadoEn": "2026-10-05T20:00:00",
+      "modificadoEn": "2026-10-05T20:00:00"
+    },
+    {
+      "id": "mov-pago-manual-1",
+      "fecha": "2026-10-08",
+      "tipo": "pago",
+      "minutos": -120,
+      "automatico": false,
+      "creadoEn": "2026-10-08T10:00:00",
+      "modificadoEn": "2026-10-08T10:00:00",
+      "nota": "Reunión de servicio, pagada como pago manual"
+    },
+    {
+      "id": "mov-pago-manual-2",
+      "fecha": "2026-10-09",
+      "tipo": "pago",
+      "minutos": -90,
+      "automatico": false,
+      "creadoEn": "2026-10-09T10:00:00",
+      "modificadoEn": "2026-10-09T10:00:00"
+    }
+  ],
+  "ultimoRespaldo": "2026-10-12"
+}
