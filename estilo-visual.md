@@ -15,10 +15,11 @@ Cambios frente a la versión actual: el tema oscuro se retira (solo tema claro) 
 | `--color-texto` | `#1d1d1f` | Texto principal, títulos |
 | `--color-texto-suave` | `#707070` | Etiquetas, fechas, texto secundario. Es el gris más claro permitido para texto |
 | `--color-lienzo` | `#f5f5f7` | Fondo de todas las pantallas |
-| `--color-realce` | `#f4f8fb` | Fondo de un bloque destacado (por ejemplo el saldo). También el texto sobre botón azul |
+| `--color-realce` | `#f4f8fb` | Fondo de un bloque destacado (por ejemplo el saldo) |
 | `--color-relleno` | `#e2e2e5` | Pista de la barra de avance, botones deshabilitados |
 | `--color-linea` | `#d2d2d7` | Líneas finas de 1 px entre filas, bordes de campos |
 | `--color-accion` | `#0071e3` | Solo relleno de botones principales y lo seleccionado (pestaña activa, interruptor encendido) |
+| `--color-sobre-accion` | `#ffffff` | Texto sobre `--color-accion` (botón relleno y pestaña activa). Da 4,70 a 1; `--color-realce` daba 4,40 y no cumplía el criterio CA19 |
 | `--color-enlace` | `#0066cc` | Texto de enlaces y de botones de contorno, y su borde |
 | `--color-decorativo` | `#2997ff` | Relleno de la barra de avance y trazos de íconos. Nunca en botones |
 | `--color-icono` | `#858585` | Solo trazos de íconos y bordes. Nunca texto |
@@ -26,6 +27,7 @@ Cambios frente a la versión actual: el tema oscuro se retira (solo tema claro) 
 Reglas:
 
 - `--color-accion` nunca es color de texto, borde ni decoración.
+- El texto que va sobre `--color-accion` es siempre `--color-sobre-accion`.
 - No se mezclan los tres azules en un mismo elemento.
 - No hay verde ni rojo. Préstamo y pago se distinguen por el signo (+3 h, -3 h) y por la etiqueta, no por color.
 - Avisos y errores: texto en `--color-texto` con la palabra "Aviso" o "Error" delante y una línea fina. Si hace falta un color nuevo, se pregunta antes.
@@ -63,13 +65,13 @@ Reglas:
 
 ## 5. Componentes
 
-Botón relleno (acción principal): fondo `--color-accion`, texto `--color-realce` de 17 px y peso 400, radio 980 px, relleno 11 px 15 px, sin borde. Uno solo por pantalla. En celular ocupa el ancho completo.
+Botón relleno (acción principal): fondo `--color-accion`, texto `--color-sobre-accion` de 17 px y peso 400, radio 980 px, relleno 11 px 15 px, sin borde. Uno solo por pantalla. En celular ocupa el ancho completo.
 
 Botón de contorno (acción secundaria): borde de 1 px `--color-enlace`, texto `--color-enlace`, fondo transparente, mismo radio y relleno. Va junto al botón relleno, nunca dos rellenos juntos. Las acciones que borran usan contorno con `--color-texto`.
 
 Enlace: texto `--color-enlace`, sin fondo, subrayado solo al pasar el dedo o el cursor.
 
-Pestañas (navegación): fila horizontal que se desplaza de lado, bajo el título, con línea fina inferior. Cada pestaña es una pastilla de 14 px peso 600. La activa lleva fondo `--color-accion` y texto `--color-realce`. Las demás, texto `--color-texto` sin fondo. Ninguna etiqueta se corta.
+Pestañas (navegación): fila horizontal que se desplaza de lado, bajo el título, con línea fina inferior. Cada pestaña es una pastilla de 14 px peso 600. La activa lleva fondo `--color-accion` y texto `--color-sobre-accion`. Las demás, texto `--color-texto` sin fondo. Ninguna etiqueta se corta.
 
 Campo de formulario: etiqueta de 14 px en `--color-texto-suave` arriba, campo con radio 8 px, borde 1 px `--color-linea`, fondo `--color-lienzo`, texto de 17 px. Al enfocar: aro de 2 px `--color-accion`. Letra de 16 px o más para que el iPhone no haga zoom.
 
@@ -111,6 +113,7 @@ Diálogo de confirmación: sobre un velo negro de 40 % de opacidad, hoja de `--c
   --color-relleno: #e2e2e5;
   --color-linea: #d2d2d7;
   --color-accion: #0071e3;
+  --color-sobre-accion: #ffffff;
   --color-enlace: #0066cc;
   --color-decorativo: #2997ff;
   --color-icono: #858585;

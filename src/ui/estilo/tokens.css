@@ -13,6 +13,7 @@
   --color-relleno: #e2e2e5;
   --color-linea: #d2d2d7;
   --color-accion: #0071e3;
+  --color-sobre-accion: #ffffff;
   --color-enlace: #0066cc;
   --color-decorativo: #2997ff;
   --color-icono: #858585;
@@ -64,6 +65,11 @@
   /* Radios: solo dos */
   --radio-pastilla: 980px;
   --radio-caja: 8px;
+
+  /* Medidas de los componentes que da el documento (secciones 4 y 5) */
+  --zona-tactil: 44px; /* alto mínimo de todo lo que se toca */
+  --barra-alto: 6px; /* barra de avance */
+  --relleno-boton: 11px 15px;
 }
 
 /*
@@ -79,6 +85,7 @@
     --color-relleno: #fff;
     --color-linea: #000;
     --color-accion: #000;
+    --color-sobre-accion: #fff;
     --color-enlace: #000;
     --color-decorativo: #000;
     --color-icono: #000;

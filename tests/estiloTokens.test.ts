@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
+import { inflateSync } from "node:zlib";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -25,13 +26,14 @@ const COLORES = {
   "--color-relleno": "#e2e2e5",
   "--color-linea": "#d2d2d7",
   "--color-accion": "#0071e3",
+  "--color-sobre-accion": "#ffffff",
   "--color-enlace": "#0066cc",
   "--color-decorativo": "#2997ff",
   "--color-icono": "#858585",
 };
 
 describe("tokens.css: lo que define estilo-visual.md", () => {
-  it("define los diez colores con los valores exactos del documento", () => {
+  it("define los once colores con los valores exactos del documento", () => {
     for (const [nombre, valor] of Object.entries(COLORES)) expect(variable(base, nombre), nombre).toBe(valor);
   });
 
@@ -68,6 +70,28 @@ describe("tokens.css: lo que define estilo-visual.md", () => {
     expect(variable(base, "--texto-cifra")).toBe("44px");
   });
 
+  it("define las medidas de los componentes que da la sección 4 y 5: zona táctil, barra de avance y relleno del botón", () => {
+    expect(variable(base, "--zona-tactil")).toBe("44px");
+    expect(variable(base, "--barra-alto")).toBe("6px");
+    expect(variable(base, "--relleno-boton")).toBe("11px 15px");
+  });
+
+  it("el texto sobre el azul de acción cumple 4,5 a 1 (CA19)", () => {
+    const luminancia = (hex: string) => {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const contraste = (a: string, b: string) => {
+      const [x, y] = [luminancia(a), luminancia(b)].sort((p, q) => q - p);
+      return (x + 0.05) / (y + 0.05);
+    };
+    expect(contraste(COLORES["--color-sobre-accion"], COLORES["--color-accion"])).toBeGreaterThanOrEqual(4.5);
+    // lo que el documento decía antes no llegaba
+    expect(contraste(COLORES["--color-realce"], COLORES["--color-accion"])).toBeLessThan(4.5);
+    // y el gris más claro permitido para texto sigue cumpliendo sobre el lienzo
+    expect(contraste(COLORES["--color-texto-suave"], COLORES["--color-lienzo"])).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("define los pesos permitidos: 300, 400 y 600, nunca 700", () => {
     expect(variable(base, "--peso-ligero")).toBe("300");
     expect(variable(base, "--peso-normal")).toBe("400");
@@ -102,6 +126,7 @@ describe("tokens.css: impresión (CA21)", () => {
     for (const nombre of ["--color-accion", "--color-enlace", "--color-decorativo", "--color-icono"]) {
       expect(variable(impresion, nombre), nombre).toBe("#000");
     }
+    expect(variable(impresion, "--color-sobre-accion")).toBe("#fff");
   });
 
   it("los colores de impresión son solo blanco y negro", () => {
@@ -169,4 +194,41 @@ describe("el verificador de estilo", () => {
     const paquete = JSON.parse(leer("package.json"));
     expect(paquete.scripts["check:estilo"]).toMatch(/scripts\/check-estilo\.mjs/);
   });
+});
+
+describe("ícono de la app instalada", () => {
+  /** Decodifica un PNG RGB de 8 bits sin entrelazado (el que genera el script de íconos). */
+  function leerPng(ruta: string) {
+    const bytes = readFileSync(join(RAIZ, ruta));
+    let posicion = 8;
+    let ancho = 0;
+    const datos: Buffer[] = [];
+    while (posicion < bytes.length) {
+      const largo = bytes.readUInt32BE(posicion);
+      const tipo = bytes.toString("ascii", posicion + 4, posicion + 8);
+      const cuerpo = bytes.subarray(posicion + 8, posicion + 8 + largo);
+      if (tipo === "IHDR") ancho = cuerpo.readUInt32BE(0);
+      if (tipo === "IDAT") datos.push(cuerpo);
+      posicion += 12 + largo;
+    }
+    const crudo = inflateSync(Buffer.concat(datos));
+    const fila = 1 + ancho * 3;
+    return {
+      ancho,
+      pixel: (x: number, y: number) => [0, 1, 2].map((c) => crudo[y * fila + 1 + x * 3 + c]),
+    };
+  }
+  const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+
+  for (const archivo of ["icon-192.png", "icon-512.png", "apple-touch-icon.png"]) {
+    it(`${archivo}: fondo del azul de acción y reloj en el color de texto sobre acción`, () => {
+      const png = leerPng(`public/${archivo}`);
+      expect(png.pixel(0, 0)).toEqual(rgb(COLORES["--color-accion"]));
+      expect(png.pixel(png.ancho - 1, png.ancho - 1)).toEqual(rgb(COLORES["--color-accion"]));
+      // un punto del aro del reloj (a 31,5 % del ancho desde el centro, a la altura del centro)
+      const centro = Math.floor(png.ancho / 2);
+      const enElAro = centro - Math.round(png.ancho * 0.315);
+      expect(png.pixel(enElAro, centro)).toEqual(rgb(COLORES["--color-sobre-accion"]));
+    });
+  }
 });

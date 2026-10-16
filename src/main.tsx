@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './ui/estilo/tokens.css'
 import './ui/estilo/global.css'
 import './ui/estilo/puente.css'
+import './ui/estilo/componentes.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(

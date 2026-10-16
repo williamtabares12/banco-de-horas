@@ -1,0 +1,422 @@
+/*
+ * Componentes (estilo-visual.md, sección 5). Solo usan los tokens de tokens.css.
+ *
+ * Van en la capa "componentes", que gana a la capa "legado" (los estilos de las pantallas de antes,
+ * App.css). Así un componente nuevo no hereda por accidente reglas viejas como "button { … }".
+ */
+@layer componentes {
+  /* ---------- Botones ---------- */
+
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--zona-tactil);
+    margin: 0;
+    padding: var(--relleno-boton);
+    font-family: var(--fuente);
+    font-size: var(--texto-cuerpo);
+    font-weight: var(--peso-normal);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-enlace);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radio-pastilla);
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  /* Acción principal: relleno azul. Una por pantalla. */
+  .boton--relleno {
+    color: var(--color-sobre-accion);
+    background: var(--color-accion);
+  }
+
+  /* Acción secundaria: contorno. Va junto al relleno, nunca dos rellenos. */
+  .boton--contorno {
+    color: var(--color-enlace);
+    background: transparent;
+    border-color: var(--color-enlace);
+  }
+
+  /* Las acciones que borran usan contorno con el color del texto */
+  .boton--contorno.boton--borra {
+    color: var(--color-texto);
+    border-color: var(--color-texto);
+  }
+
+  .boton:disabled {
+    color: var(--color-texto-suave);
+    background: var(--color-relleno);
+    border-color: transparent;
+    cursor: default;
+  }
+
+  /* En el celular, el botón relleno ocupa el ancho completo */
+  @media (max-width: 640px) {
+    .boton--relleno {
+      width: 100%;
+    }
+  }
+
+  /* ---------- Enlace ---------- */
+
+  .enlace {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--zona-tactil);
+    margin: 0;
+    padding: 0;
+    font-family: var(--fuente);
+    font-size: var(--texto-cuerpo);
+    font-weight: var(--peso-normal);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-enlace);
+    background: transparent;
+    border: 0;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .enlace:hover,
+  .enlace:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* ---------- Foco de teclado ---------- */
+
+  .boton:focus-visible,
+  .enlace:focus-visible,
+  .pestana:focus-visible,
+  .fila-lista__tocable:focus-visible,
+  .interruptor:focus-visible {
+    outline: 2px solid var(--color-accion);
+    outline-offset: 2px;
+  }
+
+  /* ---------- Pestañas ---------- */
+
+  .pestanas {
+    display: flex;
+    gap: var(--esp-4);
+    padding: var(--esp-8) 0;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-linea);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pestanas::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pestana {
+    flex: 0 0 auto;
+    min-height: var(--zona-tactil);
+    margin: 0;
+    padding: 0 var(--esp-16);
+    font-family: var(--fuente);
+    font-size: var(--texto-pequeno);
+    font-weight: var(--peso-fuerte);
+    line-height: var(--interlinea-pequeno);
+    letter-spacing: var(--espaciado-pequeno);
+    white-space: nowrap;
+    color: var(--color-texto);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radio-pastilla);
+    cursor: pointer;
+  }
+
+  .pestana--activa {
+    color: var(--color-sobre-accion);
+    background: var(--color-accion);
+  }
+
+  /* ---------- Campos de formulario ---------- */
+
+  .campo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-4);
+  }
+
+  .campo__etiqueta {
+    font-size: var(--texto-pequeno);
+    line-height: var(--interlinea-pequeno);
+    letter-spacing: var(--espaciado-pequeno);
+    color: var(--color-texto-suave);
+  }
+
+  .campo__control {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--zona-tactil);
+    margin: 0;
+    padding: var(--esp-12);
+    font-family: var(--fuente);
+    font-size: var(--texto-cuerpo);
+    font-weight: var(--peso-normal);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-texto);
+    background: var(--color-lienzo);
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radio-caja);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .campo__control::placeholder {
+    color: var(--color-texto-suave);
+  }
+
+  /* Al enfocar: aro de 2 px de acción */
+  .campo__control:focus {
+    outline: 2px solid var(--color-accion);
+    outline-offset: 0;
+  }
+
+  /* ---------- Filas de lista: sin fondo ni tarjeta, solo una línea fina entre filas ---------- */
+
+  .lista-filas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .fila-lista {
+    border-bottom: 1px solid var(--color-linea);
+  }
+
+  .fila-lista__tocable,
+  .fila-lista__contenido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-16);
+    width: 100%;
+    min-height: var(--zona-tactil);
+    margin: 0;
+    padding: var(--esp-12) 0;
+    font-family: var(--fuente);
+    font-size: var(--texto-cuerpo);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-texto);
+    text-align: left;
+    background: transparent;
+    border: 0;
+  }
+
+  .fila-lista__tocable {
+    cursor: pointer;
+  }
+
+  .fila-lista__texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .fila-lista__fecha,
+  .fila-lista__detalle {
+    font-size: var(--texto-caption);
+    line-height: var(--interlinea-caption);
+    letter-spacing: var(--espaciado-caption);
+    color: var(--color-texto-suave);
+  }
+
+  .fila-lista__titulo {
+    font-size: var(--texto-cuerpo);
+    color: var(--color-texto);
+  }
+
+  .fila-lista__valor {
+    flex: 0 0 auto;
+    font-size: var(--texto-cuerpo);
+    font-weight: var(--peso-fuerte);
+    white-space: nowrap;
+    color: var(--color-texto);
+  }
+
+  .fila-lista__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--esp-8);
+    padding-bottom: var(--esp-12);
+  }
+
+  /* ---------- Barra de avance ---------- */
+
+  .barra-avance {
+    height: var(--barra-alto);
+    overflow: hidden;
+    background: var(--color-relleno);
+    border-radius: var(--radio-pastilla);
+  }
+
+  .barra-avance__relleno {
+    height: 100%;
+    background: var(--color-decorativo);
+    border-radius: var(--radio-pastilla);
+  }
+
+  /* ---------- Interruptor ---------- */
+
+  .interruptor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--esp-16);
+    width: 100%;
+    min-height: var(--zona-tactil);
+    margin: 0;
+    padding: 0;
+    font-family: var(--fuente);
+    font-size: var(--texto-cuerpo);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-texto);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .interruptor__pista {
+    position: relative;
+    flex: 0 0 auto;
+    width: 51px;
+    height: 31px;
+    background: var(--color-relleno);
+    border-radius: var(--radio-pastilla);
+  }
+
+  .interruptor__bolita {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 27px;
+    height: 27px;
+    background: var(--color-sobre-accion);
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radio-pastilla);
+  }
+
+  .interruptor--encendido .interruptor__pista {
+    background: var(--color-accion);
+  }
+
+  .interruptor--encendido .interruptor__bolita {
+    left: 22px;
+    border-color: transparent;
+  }
+
+  /* ---------- Diálogo de confirmación ---------- */
+
+  .dialogo {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--esp-16);
+  }
+
+  /* El velo negro de 40 %: el negro del sistema (--color-texto) con 40 % de opacidad */
+  .dialogo__velo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--color-texto);
+    opacity: 0.4;
+  }
+
+  .dialogo__hoja {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-12);
+    width: 100%;
+    max-width: 400px;
+    padding: var(--esp-24);
+    background: var(--color-lienzo);
+    border: 1px solid var(--color-linea);
+    border-radius: var(--radio-caja);
+  }
+
+  .dialogo__titulo {
+    margin: 0;
+    font-size: var(--texto-subtitulo);
+    font-weight: var(--peso-fuerte);
+    line-height: var(--interlinea-subtitulo);
+    letter-spacing: var(--espaciado-subtitulo);
+    color: var(--color-texto);
+  }
+
+  .dialogo__mensaje {
+    margin: 0;
+    font-size: var(--texto-cuerpo);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-texto);
+  }
+
+  .dialogo__acciones {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-8);
+    margin-top: var(--esp-8);
+  }
+
+  .dialogo__acciones .boton {
+    width: 100%;
+  }
+
+  /* ---------- Vista de componentes (solo desarrollo) ---------- */
+
+  .galeria {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-24);
+    max-width: 640px;
+    margin: 0 auto;
+    padding: var(--esp-16) var(--esp-16) var(--esp-56);
+  }
+
+  .galeria__seccion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-12);
+  }
+
+  .galeria__fila {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--esp-8);
+  }
+
+  .galeria__nota {
+    margin: 0;
+    font-size: var(--texto-pequeno);
+    color: var(--color-texto-suave);
+  }
+
+  /* ---------- Impresión: sin menús ni botones ---------- */
+
+  @media print {
+    .pestanas {
+      display: none;
+    }
+  }
+}

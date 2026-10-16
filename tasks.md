@@ -45,7 +45,7 @@ Se hacen después de lo que ya esté construido, en este orden. La app ya tiene 
 Solo cambia la apariencia. No se toca `src/dominio/` ni los datos guardados, y las pruebas existentes deben seguir en verde.
 
 - [x] T18. Tokens y base. Crear `src/ui/estilo/tokens.css` con las variables de estilo-visual.md sección 8, estilos globales (fondo `--color-lienzo`, letra del sistema, 17 px de base, cifras tabulares), color de tema en el manifiesto y en la etiqueta meta, y `scripts/check-estilo.mjs` con `npm run check:estilo`. Hecho cuando CA16 pasa.
-- [ ] T19. Componentes. Botón relleno, botón de contorno, enlace, pestañas con desplazamiento de lado (activa en azul), campo de formulario, fila de lista, barra de avance, interruptor y diálogo de confirmación, según la sección 5 del documento de estilo. Hecho cuando CA17 y CA18 se cumplen.
+- [x] T19. Componentes. Botón relleno, botón de contorno, enlace, pestañas con desplazamiento de lado (activa en azul), campo de formulario, fila de lista, barra de avance, interruptor y diálogo de confirmación, según la sección 5 del documento de estilo. Hecho cuando CA17 y CA18 se cumplen.
 - [ ] T20. Pantallas. Rehacer Inicio, Turnos, Banco, Quincena, Extracto (con estilos de impresión) y Ajustes con esos componentes. Sin tarjetas con fondo, sin sombras y sin tema oscuro. Hecho cuando CA21 se cumple y `npm run check:estilo` pasa.
 - [ ] T21. Revisión en el celular de Alejandro (iPhone, en Safari y con la app instalada): contraste, tamaños táctiles, campos sin zoom, pestañas sin cortar. Lista de hallazgos para corregir. Hecho cuando CA19 y CA20 se cumplen.
 

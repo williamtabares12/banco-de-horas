@@ -9,7 +9,7 @@ Deriva de spec-banco-de-horas.md (v0.5). Si algo de aquí contradice el spec, ma
 - Sin librería de fechas. Los turnos se manejan en minutos enteros y las fechas como texto local ("2026-09-12T19:00"). Colombia no tiene horario de verano, así que no hay saltos de hora que cuidar.
 - Datos en localStorage detrás de una interfaz `Repositorio`. Son pocos datos (cientos de turnos), y la interfaz permite cambiar a IndexedDB sin tocar el resto. El respaldo es exportar/importar JSON.
 - Sin router. Cinco pestañas con un estado simple.
-- Estilos con CSS plano y variables en `src/ui/estilo/tokens.css`, tomadas de estilo-visual.md. Pensado primero para celular. Estilos de impresión para el extracto. Sin librerías de UI ni fuentes descargadas: la letra es la del sistema.
+- Estilos con CSS plano y variables en `src/ui/estilo/tokens.css`, tomadas de estilo-visual.md. Pensado primero para celular. Estilos de impresión para el extracto. Sin librerías de UI ni fuentes descargadas: la letra es la del sistema. Los componentes (`src/ui/componentes/`) tienen su CSS en `src/ui/estilo/componentes.css`, dentro de la capa `componentes`, que gana a la capa `legado` (las pantallas de antes, hasta T20). Con `npm run dev`, la dirección `/#componentes` muestra todos los componentes juntos; esa vista solo existe en desarrollo y no entra en el build.
 - PWA con vite-plugin-pwa, en una tarea aparte y solo cuando todo lo demás funcione.
 - Sin servidor, sin cuentas, sin analítica.
 - Los datos guardados llevan un número de versión (`schemaVersion`). Cuando cambia el modelo se escribe una migración, para no perder lo que ya está en el celular.

@@ -1,5 +1,8 @@
 /* Estilos globales: lienzo, letra del sistema y cifras tabulares. Solo tema claro. */
 
+/* Orden de las capas: los componentes nuevos ganan a los estilos de las pantallas de antes. */
+@layer legado, componentes;
+
 :root {
   color-scheme: light;
 }
