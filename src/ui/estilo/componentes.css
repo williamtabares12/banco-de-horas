@@ -170,6 +170,12 @@
     appearance: none;
   }
 
+  /* El select se queda con su apariencia nativa: con "none" el iPhone le quita la flecha de la lista */
+  select.campo__control {
+    -webkit-appearance: menulist;
+    appearance: auto;
+  }
+
   .campo__control::placeholder {
     color: var(--color-texto-suave);
   }

@@ -124,6 +124,9 @@ describe("campos (sección 5, CA20)", () => {
     const tamano = Number(/--texto-cuerpo:\s*(\d+)px/.exec(leer("src/ui/estilo/tokens.css"))![1]);
     expect(tamano).toBeGreaterThanOrEqual(16);
   });
+  it("el select conserva su apariencia nativa: sin ella el iPhone le quita la flecha y no se nota que es una lista", () => {
+    expect(css).toMatch(/select\.campo__control\s*\{[^}]*appearance:\s*auto/);
+  });
   it("al enfocar: aro de 2 px de acción", () => {
     expect(css).toMatch(/\.campo__control:focus[^{]*\{[^}]*outline:\s*2px solid var\(--color-accion\)/);
   });
