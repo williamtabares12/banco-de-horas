@@ -49,9 +49,18 @@ Solo cambia la apariencia. No se toca `src/dominio/` ni los datos guardados, y l
 - [x] T20. Pantallas. Rehacer Inicio, Turnos, Banco, Quincena, Extracto (con estilos de impresión) y Ajustes con esos componentes. Sin tarjetas con fondo, sin sombras y sin tema oscuro. Hecho cuando CA21 se cumple y `npm run check:estilo` pasa.
 - [x] T21. Revisión en el celular de Alejandro (iPhone, en Safari y con la app instalada): contraste, tamaños táctiles, campos sin zoom, pestañas sin cortar. Lista de hallazgos para corregir. Hecho cuando CA19 y CA20 se cumplen.
 
-## Fase 6: hechas antes de la Fase 5b
+## Fase 6: versión para compañeros (spec-companeros.md y plan-nube.md)
 
-Ya estaban hechas y publicadas cuando llegaron las T18 a T21 de arriba, por eso llevan los números T22 y T23. En el historial de git figuran como "T17: extracto en PDF…" y "T18: diseño estilo Wise…".
+Se empieza cuando las fases 5 y 5b estén terminadas y Alejandro haya usado la app unos días. Primero las reglas de seguridad y sus pruebas, después el código de nube. Las pruebas de dominio existentes no se modifican para que pasen.
 
-- [x] T22. Extracto en PDF en iPhone. `window.print()` no hace nada en el iPhone con la app instalada. El extracto se genera como PDF dentro de la app, sin librerías (`ui/pdf.ts`), y se entrega con la hoja de compartir del sistema; en el computador se descarga o se imprime. Verificado leyendo y dibujando los PDF con pdf.js.
-- [x] T23. Diseño estilo Wise (verde bosque y lima, Inter empaquetada). Reemplazado por el estilo de la Fase 5b (estilo-visual.md): la T18 retira la fuente empaquetada y la paleta verde.
+- [ ] T22. Proyecto y entorno de Firebase. Alejandro crea el proyecto nuevo en su cuenta personal (plan gratuito), activa Authentication con Google, Firestore y Hosting. Claude Code lo guía paso a paso, instala `firebase-tools`, configura los emuladores de Auth y Firestore y el archivo `firebase.json`. Sin secretos en el repositorio. Hecho cuando `npm run emuladores` levanta Auth y Firestore.
+- [ ] T23. Reglas de seguridad y sus pruebas. Escribir primero las pruebas con dos usuarios y un visitante sin sesión, y después las reglas de plan-nube.md sección 3. Hecho cuando CC1 y CC2 pasan en el emulador.
+- [ ] T24. Dominio: saldo actual, saldo proyectado, movimientos "Programado" y saldo a favor. Funciones nuevas, sin tocar las existentes. Hecho cuando CC7, CC8 y CC9 pasan.
+- [ ] T25. `RepositorioFirestore` con caché local persistente y lectura en tiempo real. Pruebas en el emulador: guardar, leer, editar, borrar, turno y su movimiento en el mismo lote. Hecho cuando pasan y el repositorio local sigue funcionando para las pruebas.
+- [ ] T26. Inicio de sesión con Google y primer ingreso en pasos (aviso y casilla, saldo inicial, horas semanales, plantillas). Cierre de sesión. Probar en Safari del iPhone y con la app instalada; si falla en la instalada, probar redirección con `authDomain` propio. Hecho cuando CC3 pasa y el ingreso funciona en un iPhone.
+- [ ] T27. Importar un respaldo JSON a la cuenta, con validación y lotes de máximo 500 operaciones. Hecho cuando CC5 pasa y un JSON inválido no escribe nada.
+- [ ] T28. Pantallas: "La clínica te debe X h", etiqueta "Programado" y saldo proyectado, indicador de sincronización, recordatorio de no escribir datos de pacientes en las notas. Con el estilo de estilo-visual.md. Hecho cuando CC4, CC7, CC8 y CC10 se cumplen.
+- [ ] T29. Exportar mis datos (JSON y PDF) y borrar mi cuenta con reautenticación y borrado por lotes. Hecho cuando CC6 pasa.
+- [ ] T30. Pantalla "Acerca de": versión de la app, aviso de privacidad (texto de aviso-privacidad.md ya revisado), correo de contacto, leyenda de "Registro personal, no oficial" y botón para reportar un problema. Sin nombre ni logo de la clínica.
+- [ ] T31. Despliegue en Firebase Hosting con la PWA (T11). Revisar las cuotas vigentes del plan gratuito. Prueba de punta a punta con dos cuentas en dos celulares (CC11). Hecho cuando A no ve nada de B y la app instalada funciona sin internet.
+- [ ] T32. Piloto (lo hace Alejandro, no Claude Code): invitar a 5 a 8 compañeros por enlace, dos semanas, canal de comentarios, lista de problemas. Hecho cuando se cumplen los criterios de la sección 8 de spec-companeros.md.
