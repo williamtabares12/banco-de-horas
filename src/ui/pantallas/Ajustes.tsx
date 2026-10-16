@@ -5,6 +5,14 @@ import { agregarFestivo, festivosEfectivos, quitarFestivo, festivosDelAnio } fro
 import { borrarPlantilla, duracionPlantilla, editarPlantilla, nuevaPlantilla } from "../../dominio/plantillas";
 import { diaSemana, formatearDuracion, parsearDuracion } from "../../dominio/tiempo";
 import type { Config, PlantillaTurno } from "../../dominio/tipos";
+import { Aviso } from "../componentes/Aviso";
+import { Boton } from "../componentes/Boton";
+import { BotonArchivo } from "../componentes/BotonArchivo";
+import { Campo, Entrada, Seleccion } from "../componentes/Campo";
+import { Enlace } from "../componentes/Enlace";
+import { FilaLista, ListaFilas } from "../componentes/FilaLista";
+import { Interruptor } from "../componentes/Interruptor";
+import { useConfirmacion } from "../componentes/useConfirmacion";
 import { aTextoHoras, hoy, nuevoId } from "../utilidades";
 
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -16,9 +24,11 @@ type Props = {
   importarTexto: (texto: string) => void;
 };
 
+type Mensaje = { texto: string; error: boolean } | null;
+
 export function Ajustes({ datos, cambiar, importarTexto }: Props) {
   return (
-    <section>
+    <section className="pantalla">
       <FormularioConfig
         config={datos.config}
         onGuardar={(nueva) =>
@@ -54,7 +64,7 @@ function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c
   const [hasta, setHasta] = useState(config.nocturnoHasta);
   const [desfase, setDesfase] = useState(String(config.desfaseQuincenas));
   const [extras, setExtras] = useState(config.extrasDescuentanDeuda);
-  const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
+  const [mensaje, setMensaje] = useState<Mensaje>(null);
 
   function enviar(e: FormEvent) {
     e.preventDefault();
@@ -78,36 +88,31 @@ function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c
 
   return (
     <form className="formulario" onSubmit={enviar}>
-      <h2>Configuración</h2>
-      <label>
-        Horas por semana
-        <input type="text" inputMode="decimal" value={semana} onChange={(e) => setSemana(e.target.value)} />
-      </label>
-      <label>
-        La jornada nocturna empieza a las
-        <input type="time" value={desde} onChange={(e) => setDesde(e.target.value)} required />
-      </label>
-      <label>
-        La jornada nocturna termina a las
-        <input type="time" value={hasta} onChange={(e) => setHasta(e.target.value)} required />
-      </label>
-      <label>
-        Los recargos se cobran
-        <select value={desfase} onChange={(e) => setDesfase(e.target.value)}>
+      <h2 className="titulo-seccion">Configuración</h2>
+      <Campo etiqueta="Horas por semana">
+        <Entrada type="text" inputMode="decimal" value={semana} onChange={(e) => setSemana(e.target.value)} />
+      </Campo>
+      <div className="dos-campos">
+        <Campo etiqueta="La noche empieza a las">
+          <Entrada type="time" value={desde} onChange={(e) => setDesde(e.target.value)} required />
+        </Campo>
+        <Campo etiqueta="La noche termina a las">
+          <Entrada type="time" value={hasta} onChange={(e) => setHasta(e.target.value)} required />
+        </Campo>
+      </div>
+      <Campo etiqueta="Los recargos se cobran">
+        <Seleccion value={desfase} onChange={(e) => setDesfase(e.target.value)}>
           <option value="1">En la quincena siguiente</option>
           <option value="0">En la misma quincena</option>
-        </select>
-      </label>
-      <label className="casilla">
-        <input type="checkbox" checked={extras} onChange={(e) => setExtras(e.target.checked)} />
-        Las horas extra descuentan deuda del banco
-      </label>
-      {mensaje && (
-        <p className={mensaje.error ? "error" : "ok"} role="status">
-          {mensaje.texto}
-        </p>
-      )}
-      <button type="submit" className="primario">Guardar configuración</button>
+        </Seleccion>
+      </Campo>
+      <Interruptor etiqueta="Las horas extra descuentan deuda del banco" activo={extras} onCambiar={setExtras} />
+      {mensaje && <Aviso tipo={mensaje.error ? "error" : "confirmacion"}>{mensaje.texto}</Aviso>}
+      <div className="acciones">
+        <Boton variante="relleno" type="submit">
+          Guardar configuración
+        </Boton>
+      </div>
     </form>
   );
 }
@@ -122,40 +127,47 @@ function Plantillas({
   onCambiar: (p: PlantillaTurno[]) => void;
 }) {
   const [edicion, setEdicion] = useState<EdicionPlantilla>(null);
+  const { dialogo, preguntar } = useConfirmacion();
 
   function borrar(p: PlantillaTurno) {
-    if (window.confirm(`¿Borrar la plantilla "${p.nombre}"? Los turnos ya guardados no cambian.`)) {
-      onCambiar(borrarPlantilla(plantillas, p.id));
-    }
+    preguntar(
+      {
+        titulo: `¿Borrar la plantilla "${p.nombre}"?`,
+        mensaje: "Los turnos ya guardados no cambian.",
+        textoConfirmar: "Borrar",
+      },
+      () => onCambiar(borrarPlantilla(plantillas, p.id)),
+    );
   }
 
   return (
-    <div className="formulario">
-      <h2>Plantillas de turno</h2>
-      <p className="nota">
+    <div className="seccion">
+      <h2 className="titulo-seccion">Plantillas de turno</h2>
+      <p className="texto-suave">
         Atajos para registrar turnos más rápido: llenan el horario, el descanso y las horas programadas. Cambiar una
         plantilla no modifica los turnos ya guardados.
       </p>
       {plantillas.length === 0 ? (
-        <p className="vacio">No hay plantillas.</p>
+        <p className="vacio__texto">No hay plantillas.</p>
       ) : (
-        <ul className="lista">
+        <ListaFilas>
           {plantillas.map((p) => (
-            <li key={p.id} className="tarjeta">
-              <div className="fila">
-                <strong>{p.nombre}</strong>
-                <span>{formatearDuracion(duracionPlantilla(p) - p.descansoMin)} netas</span>
-              </div>
-              <p className="nota">
-                {p.inicio} a {p.fin} · descanso {formatearDuracion(p.descansoMin)}
-              </p>
-              <div className="botones pequeno">
-                <button type="button" onClick={() => setEdicion({ plantilla: p })}>Editar</button>
-                <button type="button" onClick={() => borrar(p)}>Borrar</button>
-              </div>
-            </li>
+            <FilaLista
+              key={p.id}
+              titulo={p.nombre}
+              detalle={[`${p.inicio} a ${p.fin} · descanso ${formatearDuracion(p.descansoMin)}`]}
+              valor={`${formatearDuracion(duracionPlantilla(p) - p.descansoMin)} netas`}
+              acciones={
+                <>
+                  <Boton onClick={() => setEdicion({ plantilla: p })}>Editar</Boton>
+                  <Boton borra onClick={() => borrar(p)}>
+                    Borrar
+                  </Boton>
+                </>
+              }
+            />
           ))}
-        </ul>
+        </ListaFilas>
       )}
       {edicion ? (
         <FormularioPlantilla
@@ -171,8 +183,11 @@ function Plantillas({
           onCancelar={() => setEdicion(null)}
         />
       ) : (
-        <button type="button" onClick={() => setEdicion({})}>Nueva plantilla</button>
+        <div className="acciones acciones--fila">
+          <Boton onClick={() => setEdicion({})}>Nueva plantilla</Boton>
+        </div>
       )}
+      {dialogo}
     </div>
   );
 }
@@ -203,25 +218,21 @@ function FormularioPlantilla({
   }
 
   return (
-    <form className="tarjeta formulario" onSubmit={enviar}>
-      <h3>{inicial ? "Editar plantilla" : "Nueva plantilla"}</h3>
-      <label>
-        Nombre
-        <input type="text" placeholder="ej. Día 8 h" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-      </label>
-      <div className="dos-columnas">
-        <label>
-          Hora de inicio
-          <input type="time" value={inicio} onChange={(e) => setInicio(e.target.value)} required />
-        </label>
-        <label>
-          Hora de fin
-          <input type="time" value={fin} onChange={(e) => setFin(e.target.value)} required />
-        </label>
+    <form className="formulario" onSubmit={enviar}>
+      <h3 className="subtitulo">{inicial ? "Editar plantilla" : "Nueva plantilla"}</h3>
+      <Campo etiqueta="Nombre">
+        <Entrada type="text" placeholder="ej. Día 8 h" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+      </Campo>
+      <div className="dos-campos">
+        <Campo etiqueta="Hora de inicio">
+          <Entrada type="time" value={inicio} onChange={(e) => setInicio(e.target.value)} required />
+        </Campo>
+        <Campo etiqueta="Hora de fin">
+          <Entrada type="time" value={fin} onChange={(e) => setFin(e.target.value)} required />
+        </Campo>
       </div>
-      <label>
-        Descanso (minutos)
-        <input
+      <Campo etiqueta="Descanso (minutos)">
+        <Entrada
           type="number"
           inputMode="numeric"
           min={0}
@@ -229,11 +240,12 @@ function FormularioPlantilla({
           value={descanso}
           onChange={(e) => setDescanso(e.target.value)}
         />
-      </label>
-      {error && <p className="error" role="alert">{error}</p>}
-      <div className="botones">
-        <button type="submit" className="primario">Guardar plantilla</button>
-        <button type="button" onClick={onCancelar}>Cancelar</button>
+      </Campo>
+      {error && <Aviso tipo="error">{error}</Aviso>}
+      {/* El botón relleno de esta pantalla es "Guardar configuración": aquí, contorno y un enlace */}
+      <div className="acciones">
+        <Boton type="submit">Guardar plantilla</Boton>
+        <Enlace onClick={onCancelar}>Cancelar</Enlace>
       </div>
     </form>
   );
@@ -255,11 +267,10 @@ function Festivos({
   const etiqueta = (f: string) => `${DIAS[diaSemana(f)]} ${f.slice(8)}/${f.slice(5, 7)}`;
 
   return (
-    <div className="formulario">
-      <h2>Festivos</h2>
-      <label>
-        Año
-        <input
+    <div className="seccion">
+      <h2 className="titulo-seccion">Festivos</h2>
+      <Campo etiqueta="Año">
+        <Entrada
           type="number"
           min={2000}
           max={2100}
@@ -269,46 +280,46 @@ function Festivos({
             if (n >= 2000 && n <= 2100) setAnio(n);
           }}
         />
-      </label>
-      <ul className="lista compacta">
+      </Campo>
+      <ListaFilas>
         {efectivos.map((f) => (
-          <li key={f} className="fila">
-            <span>
-              {etiqueta(f)}
-              {!oficiales.has(f) && <span className="chip">agregado</span>}
-            </span>
-            <button type="button" onClick={() => onCambiar(quitarFestivo(config, f))}>Quitar</button>
-          </li>
+          <FilaLista
+            key={f}
+            titulo={etiqueta(f)}
+            detalle={oficiales.has(f) ? undefined : ["Agregado a mano"]}
+            lado={<Enlace onClick={() => onCambiar(quitarFestivo(config, f))}>Quitar</Enlace>}
+          />
         ))}
-      </ul>
+      </ListaFilas>
       {quitados.length > 0 && (
         <>
-          <h3>Quitados</h3>
-          <ul className="lista compacta">
+          <h3 className="subtitulo">Quitados</h3>
+          <ListaFilas>
             {quitados.map((f) => (
-              <li key={f} className="fila">
-                <span>{etiqueta(f)}</span>
-                <button type="button" onClick={() => onCambiar(agregarFestivo(config, f))}>Restaurar</button>
-              </li>
+              <FilaLista
+                key={f}
+                titulo={etiqueta(f)}
+                lado={<Enlace onClick={() => onCambiar(agregarFestivo(config, f))}>Restaurar</Enlace>}
+              />
             ))}
-          </ul>
+          </ListaFilas>
         </>
       )}
-      <label>
-        Agregar un festivo
-        <input type="date" value={nueva} onChange={(e) => setNueva(e.target.value)} />
-      </label>
-      <button
-        type="button"
-        disabled={!nueva}
-        onClick={() => {
-          onCambiar(agregarFestivo(config, nueva));
-          setAnio(Number(nueva.slice(0, 4)));
-          setNueva("");
-        }}
-      >
-        Agregar
-      </button>
+      <Campo etiqueta="Agregar un festivo">
+        <Entrada type="date" value={nueva} onChange={(e) => setNueva(e.target.value)} />
+      </Campo>
+      <div className="acciones acciones--fila">
+        <Boton
+          disabled={!nueva}
+          onClick={() => {
+            onCambiar(agregarFestivo(config, nueva));
+            setAnio(Number(nueva.slice(0, 4)));
+            setNueva("");
+          }}
+        >
+          Agregar
+        </Boton>
+      </div>
     </div>
   );
 }
@@ -322,7 +333,8 @@ function Respaldo({
   importarTexto: (t: string) => void;
   alExportar: () => void;
 }) {
-  const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
+  const [mensaje, setMensaje] = useState<Mensaje>(null);
+  const { dialogo, preguntar } = useConfirmacion();
 
   function exportar() {
     // la fecha del respaldo va dentro del archivo y también se recuerda en la app
@@ -338,9 +350,7 @@ function Respaldo({
     setMensaje({ texto: "Respaldo descargado.", error: false });
   }
 
-  async function importar(archivo: File | undefined) {
-    if (!archivo) return;
-    if (!window.confirm("Esto reemplaza todos los datos actuales con los del archivo. ¿Seguir?")) return;
+  async function importar(archivo: File) {
     try {
       importarTexto(await archivo.text());
       setMensaje({ texto: "Datos importados.", error: false });
@@ -351,29 +361,31 @@ function Respaldo({
   }
 
   return (
-    <div className="formulario">
-      <h2>Respaldo</h2>
-      <p className="nota">
+    <div className="seccion">
+      <h2 className="titulo-seccion">Respaldo</h2>
+      <p className="texto-suave">
         Los datos viven solo en este dispositivo. Descarga un respaldo de vez en cuando.{" "}
         {datos.ultimoRespaldo ? `Último respaldo: ${datos.ultimoRespaldo}.` : "Todavía no has descargado ninguno."}
       </p>
-      <button type="button" onClick={exportar}>Exportar JSON</button>
-      <label>
-        Importar un respaldo
-        <input
-          type="file"
+      <div className="acciones acciones--fila">
+        <Boton onClick={exportar}>Exportar JSON</Boton>
+        <BotonArchivo
+          etiqueta="Importar un respaldo"
           accept="application/json,.json"
-          onChange={(e) => {
-            void importar(e.target.files?.[0]);
-            e.target.value = "";
-          }}
+          onArchivo={(archivo) =>
+            preguntar(
+              {
+                titulo: "¿Reemplazar los datos?",
+                mensaje: "Esto reemplaza todos los datos actuales con los del archivo.",
+                textoConfirmar: "Reemplazar",
+              },
+              () => void importar(archivo),
+            )
+          }
         />
-      </label>
-      {mensaje && (
-        <p className={mensaje.error ? "error" : "ok"} role="status">
-          {mensaje.texto}
-        </p>
-      )}
+      </div>
+      {mensaje && <Aviso tipo={mensaje.error ? "error" : "confirmacion"}>{mensaje.texto}</Aviso>}
+      {dialogo}
     </div>
   );
 }

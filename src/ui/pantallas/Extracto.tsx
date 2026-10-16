@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
 import { saldo } from "../../dominio/banco";
 import { formatearDuracion } from "../../dominio/tiempo";
+import { Aviso } from "../componentes/Aviso";
+import { Boton } from "../componentes/Boton";
 import { filasExtracto } from "../extractoFilas";
 import { construirExtractoPdf } from "../extractoPdf";
 import { guardarPdf, puedeImprimir } from "../guardarArchivo";
@@ -9,9 +11,11 @@ import { hoy } from "../utilidades";
 
 type Props = {
   datos: Datos;
+  /** Lleva a la pantalla donde se cargan los movimientos. */
+  alIrABanco: () => void;
 };
 
-export function Extracto({ datos }: Props) {
+export function Extracto({ datos, alIrABanco }: Props) {
   const filas = filasExtracto(datos);
   const total = saldo(datos.movimientos);
   const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
@@ -27,44 +31,57 @@ export function Extracto({ datos }: Props) {
     }
   }
 
-  return (
-    <section className="extracto">
-      <div className="fila no-imprimir">
-        <h2>Extracto de horas</h2>
-        <div className="botones">
-          <button className="primario" onClick={guardar}>
-            Guardar / compartir PDF
-          </button>
-          {puedeImprimir() && <button onClick={() => window.print()}>Imprimir</button>}
+  if (filas.length === 0) {
+    return (
+      <section className="pantalla">
+        <div className="vacio">
+          <h2 className="titulo-seccion">Extracto de horas</h2>
+          <p className="vacio__texto">Todavía no hay movimientos para mostrar. Empieza cargando el saldo inicial.</p>
+          <Boton variante="relleno" onClick={alIrABanco}>
+            Ir a Banco
+          </Boton>
         </div>
-      </div>
-      {mensaje && (
-        <p className={`${mensaje.error ? "error" : "ok"} no-imprimir`} role="status">
-          {mensaje.texto}
-        </p>
-      )}
-      <h2 className="solo-imprimir">Extracto de horas</h2>
-      <p className="nota">Generado el {hoy()}. Horas que se deben a la clínica, con el saldo después de cada movimiento.</p>
+      </section>
+    );
+  }
 
-      {filas.length === 0 ? (
-        <p className="vacio">Todavía no hay movimientos para mostrar.</p>
-      ) : (
+  return (
+    <section className="pantalla">
+      <div className="seccion no-imprimir">
+        <h2 className="titulo-seccion">Extracto de horas</h2>
+        <div className="acciones">
+          <Boton variante="relleno" onClick={guardar}>
+            Guardar / compartir PDF
+          </Boton>
+          {puedeImprimir() && <Boton onClick={() => window.print()}>Imprimir</Boton>}
+        </div>
+        {mensaje && <Aviso tipo={mensaje.error ? "error" : "confirmacion"}>{mensaje.texto}</Aviso>}
+      </div>
+
+      <div className="seccion">
+        <h2 className="titulo-seccion solo-imprimir">Extracto de horas</h2>
+        <p className="texto-suave">
+          Generado el {hoy()}. Horas que se deben a la clínica, con el saldo después de cada movimiento.
+        </p>
+
         <table className="tabla-extracto">
           <thead>
             <tr>
               <th>Movimiento</th>
-              <th>Horas</th>
-              <th>Saldo</th>
+              <th className="num">Horas</th>
+              <th className="num">Saldo</th>
             </tr>
           </thead>
           <tbody>
             {filas.map((fila) => (
               <tr key={fila.id}>
                 <td>
-                  <div className="fecha-fila">{fila.fecha}</div>
-                  <strong>{fila.tipo}</strong>
+                  <span className="tabla-extracto__fecha">{fila.fecha}</span>
+                  <span className="tabla-extracto__tipo">{fila.tipo}</span>
                   {fila.detalle.map((linea) => (
-                    <div key={linea} className="nota">{linea}</div>
+                    <span key={linea} className="tabla-extracto__detalle">
+                      {linea}
+                    </span>
                   ))}
                 </td>
                 <td className="num">{fila.horas}</td>
@@ -79,7 +96,7 @@ export function Extracto({ datos }: Props) {
             </tr>
           </tfoot>
         </table>
-      )}
+      </div>
     </section>
   );
 }

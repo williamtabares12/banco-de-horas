@@ -1,32 +1,53 @@
 /* Estilos globales: lienzo, letra del sistema y cifras tabulares. Solo tema claro. */
 
-/* Orden de las capas: los componentes nuevos ganan a los estilos de las pantallas de antes. */
-@layer legado, componentes;
+/*
+ * Orden de las capas: la base va primero y los componentes la superan. Sin capas, un reinicio global
+ * como "h2 { font-size: inherit }" le ganaría a la clase de un componente.
+ */
+@layer base, componentes;
 
-:root {
-  color-scheme: light;
-}
+@layer base {
+  :root {
+    color-scheme: light;
+  }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html {
-  -webkit-text-size-adjust: 100%;
-}
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-body {
-  margin: 0;
-  background: var(--color-lienzo);
-  color: var(--color-texto);
-  font-family: var(--fuente);
-  font-size: var(--texto-cuerpo);
-  font-weight: var(--peso-normal);
-  line-height: var(--interlinea-cuerpo);
-  letter-spacing: var(--espaciado-cuerpo);
-  /* Las cifras de horas ocupan siempre el mismo ancho: las columnas del extracto quedan alineadas */
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
+  /* Los títulos y párrafos no traen márgenes del navegador: el espacio lo ponen las pantallas */
+  h1,
+  h2,
+  h3,
+  p {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  /* El navegador pone la negrita en 700; el estilo solo permite 300, 400 y 600 */
+  strong,
+  b {
+    font-weight: var(--peso-fuerte);
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-lienzo);
+    color: var(--color-texto);
+    font-family: var(--fuente);
+    font-size: var(--texto-cuerpo);
+    font-weight: var(--peso-normal);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    /* Las cifras de horas ocupan siempre el mismo ancho: las columnas del extracto quedan alineadas */
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
 }

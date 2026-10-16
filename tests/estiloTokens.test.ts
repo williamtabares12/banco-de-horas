@@ -149,7 +149,9 @@ describe("estilos globales", () => {
 
   it("solo tema claro: sin tema oscuro", () => {
     expect(global).toMatch(/color-scheme:\s*light/);
-    for (const css of [global, tokens, leer("src/App.css")]) expect(css).not.toMatch(/prefers-color-scheme\s*:\s*dark/);
+    for (const css of [global, tokens, leer("src/ui/estilo/componentes.css"), leer("src/ui/estilo/pantallas.css")]) {
+      expect(css).not.toMatch(/prefers-color-scheme\s*:\s*dark/);
+    }
   });
 
   it("se carga antes que los estilos de las pantallas", () => {

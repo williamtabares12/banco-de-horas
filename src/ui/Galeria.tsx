@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { Aviso } from "./componentes/Aviso";
 import { BarraAvance } from "./componentes/BarraAvance";
 import { Boton } from "./componentes/Boton";
+import { BotonArchivo } from "./componentes/BotonArchivo";
 import { Campo, Entrada, Seleccion } from "./componentes/Campo";
 import { DialogoConfirmacion } from "./componentes/DialogoConfirmacion";
 import { Enlace } from "./componentes/Enlace";
@@ -52,6 +54,16 @@ export default function Galeria() {
         <div className="galeria__fila">
           <Enlace onClick={() => setUltima("enlace")}>Ir a Ajustes</Enlace>
           <Enlace href="#componentes">Enlace con dirección</Enlace>
+        </div>
+      </section>
+
+      <section className="galeria__seccion">
+        <h2>Avisos</h2>
+        <Aviso tipo="aviso">El saldo quedó en negativo: has pagado 2 h más de lo que debías.</Aviso>
+        <Aviso tipo="error">No se pudo guardar en este dispositivo.</Aviso>
+        <Aviso tipo="confirmacion">Guardado.</Aviso>
+        <div className="galeria__fila">
+          <BotonArchivo etiqueta="Importar un respaldo" accept="application/json,.json" onArchivo={(a) => setUltima(`archivo: ${a.name}`)} />
         </div>
       </section>
 

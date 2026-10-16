@@ -20,10 +20,10 @@ function regla(selector: string): Record<string, string> {
 }
 
 describe("componentes.css: dónde vive y cómo se ordena", () => {
-  it("está dentro de una capa que gana a los estilos viejos de las pantallas", () => {
+  it("está dentro de una capa que gana a la base global (los reinicios de títulos y párrafos)", () => {
     expect(css).toMatch(/@layer componentes\s*\{/);
-    expect(leer("src/ui/estilo/global.css")).toMatch(/@layer legado,\s*componentes;/);
-    expect(leer("src/App.css")).toMatch(/@layer legado\s*\{/);
+    expect(leer("src/ui/estilo/global.css")).toMatch(/@layer base,\s*componentes;/);
+    expect(leer("src/ui/estilo/global.css")).toMatch(/@layer base\s*\{/);
   });
   it("se carga desde main.tsx", () => {
     expect(leer("src/main.tsx")).toMatch(/ui\/estilo\/componentes\.css/);

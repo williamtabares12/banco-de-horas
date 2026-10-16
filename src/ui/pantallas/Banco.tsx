@@ -3,7 +3,11 @@ import type { Datos } from "../../almacenamiento/repositorio";
 import { editarMovimiento, extracto, minutosConSigno, nuevoMovimiento, saldo, saldoNegativo } from "../../dominio/banco";
 import { formatearDuracion } from "../../dominio/tiempo";
 import type { MovimientoBanco } from "../../dominio/tipos";
+import { Aviso } from "../componentes/Aviso";
+import { Boton } from "../componentes/Boton";
+import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { FormularioMovimiento, type ValoresMovimiento } from "../componentes/FormularioMovimiento";
+import { useConfirmacion } from "../componentes/useConfirmacion";
 import { ahora, etiquetaMovimiento, nuevoId } from "../utilidades";
 
 type Tipo = MovimientoBanco["tipo"];
@@ -18,6 +22,7 @@ const conSigno = (minutos: number) => (minutos > 0 ? "+" : "") + formatearDuraci
 
 export function Banco({ datos, cambiar }: Props) {
   const [abierto, setAbierto] = useState<Abierto>(null);
+  const { dialogo, preguntar } = useConfirmacion();
   const movimientos = datos.movimientos;
   const hayInicial = movimientos.some((m) => m.tipo === "saldo_inicial");
   const filas = extracto(movimientos).reverse(); // lo más reciente primero
@@ -52,25 +57,35 @@ export function Banco({ datos, cambiar }: Props) {
 
   function borrar(m: MovimientoBanco) {
     const aviso = m.automatico && m.turnoId ? " Si luego editas el turno, se vuelve a generar." : "";
-    const texto = `¿Borrar este movimiento (${etiquetaMovimiento(m).toLowerCase()} del ${m.fecha}, ${conSigno(m.minutos)})?${aviso}`;
-    if (window.confirm(texto)) cambiar((d) => ({ ...d, movimientos: d.movimientos.filter((x) => x.id !== m.id) }));
+    preguntar(
+      {
+        titulo: "¿Borrar este movimiento?",
+        mensaje: `${etiquetaMovimiento(m)} del ${m.fecha}, ${conSigno(m.minutos)}.${aviso}`,
+        textoConfirmar: "Borrar",
+      },
+      () => cambiar((d) => ({ ...d, movimientos: d.movimientos.filter((x) => x.id !== m.id) })),
+    );
   }
 
+  const vacio = filas.length === 0 && !abierto;
+
   return (
-    <section>
-      <div className="tarjeta saldo">
-        <span className="etiqueta">Debo a la clínica</span>
-        <strong>{formatearDuracion(saldo(movimientos))}</strong>
+    <section className="pantalla">
+      <div className="bloques">
+        <div className="bloque bloque--realce">
+          <span className="etiqueta">Debo a la clínica</span>
+          <span className="cifra">{formatearDuracion(saldo(movimientos))}</span>
+        </div>
       </div>
 
       {saldoNegativo(movimientos) && (
-        <p className="aviso" role="status">
-          El saldo quedó en negativo: has pagado {formatearDuracion(-saldo(movimientos))} más de lo que debías. Revisa
-          los pagos o agrega un saldo inicial o préstamo que falte.
-        </p>
+        <Aviso tipo="aviso">
+          El saldo quedó en negativo: has pagado {formatearDuracion(-saldo(movimientos))} más de lo que debías. Revisa los
+          pagos o agrega un saldo inicial o préstamo que falte.
+        </Aviso>
       )}
 
-      {abierto ? (
+      {abierto && (
         <FormularioMovimiento
           key={abierto.editando?.id ?? abierto.tipo}
           tipo={abierto.tipo}
@@ -78,41 +93,56 @@ export function Banco({ datos, cambiar }: Props) {
           onGuardar={guardar}
           onCancelar={() => setAbierto(null)}
         />
-      ) : (
-        <div className="botones">
-          {hayInicial ? null : <button onClick={() => setAbierto({ tipo: "saldo_inicial" })}>Saldo inicial</button>}
-          <button onClick={() => setAbierto({ tipo: "prestamo" })}>Préstamo</button>
-          <button onClick={() => setAbierto({ tipo: "pago" })}>Pago</button>
-          <button onClick={() => setAbierto({ tipo: "ajuste" })}>Ajuste</button>
+      )}
+
+      {vacio && (
+        <div className="vacio">
+          <p className="vacio__texto">Todavía no hay movimientos. Empieza con el saldo inicial.</p>
+          <Boton variante="relleno" onClick={() => setAbierto({ tipo: "saldo_inicial" })}>
+            Cargar saldo inicial
+          </Boton>
         </div>
       )}
 
-      <h2>Movimientos</h2>
-      {filas.length === 0 ? (
-        <p className="vacio">Todavía no hay movimientos. Empieza con el saldo inicial.</p>
-      ) : (
-        <ul className="lista">
-          {filas.map(({ movimiento: m, saldoDespues }) => (
-            <li key={m.id} className="tarjeta">
-              <div className="fila">
-                <span>
-                  <strong>{etiquetaMovimiento(m)}</strong> · {m.fecha}
-                  {m.automatico && <span className="chip">automático</span>}
-                </span>
-                <strong className={m.minutos < 0 ? "baja" : "sube"}>{conSigno(m.minutos)}</strong>
-              </div>
-              {m.nota && <p className="nota">{m.nota}</p>}
-              <div className="fila pequeno">
-                <span>Saldo después: {formatearDuracion(saldoDespues)}</span>
-                <span className="botones">
-                  <button onClick={() => setAbierto({ tipo: m.tipo, editando: m })}>Editar</button>
-                  <button onClick={() => borrar(m)}>Borrar</button>
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {!abierto && !vacio && (
+        <div className="acciones acciones--fila">
+          {hayInicial ? null : <Boton onClick={() => setAbierto({ tipo: "saldo_inicial" })}>Saldo inicial</Boton>}
+          <Boton onClick={() => setAbierto({ tipo: "prestamo" })}>Préstamo</Boton>
+          <Boton onClick={() => setAbierto({ tipo: "pago" })}>Pago</Boton>
+          <Boton onClick={() => setAbierto({ tipo: "ajuste" })}>Ajuste</Boton>
+        </div>
       )}
+
+      {filas.length > 0 && (
+        <div className="seccion">
+          <h2 className="titulo-seccion">Movimientos</h2>
+          <ListaFilas>
+            {filas.map(({ movimiento: m, saldoDespues }) => (
+              <FilaLista
+                key={m.id}
+                fecha={m.fecha}
+                titulo={etiquetaMovimiento(m)}
+                detalle={[
+                  ...(m.automatico ? ["Automático, a partir de un turno"] : []),
+                  ...(m.nota ? [m.nota] : []),
+                  `Saldo después: ${formatearDuracion(saldoDespues)}`,
+                ]}
+                valor={conSigno(m.minutos)}
+                acciones={
+                  <>
+                    <Boton onClick={() => setAbierto({ tipo: m.tipo, editando: m })}>Editar</Boton>
+                    <Boton borra onClick={() => borrar(m)}>
+                      Borrar
+                    </Boton>
+                  </>
+                }
+              />
+            ))}
+          </ListaFilas>
+        </div>
+      )}
+
+      {dialogo}
     </section>
   );
 }

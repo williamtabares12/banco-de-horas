@@ -1,8 +1,8 @@
 /*
  * Componentes (estilo-visual.md, sección 5). Solo usan los tokens de tokens.css.
  *
- * Van en la capa "componentes", que gana a la capa "legado" (los estilos de las pantallas de antes,
- * App.css). Así un componente nuevo no hereda por accidente reglas viejas como "button { … }".
+ * Van en la capa "componentes", que gana a la capa "base" (los reinicios globales). Así un reinicio
+ * como "h2 { font-size: inherit }" no le gana a la clase de un componente.
  */
 @layer componentes {
   /* ---------- Botones ---------- */
@@ -250,6 +250,50 @@
     padding-bottom: var(--esp-12);
   }
 
+  .fila-lista__lado {
+    flex: 0 0 auto;
+  }
+
+  /* ---------- Avisos: texto normal con la palabra Aviso o Error delante y una línea fina ---------- */
+
+  .aviso {
+    margin: 0;
+    padding: var(--esp-12) 0;
+    font-size: var(--texto-cuerpo);
+    line-height: var(--interlinea-cuerpo);
+    letter-spacing: var(--espaciado-cuerpo);
+    color: var(--color-texto);
+    border-top: 1px solid var(--color-linea);
+    border-bottom: 1px solid var(--color-linea);
+  }
+
+  .aviso__palabra {
+    font-weight: var(--peso-fuerte);
+  }
+
+  /* ---------- Elegir un archivo: el campo nativo se esconde y la etiqueta se ve como botón ---------- */
+
+  .archivo {
+    position: relative;
+  }
+
+  .archivo:focus-within {
+    outline: 2px solid var(--color-accion);
+    outline-offset: 2px;
+  }
+
+  .archivo__entrada {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
   /* ---------- Barra de avance ---------- */
 
   .barra-avance {
@@ -285,6 +329,11 @@
     background: transparent;
     border: 0;
     cursor: pointer;
+  }
+
+  .interruptor__etiqueta {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .interruptor__pista {

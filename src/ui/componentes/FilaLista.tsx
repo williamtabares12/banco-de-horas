@@ -17,9 +17,11 @@ type Props = {
   onClick?: () => void;
   /** Acciones (editar, borrar) debajo de la fila, fuera del área tocable. */
   acciones?: ReactNode;
+  /** Una acción corta a la derecha de la fila (por ejemplo "Quitar"). Solo en filas que no se tocan. */
+  lado?: ReactNode;
 };
 
-export function FilaLista({ fecha, titulo, detalle, valor, onClick, acciones }: Props) {
+export function FilaLista({ fecha, titulo, detalle, valor, onClick, acciones, lado }: Props) {
   const contenido = (
     <>
       <span className="fila-lista__texto">
@@ -41,7 +43,10 @@ export function FilaLista({ fecha, titulo, detalle, valor, onClick, acciones }: 
           {contenido}
         </button>
       ) : (
-        <div className="fila-lista__contenido">{contenido}</div>
+        <div className="fila-lista__contenido">
+          {contenido}
+          {lado && <div className="fila-lista__lado">{lado}</div>}
+        </div>
       )}
       {acciones && <div className="fila-lista__acciones">{acciones}</div>}
     </li>

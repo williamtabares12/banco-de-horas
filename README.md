@@ -57,7 +57,7 @@ Para revisar que el código siga el estilo visual (estilo-visual.md):
 npm run check:estilo
 ```
 
-Falla si encuentra un color que no esté definido en `src/ui/estilo/tokens.css`. Con `-- --estricto` también revisa sombras, tema oscuro, pesos de letra, radios y tamaños de letra.
+Falla si encuentra un color que no esté definido en `src/ui/estilo/tokens.css`, o una sombra, el tema oscuro, un peso de letra, un radio o un tamaño de letra que no sean los del documento de estilo. También corre dentro de `npm test`.
 
 ## Tus datos y el respaldo
 

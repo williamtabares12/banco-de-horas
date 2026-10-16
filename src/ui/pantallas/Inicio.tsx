@@ -3,6 +3,10 @@ import { necesitaRespaldo } from "../../almacenamiento/respaldo";
 import { saldo, saldoNegativo, totales } from "../../dominio/banco";
 import { minutosDeSemana } from "../../dominio/semana";
 import { formatearDuracion } from "../../dominio/tiempo";
+import { Aviso } from "../componentes/Aviso";
+import { BarraAvance } from "../componentes/BarraAvance";
+import { Boton } from "../componentes/Boton";
+import { Enlace } from "../componentes/Enlace";
 import { hoy } from "../utilidades";
 
 type Props = {
@@ -17,50 +21,46 @@ export function Inicio({ datos, alRegistrar, alIrARespaldo }: Props) {
   const meta = datos.config.minutosSemana;
 
   return (
-    <section>
-      <button className="primario grande" onClick={alRegistrar}>
+    <section className="pantalla">
+      <Boton variante="relleno" onClick={alRegistrar}>
         Registrar turno
-      </button>
+      </Boton>
 
       {necesitaRespaldo(datos, hoy()) && (
-        <div className="aviso" role="status">
-          <p>
-            Hace más de 14 días que no descargas un respaldo. Los datos viven solo en este dispositivo: si se borran
-            los datos del navegador, se pierden.
-          </p>
-          <button onClick={alIrARespaldo}>Ir a Ajustes</button>
-        </div>
+        <Aviso tipo="aviso">
+          Hace más de 14 días que no descargas un respaldo. Los datos viven solo en este dispositivo: si se borran los
+          datos del navegador, se pierden. <Enlace onClick={alIrARespaldo}>Ir a Ajustes</Enlace>
+        </Aviso>
       )}
 
-      <div className="tarjeta saldo">
-        <span className="etiqueta">Debo a la clínica</span>
-        <strong>{formatearDuracion(saldo(datos.movimientos))}</strong>
-      </div>
-      {saldoNegativo(datos.movimientos) && (
-        <p className="aviso" role="status">
-          El saldo está en negativo. Revisa los pagos en Banco.
-        </p>
-      )}
+      <div className="bloques">
+        <div className="bloque bloque--realce">
+          <span className="etiqueta">Debo a la clínica</span>
+          <span className="cifra">{formatearDuracion(saldo(datos.movimientos))}</span>
+        </div>
 
-      <div className="dos-columnas">
-        <div className="tarjeta">
-          <span className="etiqueta">Prestado</span>
-          <strong>{formatearDuracion(prestado)}</strong>
-        </div>
-        <div className="tarjeta">
-          <span className="etiqueta">Pagado</span>
-          <strong>{formatearDuracion(pagado)}</strong>
-        </div>
-      </div>
+        {saldoNegativo(datos.movimientos) && <Aviso tipo="aviso">El saldo está en negativo. Revisa los pagos en Banco.</Aviso>}
 
-      <div className="tarjeta">
-        <div className="fila">
-          <span className="etiqueta">Esta semana</span>
-          <strong>
-            {formatearDuracion(semana)} / {formatearDuracion(meta)}
-          </strong>
+        <div className="bloque dos-columnas">
+          <div className="par">
+            <span className="etiqueta">Prestado</span>
+            <span className="cifra cifra--media">{formatearDuracion(prestado)}</span>
+          </div>
+          <div className="par">
+            <span className="etiqueta">Pagado</span>
+            <span className="cifra cifra--media">{formatearDuracion(pagado)}</span>
+          </div>
         </div>
-        <progress value={Math.min(semana, meta)} max={meta} aria-label="Avance de la semana" />
+
+        <div className="bloque">
+          <div className="etiqueta-valor">
+            <span className="etiqueta">Esta semana</span>
+            <span className="etiqueta-valor__valor">
+              {formatearDuracion(semana)} / {formatearDuracion(meta)}
+            </span>
+          </div>
+          <BarraAvance valor={semana} max={meta} etiqueta="Avance de la semana" />
+        </div>
       </div>
     </section>
   );

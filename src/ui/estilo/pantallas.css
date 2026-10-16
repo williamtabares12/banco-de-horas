@@ -1,0 +1,276 @@
+/*
+ * Pantallas (estilo-visual.md, secciones 4 y 6). Solo usan los tokens de tokens.css.
+ * Sin tarjetas con fondo, sin sombras y sin tema oscuro: la jerarquía sale del tamaño de letra,
+ * de las líneas finas de 1 px y de los cambios de superficie.
+ */
+
+/* ---------- Estructura: margen lateral de 16 px y 40 px entre secciones ---------- */
+
+.aplicacion {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 var(--esp-16) var(--esp-56);
+}
+
+/* Título de la app y pestañas: una barra fija con línea fina (la línea es la de las pestañas) */
+.encabezado {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0 calc(-1 * var(--esp-16));
+  padding: var(--esp-16) var(--esp-16) 0;
+  background: var(--color-lienzo);
+}
+
+.titulo-app {
+  margin-bottom: var(--esp-4);
+  font-size: var(--texto-subtitulo);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-subtitulo);
+  letter-spacing: var(--espaciado-subtitulo);
+  color: var(--color-texto);
+}
+
+.pantalla {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-40);
+  padding-top: var(--esp-24);
+}
+
+.seccion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-12);
+}
+
+/* ---------- Texto ---------- */
+
+.titulo-seccion {
+  font-size: var(--texto-titulo);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-titulo);
+  letter-spacing: var(--espaciado-titulo);
+  color: var(--color-texto);
+}
+
+.subtitulo {
+  font-size: var(--texto-subtitulo);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-subtitulo);
+  letter-spacing: var(--espaciado-subtitulo);
+  color: var(--color-texto);
+}
+
+.etiqueta,
+.texto-suave {
+  font-size: var(--texto-pequeno);
+  line-height: var(--interlinea-pequeno);
+  letter-spacing: var(--espaciado-pequeno);
+  color: var(--color-texto-suave);
+}
+
+.cifra {
+  font-size: var(--texto-cifra);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-cifra);
+  letter-spacing: var(--espaciado-cifra);
+  color: var(--color-texto);
+  overflow-wrap: anywhere;
+}
+
+.cifra--media {
+  font-size: var(--texto-titulo);
+  line-height: var(--interlinea-titulo);
+  letter-spacing: var(--espaciado-titulo);
+}
+
+/* ---------- Bloques tipográficos separados por líneas finas ---------- */
+
+.bloques {
+  display: flex;
+  flex-direction: column;
+}
+
+.bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  padding: var(--esp-20) 0;
+  border-bottom: 1px solid var(--color-linea);
+}
+
+/* El saldo: bloque destacado, con su fondo hasta los bordes de la pantalla */
+.bloque--realce {
+  margin: 0 calc(-1 * var(--esp-16));
+  padding: var(--esp-20) var(--esp-16);
+  background: var(--color-realce);
+}
+
+.dos-columnas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-16);
+}
+
+.par {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+}
+
+.etiqueta-valor {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--esp-16);
+}
+
+.etiqueta-valor__valor {
+  font-weight: var(--peso-fuerte);
+  color: var(--color-texto);
+}
+
+/* ---------- Formularios y acciones ---------- */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-16);
+}
+
+.dos-campos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-12);
+}
+
+/* Acciones una debajo de otra: el botón relleno primero, el de contorno o el enlace después */
+.acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--esp-8);
+}
+
+/* Varios botones de contorno en una fila (Banco) */
+.acciones--fila {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+/* Un enlace como acción secundaria: centrado bajo el botón */
+.acciones .enlace {
+  justify-content: center;
+}
+
+/* ---------- Estados vacíos: una frase en peso 300 y el botón relleno que lleva a la acción ---------- */
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-16);
+}
+
+.vacio__texto {
+  font-size: var(--texto-cuerpo);
+  font-weight: var(--peso-ligero);
+  line-height: var(--interlinea-cuerpo);
+  letter-spacing: var(--espaciado-cuerpo);
+  color: var(--color-texto);
+}
+
+/* ---------- Quincena ---------- */
+
+.selector-quincena {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--esp-8);
+}
+
+.selector-quincena__nombre {
+  font-size: var(--texto-subtitulo);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-subtitulo);
+  letter-spacing: var(--espaciado-subtitulo);
+  text-align: center;
+  color: var(--color-texto);
+}
+
+/* ---------- Extracto ---------- */
+
+.solo-imprimir {
+  display: none;
+}
+
+.tabla-extracto {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-extracto th,
+.tabla-extracto td {
+  padding: var(--esp-12) var(--esp-4);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-linea);
+}
+
+.tabla-extracto th {
+  font-size: var(--texto-caption);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-caption);
+  letter-spacing: var(--espaciado-caption);
+  color: var(--color-texto-suave);
+}
+
+.tabla-extracto .num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabla-extracto tfoot td {
+  font-weight: var(--peso-fuerte);
+  border-bottom: 0;
+}
+
+.tabla-extracto__fecha,
+.tabla-extracto__detalle {
+  display: block;
+  font-size: var(--texto-caption);
+  line-height: var(--interlinea-caption);
+  letter-spacing: var(--espaciado-caption);
+  color: var(--color-texto-suave);
+}
+
+.tabla-extracto__tipo {
+  font-weight: var(--peso-fuerte);
+}
+
+/* ---------- Impresión: sin barra, pestañas ni botones. El blanco y negro lo ponen los tokens de impresión. ---------- */
+
+@media print {
+  .aplicacion {
+    max-width: none;
+    padding: 0;
+  }
+
+  .encabezado,
+  .no-imprimir {
+    display: none;
+  }
+
+  .solo-imprimir {
+    display: block;
+  }
+
+  .tabla-extracto tr {
+    break-inside: avoid;
+  }
+
+  .tabla-extracto thead {
+    display: table-header-group;
+  }
+}

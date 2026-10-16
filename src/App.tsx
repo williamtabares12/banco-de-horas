@@ -3,14 +3,17 @@ import { RepositorioLocal } from "./almacenamiento/local";
 import type { Datos } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
+import { Aviso } from "./ui/componentes/Aviso";
+import { Boton } from "./ui/componentes/Boton";
+import { BotonArchivo } from "./ui/componentes/BotonArchivo";
 import { Pestanas } from "./ui/componentes/Pestanas";
+import { useConfirmacion } from "./ui/componentes/useConfirmacion";
 import { Ajustes } from "./ui/pantallas/Ajustes";
 import { Banco } from "./ui/pantallas/Banco";
 import { Extracto } from "./ui/pantallas/Extracto";
 import { Inicio } from "./ui/pantallas/Inicio";
 import { Quincena } from "./ui/pantallas/Quincena";
 import { Turnos } from "./ui/pantallas/Turnos";
-import "./App.css";
 
 const repo = new RepositorioLocal(localStorage);
 
@@ -53,8 +56,10 @@ export default function App() {
 
   if ("error" in estado) {
     return (
-      <main>
-        <h1>Banco de horas</h1>
+      <main className="aplicacion">
+        <header className="encabezado">
+          <h1 className="titulo-app">Banco de horas</h1>
+        </header>
         <PantallaError
           mensaje={estado.error}
           alImportar={(texto) => {
@@ -84,20 +89,24 @@ export default function App() {
   }
 
   return (
-    <main>
-      <h1>Banco de horas</h1>
-      <Pestanas
-        elementos={PESTANAS}
-        activa={pestana}
-        onCambiar={(id) => {
-          setAbrirTurnoNuevo(false);
-          setPestana(id);
-        }}
-      />
+    <main className="aplicacion">
+      <header className="encabezado">
+        <h1 className="titulo-app">Banco de horas</h1>
+        <Pestanas
+          elementos={PESTANAS}
+          activa={pestana}
+          onCambiar={(id) => {
+            setAbrirTurnoNuevo(false);
+            setPestana(id);
+          }}
+        />
+      </header>
       {fallaGuardado && (
-        <p className="error" role="alert">
-          No se pudo guardar en este dispositivo (¿poco espacio o navegación privada?). Descarga un respaldo en Ajustes.
-        </p>
+        <div className="pantalla">
+          <Aviso tipo="error">
+            No se pudo guardar en este dispositivo (¿poco espacio o navegación privada?). Descarga un respaldo en Ajustes.
+          </Aviso>
+        </div>
       )}
       {pestana === "inicio" && (
         <Inicio
@@ -112,7 +121,7 @@ export default function App() {
       {pestana === "turnos" && <Turnos datos={datos} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}
       {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
       {pestana === "quincena" && <Quincena datos={datos} />}
-      {pestana === "extracto" && <Extracto datos={datos} />}
+      {pestana === "extracto" && <Extracto datos={datos} alIrABanco={() => setPestana("banco")} />}
       {pestana === "ajustes" && (
         <Ajustes
           datos={datos}
@@ -133,19 +142,17 @@ function PantallaError(props: {
   alEmpezarDeCero: () => void;
 }) {
   const [problema, setProblema] = useState("");
+  const { dialogo, preguntar } = useConfirmacion();
   return (
-    <div className="formulario">
-      <p className="error" role="alert">
+    <section className="pantalla">
+      <Aviso tipo="error">
         Los datos guardados en este dispositivo están dañados: {props.mensaje}. No se ha borrado nada.
-      </p>
-      <label>
-        Importar un respaldo
-        <input
-          type="file"
+      </Aviso>
+      <div className="acciones">
+        <BotonArchivo
+          etiqueta="Importar un respaldo"
           accept="application/json,.json"
-          onChange={async (e) => {
-            const archivo = e.target.files?.[0];
-            if (!archivo) return;
+          onArchivo={async (archivo) => {
             try {
               props.alImportar(await archivo.text());
             } catch (err) {
@@ -153,15 +160,24 @@ function PantallaError(props: {
             }
           }}
         />
-      </label>
-      {problema && <p className="error">{problema}</p>}
-      <button
-        onClick={() => {
-          if (window.confirm("Se borran los datos dañados y empiezas de cero. ¿Seguir?")) props.alEmpezarDeCero();
-        }}
-      >
-        Empezar de cero
-      </button>
-    </div>
+        <Boton
+          borra
+          onClick={() =>
+            preguntar(
+              {
+                titulo: "¿Empezar de cero?",
+                mensaje: "Se borran los datos dañados de este dispositivo. Esto no se puede deshacer.",
+                textoConfirmar: "Empezar de cero",
+              },
+              props.alEmpezarDeCero,
+            )
+          }
+        >
+          Empezar de cero
+        </Boton>
+      </div>
+      {problema && <Aviso tipo="error">{problema}</Aviso>}
+      {dialogo}
+    </section>
   );
 }

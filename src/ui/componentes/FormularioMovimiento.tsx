@@ -3,6 +3,9 @@ import { motivoDe } from "../../dominio/banco";
 import { parsearDuracion } from "../../dominio/tiempo";
 import type { MotivoPago, MovimientoBanco } from "../../dominio/tipos";
 import { aTextoHoras, ETIQUETAS_MOTIVO, ETIQUETAS_MOVIMIENTO, hoy } from "../utilidades";
+import { Aviso } from "./Aviso";
+import { Boton } from "./Boton";
+import { Campo, Entrada, Seleccion } from "./Campo";
 
 export type ValoresMovimiento = {
   fecha: string;
@@ -48,28 +51,25 @@ export function FormularioMovimiento({ tipo, inicial, onGuardar, onCancelar }: P
 
   return (
     <form className="formulario" onSubmit={enviar}>
-      <h3>
+      <h3 className="subtitulo">
         {inicial ? "Editar" : "Nuevo"}: {ETIQUETAS_MOVIMIENTO[tipo].toLowerCase()}
       </h3>
       {pideMotivo && (
-        <label>
-          Motivo del pago
-          <select value={motivo} onChange={(e) => setMotivo(e.target.value)} required>
+        <Campo etiqueta="Motivo del pago">
+          <Seleccion value={motivo} onChange={(e) => setMotivo(e.target.value)} required>
             <option value="" disabled>
               Elige el motivo…
             </option>
             <option value="capacitacion_reunion">{ETIQUETAS_MOTIVO.capacitacion_reunion}</option>
             <option value="otro">{ETIQUETAS_MOTIVO.otro}</option>
-          </select>
-        </label>
+          </Seleccion>
+        </Campo>
       )}
-      <label>
-        Fecha
-        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
-      </label>
-      <label>
-        {esCapacitacion ? "Duración (horas)" : "Horas"}
-        <input
+      <Campo etiqueta="Fecha">
+        <Entrada type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
+      </Campo>
+      <Campo etiqueta={esCapacitacion ? "Duración (horas)" : "Horas"}>
+        <Entrada
           type="text"
           inputMode="decimal"
           placeholder="ej. 4 o 4:30"
@@ -77,29 +77,29 @@ export function FormularioMovimiento({ tipo, inicial, onGuardar, onCancelar }: P
           onChange={(e) => setHoras(e.target.value)}
           required
         />
-      </label>
+      </Campo>
       {tipo === "ajuste" && (
-        <label>
-          El ajuste
-          <select value={bajaDeuda ? "baja" : "sube"} onChange={(e) => setBajaDeuda(e.target.value === "baja")}>
+        <Campo etiqueta="El ajuste">
+          <Seleccion value={bajaDeuda ? "baja" : "sube"} onChange={(e) => setBajaDeuda(e.target.value === "baja")}>
             <option value="sube">Sube la deuda</option>
             <option value="baja">Baja la deuda</option>
-          </select>
-        </label>
+          </Seleccion>
+        </Campo>
       )}
-      <label>
-        Nota (opcional)
-        <input
+      <Campo etiqueta="Nota (opcional)">
+        <Entrada
           type="text"
           placeholder={esCapacitacion ? "ej. nombre del evento o quién lo convocó" : "ej. quién lo autorizó"}
           value={nota}
           onChange={(e) => setNota(e.target.value)}
         />
-      </label>
-      {error && <p className="error" role="alert">{error}</p>}
-      <div className="botones">
-        <button type="submit" className="primario">Guardar</button>
-        <button type="button" onClick={onCancelar}>Cancelar</button>
+      </Campo>
+      {error && <Aviso tipo="error">{error}</Aviso>}
+      <div className="acciones">
+        <Boton variante="relleno" type="submit">
+          Guardar
+        </Boton>
+        <Boton onClick={onCancelar}>Cancelar</Boton>
       </div>
     </form>
   );

@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "check:estilo": "node scripts/check-estilo.mjs",
+    "check:estilo": "node scripts/check-estilo.mjs --estricto",
     "test": "vitest run"
   },
   "dependencies": {

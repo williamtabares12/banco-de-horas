@@ -242,3 +242,55 @@ describe("DialogoConfirmacion", () => {
     expect(html(<DialogoConfirmacion titulo="t" mensaje="m" textoCancelar="Mejor no" onConfirmar={noop} onCancelar={noop} />)).toContain(">Mejor no<");
   });
 });
+
+import { Aviso } from "../src/ui/componentes/Aviso";
+import { BotonArchivo } from "../src/ui/componentes/BotonArchivo";
+
+describe("Aviso", () => {
+  it("un aviso lleva la palabra Aviso delante y es un mensaje de estado", () => {
+    const m = html(<Aviso tipo="aviso">El saldo quedó en negativo.</Aviso>);
+    expect(m).toContain('role="status"');
+    expect(m).toContain('<strong class="aviso__palabra">Aviso</strong>');
+    expect(m).toContain("El saldo quedó en negativo.");
+    expect(m.indexOf("Aviso</strong>")).toBeLessThan(m.indexOf("El saldo"));
+  });
+  it("un error lleva la palabra Error delante y es una alerta", () => {
+    const m = html(<Aviso tipo="error">No se pudo guardar.</Aviso>);
+    expect(m).toContain('role="alert"');
+    expect(m).toContain('<strong class="aviso__palabra">Error</strong>');
+  });
+  it("una confirmación (Guardado, PDF descargado) no lleva palabra delante", () => {
+    const m = html(<Aviso tipo="confirmacion">Guardado.</Aviso>);
+    expect(m).toContain('role="status"');
+    expect(m).not.toContain("aviso__palabra");
+    expect(m).toContain("Guardado.");
+  });
+  it("sin color: ninguna clase de rojo, verde ni nada parecido", () => {
+    for (const tipo of ["aviso", "error", "confirmacion"] as const) {
+      expect(html(<Aviso tipo={tipo}>x</Aviso>)).not.toMatch(/rojo|verde|peligro|exito/i);
+    }
+  });
+  it("puede llevar un enlace dentro", () => {
+    expect(html(<Aviso tipo="aviso">Hace 14 días. <Enlace onClick={noop}>Ir a Ajustes</Enlace></Aviso>)).toContain(">Ir a Ajustes<");
+  });
+});
+
+describe("BotonArchivo", () => {
+  const m = html(<BotonArchivo etiqueta="Importar un respaldo" accept="application/json,.json" onArchivo={noop} />);
+  it("se ve como un botón de contorno y es una etiqueta de un campo de archivo", () => {
+    expect(m).toMatch(/^<label class="boton boton--contorno archivo"/);
+    expect(m).toContain("Importar un respaldo");
+  });
+  it("el campo de archivo real está escondido pero sigue siendo accesible", () => {
+    expect(m).toContain('type="file"');
+    expect(m).toContain('accept="application/json,.json"');
+    expect(m).toContain('class="archivo__entrada"');
+  });
+});
+
+describe("FilaLista: acción al lado", () => {
+  it("una fila puede llevar una acción a la derecha (por ejemplo Quitar)", () => {
+    const m = html(<FilaLista titulo="lun 12/10" lado={<span>Quitar</span>} />);
+    expect(m).toContain('<div class="fila-lista__lado"><span>Quitar</span></div>');
+  });
+});

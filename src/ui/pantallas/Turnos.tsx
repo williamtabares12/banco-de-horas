@@ -5,7 +5,10 @@ import { segmentar } from "../../dominio/segmentar";
 import { duracionMinutos, formatearDuracion } from "../../dominio/tiempo";
 import type { Turno } from "../../dominio/tipos";
 import { borrarTurno, editarTurno, minutosNetos, nuevoTurno, type EntradaTurno } from "../../dominio/turnos";
+import { Boton } from "../componentes/Boton";
+import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { FormularioTurno } from "../componentes/FormularioTurno";
+import { useConfirmacion } from "../componentes/useConfirmacion";
 import { ahora, nuevoId } from "../utilidades";
 
 type Vista =
@@ -24,6 +27,7 @@ const hora = (fechaHora: string) => fechaHora.slice(11);
 
 export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
   const [vista, setVista] = useState<Vista>(abrirNuevo ? { paso: "formulario" } : { paso: "lista" });
+  const { dialogo, preguntar } = useConfirmacion();
 
   function confirmar(editando: Turno | undefined, entrada: EntradaTurno) {
     const momento = ahora();
@@ -38,17 +42,24 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
 
   function borrar(t: Turno) {
     const tieneMovimiento = datos.movimientos.some((m) => m.turnoId === t.id);
-    const texto =
-      `¿Borrar el turno del ${t.inicio.slice(0, 10)} (${hora(t.inicio)} a ${hora(t.fin)})?` +
-      (tieneMovimiento ? " También se borra su movimiento de banco, salvo que lo hayas editado a mano." : "");
-    if (!window.confirm(texto)) return;
-    const momento = ahora();
-    cambiar((d) => ({ ...d, ...borrarTurno(d.turnos, d.movimientos, t.id, momento) }));
+    preguntar(
+      {
+        titulo: "¿Borrar este turno?",
+        mensaje:
+          `Turno del ${t.inicio.slice(0, 10)}, de ${hora(t.inicio)} a ${hora(t.fin)}.` +
+          (tieneMovimiento ? " También se borra su movimiento de banco, salvo que lo hayas editado a mano." : ""),
+        textoConfirmar: "Borrar",
+      },
+      () => {
+        const momento = ahora();
+        cambiar((d) => ({ ...d, ...borrarTurno(d.turnos, d.movimientos, t.id, momento) }));
+      },
+    );
   }
 
   if (vista.paso === "formulario") {
     return (
-      <section>
+      <section className="pantalla">
         <FormularioTurno
           inicial={vista.entrada ?? vista.editando}
           plantillas={datos.config.plantillas}
@@ -76,44 +87,59 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
   }
 
   const ordenados = [...datos.turnos].sort((a, b) => b.inicio.localeCompare(a.inicio));
+
+  if (ordenados.length === 0) {
+    return (
+      <section className="pantalla">
+        <div className="vacio">
+          <h2 className="titulo-seccion">Turnos</h2>
+          <p className="vacio__texto">Todavía no hay turnos registrados.</p>
+          <Boton variante="relleno" onClick={() => setVista({ paso: "formulario" })}>
+            Registrar turno
+          </Boton>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section>
-      <button className="primario grande" onClick={() => setVista({ paso: "formulario" })}>
+    <section className="pantalla">
+      <Boton variante="relleno" onClick={() => setVista({ paso: "formulario" })}>
         Registrar turno
-      </button>
-      <h2>Turnos</h2>
-      {ordenados.length === 0 ? (
-        <p className="vacio">Todavía no hay turnos registrados.</p>
-      ) : (
-        <ul className="lista">
+      </Boton>
+      <div className="seccion">
+        <h2 className="titulo-seccion">Turnos</h2>
+        <ListaFilas>
           {ordenados.map((t) => (
-            <li key={t.id} className="tarjeta">
-              <div className="fila">
-                <span>
-                  <strong>{t.inicio.slice(0, 10)}</strong> · {hora(t.inicio)} a {hora(t.fin)}
-                  <span className="chip">
-                    {t.tipo === "ordinario" ? "ordinario" : `alquiler · ${t.destino === "deuda" ? "paga deuda" : "completa semana"}`}
-                  </span>
-                </span>
-                <strong>{formatearDuracion(minutosNetos(t))}</strong>
-              </div>
-              {t.descansoMin > 0 && (
-                <p className="nota">
-                  De reloj: {formatearDuracion(duracionMinutos(t.inicio, t.fin))} · descanso: {formatearDuracion(t.descansoMin)}
-                </p>
-              )}
-              {t.tipo === "ordinario" && (
-                <p className="nota">Programadas: {formatearDuracion(t.minutosProgramados)}</p>
-              )}
-              {t.nota && <p className="nota">{t.nota}</p>}
-              <div className="botones pequeno">
-                <button onClick={() => setVista({ paso: "formulario", editando: t })}>Editar</button>
-                <button onClick={() => borrar(t)}>Borrar</button>
-              </div>
-            </li>
+            <FilaLista
+              key={t.id}
+              fecha={`${t.inicio.slice(0, 10)} · ${hora(t.inicio)} a ${hora(t.fin)}`}
+              titulo={
+                t.tipo === "ordinario"
+                  ? "Ordinario"
+                  : `Quirófano de alquiler · ${t.destino === "deuda" ? "paga deuda" : "completa la semana"}`
+              }
+              detalle={[
+                ...(t.descansoMin > 0
+                  ? [`De reloj: ${formatearDuracion(duracionMinutos(t.inicio, t.fin))} · descanso: ${formatearDuracion(t.descansoMin)}`]
+                  : []),
+                ...(t.tipo === "ordinario" ? [`Programadas: ${formatearDuracion(t.minutosProgramados)}`] : []),
+                ...(t.nota ? [t.nota] : []),
+              ]}
+              valor={formatearDuracion(minutosNetos(t))}
+              acciones={
+                <>
+                  <Boton onClick={() => setVista({ paso: "formulario", editando: t })}>Editar</Boton>
+                  <Boton borra onClick={() => borrar(t)}>
+                    Borrar
+                  </Boton>
+                </>
+              }
+            />
           ))}
-        </ul>
-      )}
+        </ListaFilas>
+      </div>
+      {dialogo}
     </section>
   );
 }
@@ -150,38 +176,33 @@ function Revision(props: {
   }
 
   return (
-    <section>
-      <h2>Revisa el turno</h2>
-      <div className="tarjeta">
-        <p className="fila">
-          <span>
-            {turno.inicio.slice(0, 10)} · {hora(turno.inicio)} a {hora(turno.fin)}
-          </span>
-          <strong>{formatearDuracion(netos)} netas</strong>
-        </p>
-        {turno.descansoMin > 0 && (
-          <p className="nota">
-            De reloj: {formatearDuracion(reloj)} · descanso: {formatearDuracion(turno.descansoMin)}
-          </p>
-        )}
-        {turno.tipo === "ordinario" && (
-          <p className="nota">Programadas: {formatearDuracion(turno.minutosProgramados)}</p>
-        )}
-        <table className="desglose">
-          <tbody>
-            <tr><td>Diurnas</td><td>{formatearDuracion(total.diurno)}</td></tr>
-            <tr><td>Nocturnas</td><td>{formatearDuracion(total.nocturno)}</td></tr>
-            <tr><td>Dominicales o festivas diurnas</td><td>{formatearDuracion(total.dominicalDiurno)}</td></tr>
-            <tr><td>Dominicales o festivas nocturnas</td><td>{formatearDuracion(total.dominicalNocturno)}</td></tr>
-          </tbody>
-        </table>
+    <section className="pantalla">
+      <div className="seccion">
+        <h2 className="titulo-seccion">Revisa el turno</h2>
+        <ListaFilas>
+          <FilaLista
+            fecha={`${turno.inicio.slice(0, 10)} · ${hora(turno.inicio)} a ${hora(turno.fin)}`}
+            titulo="Horas netas"
+            detalle={[
+              ...(turno.descansoMin > 0
+                ? [`De reloj: ${formatearDuracion(reloj)} · descanso: ${formatearDuracion(turno.descansoMin)}`]
+                : []),
+              ...(turno.tipo === "ordinario" ? [`Programadas: ${formatearDuracion(turno.minutosProgramados)}`] : []),
+            ]}
+            valor={formatearDuracion(netos)}
+          />
+          <FilaLista titulo="Diurnas" valor={formatearDuracion(total.diurno)} />
+          <FilaLista titulo="Nocturnas" valor={formatearDuracion(total.nocturno)} />
+          <FilaLista titulo="Dominicales o festivas diurnas" valor={formatearDuracion(total.dominicalDiurno)} />
+          <FilaLista titulo="Dominicales o festivas nocturnas" valor={formatearDuracion(total.dominicalNocturno)} />
+          <FilaLista titulo="Banco" detalle={[textoMovimiento]} />
+        </ListaFilas>
       </div>
-      <p className="tarjeta">
-        <strong>Banco:</strong> {textoMovimiento}
-      </p>
-      <div className="botones">
-        <button className="primario" onClick={props.onConfirmar}>Confirmar</button>
-        <button onClick={props.onVolver}>Volver</button>
+      <div className="acciones">
+        <Boton variante="relleno" onClick={props.onConfirmar}>
+          Confirmar
+        </Boton>
+        <Boton onClick={props.onVolver}>Volver</Boton>
       </div>
     </section>
   );

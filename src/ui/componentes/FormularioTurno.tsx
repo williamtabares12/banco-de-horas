@@ -4,6 +4,9 @@ import { parsearDuracion } from "../../dominio/tiempo";
 import type { PlantillaTurno } from "../../dominio/tipos";
 import { fechasDeTurno, type EntradaTurno } from "../../dominio/turnos";
 import { aTextoHoras, hoy } from "../utilidades";
+import { Aviso } from "./Aviso";
+import { Boton } from "./Boton";
+import { Campo, Entrada, Seleccion } from "./Campo";
 
 type Props = {
   inicial?: EntradaTurno;
@@ -65,48 +68,42 @@ export function FormularioTurno({ inicial, plantillas, onContinuar, onCancelar }
 
   return (
     <form className="formulario" onSubmit={enviar}>
-      <h2>{inicial ? "Editar turno" : "Registrar turno"}</h2>
-      <label>
-        Tipo de turno
-        <select value={tipo} onChange={(e) => setTipo(e.target.value as EntradaTurno["tipo"])}>
-          <option value="ordinario">Ordinario</option>
-          <option value="alquiler">Quirófano de alquiler</option>
-        </select>
-      </label>
+      <h2 className="titulo-seccion">{inicial ? "Editar turno" : "Registrar turno"}</h2>
       {tipo === "ordinario" && plantillas.length > 0 && (
-        <label>
-          Plantilla (opcional)
-          <select value={plantillaId} onChange={(e) => elegirPlantilla(e.target.value)}>
+        <Campo etiqueta="Plantilla (opcional)">
+          <Seleccion value={plantillaId} onChange={(e) => elegirPlantilla(e.target.value)}>
             <option value="">Sin plantilla</option>
             {plantillas.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.nombre}
               </option>
             ))}
-          </select>
-        </label>
+          </Seleccion>
+        </Campo>
       )}
-      <label>
-        Fecha en que empieza
-        <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
-      </label>
-      <div className="dos-columnas">
-        <label>
-          Hora de inicio
-          <input type="time" value={horaInicio} onChange={(e) => setHoraInicio(e.target.value)} required />
-        </label>
-        <label>
-          Hora de fin
-          <input type="time" value={horaFin} onChange={(e) => setHoraFin(e.target.value)} required />
-        </label>
+      <Campo etiqueta="Tipo de turno">
+        <Seleccion value={tipo} onChange={(e) => setTipo(e.target.value as EntradaTurno["tipo"])}>
+          <option value="ordinario">Ordinario</option>
+          <option value="alquiler">Quirófano de alquiler</option>
+        </Seleccion>
+      </Campo>
+      <Campo etiqueta="Fecha en que empieza">
+        <Entrada type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required />
+      </Campo>
+      <div className="dos-campos">
+        <Campo etiqueta="Hora de inicio">
+          <Entrada type="time" value={horaInicio} onChange={(e) => setHoraInicio(e.target.value)} required />
+        </Campo>
+        <Campo etiqueta="Hora de fin">
+          <Entrada type="time" value={horaFin} onChange={(e) => setHoraFin(e.target.value)} required />
+        </Campo>
       </div>
-      <p className="nota">Si la hora de fin es menor o igual a la de inicio, el turno termina al día siguiente.</p>
+      <p className="texto-suave">Si la hora de fin es menor o igual a la de inicio, el turno termina al día siguiente.</p>
       {tipo === "ordinario" ? (
         <>
-          <div className="dos-columnas">
-            <label>
-              Descanso (minutos)
-              <input
+          <div className="dos-campos">
+            <Campo etiqueta="Descanso (minutos)">
+              <Entrada
                 type="number"
                 inputMode="numeric"
                 min={0}
@@ -114,10 +111,9 @@ export function FormularioTurno({ inicial, plantillas, onContinuar, onCancelar }
                 value={descanso}
                 onChange={(e) => setDescanso(e.target.value)}
               />
-            </label>
-            <label>
-              Horas programadas
-              <input
+            </Campo>
+            <Campo etiqueta="Horas programadas">
+              <Entrada
                 type="text"
                 inputMode="decimal"
                 placeholder="ej. 8 o 7:30"
@@ -125,33 +121,33 @@ export function FormularioTurno({ inicial, plantillas, onContinuar, onCancelar }
                 onChange={(e) => setProgramadas(e.target.value)}
                 required
               />
-            </label>
+            </Campo>
           </div>
-          <p className="nota">
-            El descanso es el almuerzo y los demás descansos que la clínica descuenta. Las horas programadas son netas, ya
-            sin descanso.
+          <p className="texto-suave">
+            El descanso es el almuerzo y los demás descansos que la clínica descuenta. Las horas programadas son netas,
+            ya sin descanso.
           </p>
         </>
       ) : (
-        <label>
-          Destino de estas horas
-          <select value={destino} onChange={(e) => setDestino(e.target.value)} required>
+        <Campo etiqueta="Destino de estas horas">
+          <Seleccion value={destino} onChange={(e) => setDestino(e.target.value)} required>
             <option value="" disabled>
               Elige uno…
             </option>
             <option value="deuda">Pagar deuda</option>
             <option value="semana">Completar la semana</option>
-          </select>
-        </label>
+          </Seleccion>
+        </Campo>
       )}
-      <label>
-        Nota (opcional)
-        <input type="text" value={nota} onChange={(e) => setNota(e.target.value)} />
-      </label>
-      {error && <p className="error" role="alert">{error}</p>}
-      <div className="botones">
-        <button type="submit" className="primario">Revisar</button>
-        <button type="button" onClick={onCancelar}>Cancelar</button>
+      <Campo etiqueta="Nota (opcional)">
+        <Entrada type="text" value={nota} onChange={(e) => setNota(e.target.value)} />
+      </Campo>
+      {error && <Aviso tipo="error">{error}</Aviso>}
+      <div className="acciones">
+        <Boton variante="relleno" type="submit">
+          Revisar
+        </Boton>
+        <Boton onClick={onCancelar}>Cancelar</Boton>
       </div>
     </form>
   );
