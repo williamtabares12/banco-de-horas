@@ -4,7 +4,9 @@ import type { Datos, Repositorio } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { calculoDe, type Parametros } from "./dominio/parametros";
+import { Acerca } from "./ui/nube/Acerca";
 import type { ResultadoBorrado } from "./ui/nube/BorrarCuenta";
+import { versionDeLaApp } from "./ui/version";
 import { Aviso } from "./ui/componentes/Aviso";
 import { Boton } from "./ui/componentes/Boton";
 import { IndicadorSincronizacion } from "./ui/componentes/IndicadorSincronizacion";
@@ -24,7 +26,7 @@ const repoLocal = new RepositorioLocal(localStorage);
 // Vista de componentes: solo en desarrollo (npm run dev, dirección /#componentes). No entra en el build publicado.
 const Galeria = import.meta.env.DEV ? lazy(() => import("./ui/Galeria")) : null;
 
-type Pestana = "inicio" | "turnos" | "banco" | "quincena" | "extracto" | "ajustes";
+type Pestana = "inicio" | "turnos" | "banco" | "quincena" | "extracto" | "ajustes" | "acerca";
 const PESTANAS: { id: Pestana; nombre: string }[] = [
   { id: "inicio", nombre: "Inicio" },
   { id: "turnos", nombre: "Turnos" },
@@ -33,6 +35,9 @@ const PESTANAS: { id: Pestana; nombre: string }[] = [
   { id: "extracto", nombre: "Extracto" },
   { id: "ajustes", nombre: "Ajustes" },
 ];
+
+// "Acerca de" solo existe en la versión con cuenta (donde hay aviso de privacidad y a quién reportar)
+const PESTANA_ACERCA = { id: "acerca" as const, nombre: "Acerca de" };
 
 type Estado = { datos: Datos } | { error: string };
 
@@ -117,7 +122,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
         <h1 className="titulo-app">Banco de horas</h1>
         {pendienteDeSincronizar !== undefined && <IndicadorSincronizacion pendiente={pendienteDeSincronizar} />}
         <Pestanas
-          elementos={PESTANAS}
+          elementos={alVerAviso ? [...PESTANAS, PESTANA_ACERCA] : PESTANAS}
           activa={pestana}
           onCambiar={(id) => {
             setAbrirTurnoNuevo(false);
@@ -151,6 +156,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
       {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
       {pestana === "quincena" && <Quincena datos={datos} calculo={calculo!} />}
       {pestana === "extracto" && <Extracto datos={datos} alIrABanco={() => setPestana("banco")} />}
+      {pestana === "acerca" && alVerAviso && <Acerca {...versionDeLaApp()} alVerAviso={alVerAviso} />}
       {pestana === "ajustes" && (
         <Ajustes
           datos={datos}

@@ -1,9 +1,17 @@
+import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const paquete = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
+
 // https://vite.dev/config/
 export default defineConfig({
+  // La versión sale de package.json y la fecha es la de la compilación (se muestra en "Acerca de")
+  define: {
+    __VERSION_APP__: JSON.stringify(paquete.version),
+    __COMPILADO__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+  },
   // Rutas relativas: la app funciona igual en la raíz de un dominio o en una subcarpeta (GitHub Pages).
   base: './',
   plugins: [

@@ -24,6 +24,7 @@
     border: 1px solid transparent;
     border-radius: var(--radio-pastilla);
     cursor: pointer;
+    text-decoration: none; /* también se usa en enlaces <a> con aspecto de botón */
     -webkit-appearance: none;
     appearance: none;
   }
