@@ -6,6 +6,8 @@ import './ui/estilo/componentes.css'
 import './ui/estilo/pantallas.css'
 import { lazy, Suspense } from 'react'
 import App from './App.tsx'
+import { ErrorBoundary } from './ui/ErrorBoundary.tsx'
+import { PantallaDeCarga } from './ui/PantallaDeCarga.tsx'
 
 // Dos versiones del mismo código: la personal (por defecto, guarda en este dispositivo) y la que lleva
 // cuenta y nube (`--mode nube` o `--mode emulador`). Como la comprobación es en tiempo de compilación,
@@ -14,12 +16,14 @@ const AppNube = import.meta.env.MODE === 'nube' || import.meta.env.MODE === 'emu
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {AppNube ? (
-      <Suspense fallback={null}>
-        <AppNube />
-      </Suspense>
-    ) : (
-      <App />
-    )}
+    <ErrorBoundary>
+      {AppNube ? (
+        <Suspense fallback={<PantallaDeCarga />}>
+          <AppNube />
+        </Suspense>
+      ) : (
+        <App />
+      )}
+    </ErrorBoundary>
   </StrictMode>,
 )

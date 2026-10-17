@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import avisoMarkdown from "../../../aviso-privacidad.md?raw";
 import { RepositorioFirestore } from "../../almacenamiento/firestore";
-import { leerDeFirestore, lectorDeParametros, type ResultadoParametros } from "../../almacenamiento/parametros";
+import { cargarParametros, leerDeFirestore, lectorDeParametros, type ResultadoParametros } from "../../almacenamiento/parametros";
 import { borrarCuentaConClave, borrarCuentaConGoogle, proveedorDe } from "../../almacenamiento/cuenta";
 import {
   anularRegistroGoogleSinAceptar,
@@ -24,6 +24,7 @@ import { leerAviso } from "../../dominio/aviso";
 import { crearDatosIniciales, crearPerfil, pantallaDeCuenta } from "../../dominio/bienvenida";
 import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
+import { PantallaDeCarga } from "../PantallaDeCarga";
 import { ahora, hoy, nuevoId } from "../utilidades";
 import { Acceso, type ResultadoAcceso } from "./Acceso";
 import { Bienvenida } from "./Bienvenida";
@@ -39,14 +40,6 @@ const leerParametros = lectorDeParametros(leerDeFirestore(nube.db), localStorage
 
 const SIN_CUENTA_GOOGLE =
   "Ese correo de Google no tenía cuenta aquí todavía. Para crearla, primero acepta el aviso de privacidad.";
-
-function Cargando() {
-  return (
-    <main className="aplicacion">
-      <p className="vacio__texto">Cargando…</p>
-    </main>
-  );
-}
 
 /** Convierte un error de Firebase en el resultado que muestra la pantalla de acceso. */
 function comoResultado(e: unknown): ResultadoAcceso {
@@ -109,7 +102,7 @@ export default function AppNube() {
     }
   }
 
-  if (sesion === undefined || (revisandoGoogle && volviendoDeGoogle)) return <Cargando />;
+  if (sesion === undefined || (revisandoGoogle && volviendoDeGoogle)) return <PantallaDeCarga />;
   if (sesion === null || revisandoGoogle) {
     return (
       <Acceso
@@ -169,7 +162,7 @@ function Cuenta({ usuario, alBorrarCuenta }: { usuario: Usuario; alBorrarCuenta:
     };
   }, []);
 
-  if (estado === "leyendo" || !parametros) return <Cargando />;
+  if (estado === "leyendo") return <PantallaDeCarga />;
 
   if (typeof estado === "object") {
     return (
@@ -185,6 +178,16 @@ function Cuenta({ usuario, alBorrarCuenta }: { usuario: Usuario; alBorrarCuenta:
         </section>
       </main>
     );
+  }
+
+  // Los datos ya están (la copia de este dispositivo basta). Si solo falta la respuesta del servidor con las reglas de la
+  // clínica y tarda, la pantalla de carga deja seguir sin conexión: se usan la última copia guardada o las reglas incluidas.
+  if (!parametros) {
+    const seguirSinConexion = () =>
+      void cargarParametros(async () => {
+        throw new Error("sin conexión");
+      }, localStorage).then(setParametros);
+    return <PantallaDeCarga alSeguirSinConexion={seguirSinConexion} />;
   }
 
   const proveedor = proveedorDe(proveedoresDelUsuario(nube));
