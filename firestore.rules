@@ -6,5 +6,12 @@ service cloud.firestore {
     match /usuarios/{uid}/{documento=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+
+    // Parámetros globales (plan-nube.md §6b): los lee cualquier persona con sesión y nadie los escribe
+    // desde la app. Alejandro los edita desde la consola de Firebase, que no pasa por estas reglas.
+    match /configuracion/parametros {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
   }
 }

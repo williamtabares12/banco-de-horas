@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import avisoMarkdown from "../../../aviso-privacidad.md?raw";
 import { RepositorioFirestore } from "../../almacenamiento/firestore";
+import { leerDeFirestore, lectorDeParametros } from "../../almacenamiento/parametros";
 import {
   anularRegistroGoogleSinAceptar,
   cerrarSesion,
@@ -31,6 +32,8 @@ import { NuevoAviso } from "./NuevoAviso";
 const usarEmuladores = import.meta.env.MODE === "emulador";
 const nube = iniciarNube(usarEmuladores);
 const aviso = leerAviso(avisoMarkdown);
+// Los parámetros de la clínica se leen una sola vez por sesión (y la copia queda en este dispositivo).
+const leerParametros = lectorDeParametros(leerDeFirestore(nube.db), localStorage);
 
 const SIN_CUENTA_GOOGLE =
   "Ese correo de Google no tenía cuenta aquí todavía. Para crearla, primero acepta el aviso de privacidad.";
@@ -130,6 +133,7 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
   const [estado, setEstado] = useState<"leyendo" | "listo" | { error: string }>("leyendo");
   const [, actualizar] = useState(0);
   const [hoja, setHoja] = useState(false);
+  const [avisoParametros, setAvisoParametros] = useState<string | null>(null);
 
   useEffect(() => {
     let vivo = true;
@@ -145,6 +149,15 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
       repo.detener();
     };
   }, [repo]);
+
+  // Si los parámetros de la clínica no se pudieron usar, se avisa (se sigue con la última copia o con lo incluido).
+  useEffect(() => {
+    let vivo = true;
+    leerParametros().then((r) => vivo && setAvisoParametros(r.aviso));
+    return () => {
+      vivo = false;
+    };
+  }, []);
 
   if (estado === "leyendo") return <Cargando />;
 
@@ -189,7 +202,7 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
 
   return (
     <>
-      <App repo={repo} alCerrarSesion={() => cerrarSesion(nube)} alVerAviso={() => setHoja(true)} />
+      <App repo={repo} alCerrarSesion={() => cerrarSesion(nube)} alVerAviso={() => setHoja(true)} avisoParametros={avisoParametros} />
       {hoja && <HojaPrivacidad aviso={aviso} alCerrar={() => setHoja(false)} />}
     </>
   );

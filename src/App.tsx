@@ -47,9 +47,11 @@ type Props = {
   alCerrarSesion?: () => void;
   /** Solo con cuenta: abre el aviso de privacidad desde Ajustes. */
   alVerAviso?: () => void;
+  /** Solo con cuenta: por qué no se usaron los parámetros de la clínica (null si todo está bien). */
+  avisoParametros?: string | null;
 };
 
-export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso }: Props) {
+export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
@@ -115,6 +117,11 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso }: Pr
           <Aviso tipo="error">
             No se pudo guardar en este dispositivo (¿poco espacio o navegación privada?). Descarga un respaldo en Ajustes.
           </Aviso>
+        </div>
+      )}
+      {avisoParametros && (
+        <div className="pantalla">
+          <Aviso tipo="aviso">{avisoParametros}</Aviso>
         </div>
       )}
       {pestana === "inicio" && (
