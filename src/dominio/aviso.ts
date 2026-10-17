@@ -9,12 +9,27 @@ export type AvisoPrivacidad = {
   textoAutorizacion: string;
 };
 
+/** Lo que va entre corchetes en aviso-privacidad.md. Vive aquí para que editar el documento no lo pierda. */
+export type DatosAviso = { nombreApp: string; responsable: string; correoContacto: string };
+
+export const DATOS_AVISO: DatosAviso = {
+  nombreApp: "Banco de Horas",
+  responsable: "ALEJANDRO TABARES",
+  correoContacto: "wtabares@comfamiliar.com",
+};
+
 /**
  * Lee aviso-privacidad.md: así el texto que ve la gente es el mismo del documento, sin copias.
- * Ignora las notas para Alejandro (todo lo anterior a la primera línea `---`).
+ * Ignora las notas para Alejandro (todo lo anterior a la primera línea `---`) y rellena los datos
+ * entre corchetes ([NOMBRE DE LA APP], [NOMBRE COMPLETO DEL RESPONSABLE], [CORREO DE CONTACTO]).
  */
-export function leerAviso(markdown: string): AvisoPrivacidad {
-  const lineas = markdown.replace(/\r\n/g, "\n").split("\n");
+export function leerAviso(markdown: string, datos: DatosAviso = DATOS_AVISO): AvisoPrivacidad {
+  const lineas = markdown
+    .replace(/\r\n/g, "\n")
+    .replaceAll("[NOMBRE DE LA APP]", datos.nombreApp)
+    .replaceAll("[NOMBRE COMPLETO DEL RESPONSABLE]", datos.responsable)
+    .replaceAll("[CORREO DE CONTACTO]", datos.correoContacto)
+    .split("\n");
 
   const lineaVersion = lineas.find((l) => /^Versión del aviso:/.test(l));
   const version = lineaVersion ? Number(/Versión del aviso:\s*(\d+)/.exec(lineaVersion)?.[1]) : NaN;

@@ -51,7 +51,7 @@ Solo cambia la apariencia. No se toca `src/dominio/` ni los datos guardados, y l
 
 ## Fase 6: versión para compañeros (spec-companeros.md y plan-nube.md)
 
-Se empieza cuando las fases 5 y 5b estén terminadas y Alejandro haya usado la app unos días. Primero las reglas de seguridad y sus pruebas, después el código de nube. Las pruebas de dominio existentes no se modifican para que pasen.
+Se empieza cuando las fases 5 y 5b estén terminadas y Alejandro haya usado la app unos días. Primero las reglas de seguridad y sus pruebas, después el código de nube. Orden de la fase: T22, T23, T24, T33, T25, T34, T26, T35 y luego T27 a T32. Las pruebas de dominio existentes no se modifican para que pasen.
 
 - [x] T22. Proyecto y entorno de Firebase. Alejandro crea el proyecto nuevo en su cuenta personal (plan gratuito), activa Authentication con Google, Firestore y Hosting. Claude Code lo guía paso a paso, instala `firebase-tools`, configura los emuladores de Auth y Firestore (el de Firestore necesita Java instalado) y el archivo `firebase.json`. Sin secretos en el repositorio. Hecho cuando `npm run emuladores` levanta Auth y Firestore.
 - [ ] T23. Reglas de seguridad y sus pruebas. Escribir primero las pruebas con dos usuarios y un visitante sin sesión, y después las reglas de plan-nube.md sección 3. Después Alejandro las publica en la consola de Firebase: en modo producción, Firestore niega todo hasta que haya reglas. Hecho cuando CC1 y CC2 pasan en el emulador y las reglas están publicadas.
@@ -64,3 +64,9 @@ Se empieza cuando las fases 5 y 5b estén terminadas y Alejandro haya usado la a
 - [ ] T30. Pantalla "Acerca de": versión de la app, aviso de privacidad (texto de aviso-privacidad.md ya revisado), correo de contacto, leyenda de "Registro personal, no oficial" y botón para reportar un problema. Sin nombre ni logo de la clínica.
 - [ ] T31. Despliegue en Firebase Hosting con la PWA (T11). Revisar las cuotas vigentes del plan gratuito. Prueba de punta a punta con dos cuentas en dos celulares (CC11). Hecho cuando A no ve nada de B y la app instalada funciona sin internet.
 - [ ] T32. Piloto (lo hace Alejandro, no Claude Code): invitar a 5 a 8 compañeros por enlace, dos semanas, canal de comentarios, lista de problemas. Hecho cuando se cumplen los criterios de la sección 8 de spec-companeros.md.
+
+Parámetros globales (plan-nube.md sección 6b y parametros-iniciales.md). Se hacen en el orden indicado arriba, no al final.
+
+- [ ] T33 (después de T24). Dominio con reglas versionadas. `ReglasGlobales` con fecha de vigencia y una función `reglasVigentes(reglas, fecha)`. `segmentar`, `banco`, `semana` y `tiempo` reciben las reglas como argumento, con las reglas por defecto (las del documento inicial) como valor predeterminado, para que las pruebas existentes pasen sin modificarse. Pruebas primero: CC16 y CC9.
+- [ ] T34 (después de T25). Parámetros globales en la nube. Agregar a las reglas de seguridad la regla de `configuracion/parametros` y su prueba (CC14). Escribir `validarParametros` y la lectura una vez por sesión con copia en memoria, con respaldo a la última copia guardada o a las reglas incluidas, y aviso claro (CC15). Alejandro crea el documento en la consola con los valores de parametros-iniciales.md, guiado paso a paso por Claude Code, y lo prueba con su cuenta. Hecho cuando CC14 y CC15 pasan.
+- [ ] T35 (después de T26). Reglas globales en pantalla y reautorización. En Ajustes, mostrar en solo lectura las reglas vigentes con su fecha. Copiar las plantillas por defecto en el primer ingreso. Si sube `avisoVersion`, pedir aceptar el aviso de nuevo. Hecho cuando CC17 pasa.

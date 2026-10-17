@@ -34,7 +34,7 @@ RF-C2. Primer ingreso. Una pantalla de bienvenida en pasos:
 
 1. Aviso de privacidad y casilla de autorización. Sin aceptar no se continúa. Se guarda la fecha y la versión del aviso aceptado.
 2. Saldo inicial: fecha y horas que debe a la clínica (puede ser 0).
-3. Horas semanales (42 por defecto) e inicio de la jornada nocturna (19:00 por defecto).
+3. Horas semanales (por defecto las de los parámetros globales, hoy 42). La hora de inicio de la jornada nocturna ya no se pregunta: viene de los parámetros globales.
 4. Plantillas de turno: las tres de ejemplo, editables.
 5. Si viene de la versión personal, opción de importar su respaldo JSON.
 
@@ -62,6 +62,14 @@ RF-C13. Instalable en la pantalla de inicio y utilizable sin internet una vez in
 
 RF-C14. El cálculo de horas, banco, descansos y semana es idéntico al de la versión personal. Las pruebas de dominio existentes pasan sin modificarse.
 
+RF-C15. Parámetros globales. Las reglas que no son de una persona sino de la clínica o de la norma (hora de inicio y fin de la jornada nocturna, desfase de pago de recargos, si las extras descuentan deuda, horas semanales por defecto, festivos extra y plantillas por defecto) se leen de un documento que todas las personas con sesión pueden leer y que nadie puede escribir desde la app. Alejandro lo edita desde la consola de Firebase. Los valores iniciales están en parametros-iniciales.md. En Ajustes, esas reglas se muestran en solo lectura.
+
+RF-C16. Si el documento de parámetros no se puede leer o está mal formado, la app avisa con un mensaje claro y usa la última copia guardada en el dispositivo o, si no hay, las reglas incluidas en la app. Nunca calcula con valores a medias.
+
+RF-C17. Las reglas llevan fecha de inicio de vigencia. Agregar una regla nueva no cambia el cálculo de fechas anteriores a su vigencia.
+
+RF-C18. El documento de parámetros trae la versión vigente del aviso de privacidad. Si sube, la app pide aceptar el aviso de nuevo antes de continuar.
+
 ## 6. Datos y privacidad
 
 Qué se guarda: correo y nombre de la cuenta (de Google o del registro con correo), turnos, movimientos, configuración, y fecha y versión del aviso aceptado.
@@ -71,6 +79,8 @@ Qué no se guarda: contraseñas propias (si alguien se registra con correo, las 
 Quién los ve: solo su titular, desde la app. Alejandro, como dueño técnico del proyecto, tiene acceso a la base desde la consola de Firebase. Se compromete, en el aviso, a no consultar datos individuales salvo que el titular lo pida o para corregir un error, y en ese caso solo lo necesario.
 
 Dónde viven: en servidores de Google (Firebase), que pueden estar fuera de Colombia. El aviso lo dice.
+
+Parámetros globales: un documento con las reglas vigentes. No contiene datos personales. Lo leen todas las personas con sesión y solo Alejandro lo edita, desde la consola de Firebase.
 
 Marco legal: en Colombia el tratamiento de datos personales se rige por la Ley 1581 de 2012 y sus decretos. Pide autorización previa, expresa e informada, y reconoce derechos de consulta, rectificación, supresión y revocación. El borrador del aviso está en aviso-privacidad.md. Hay que revisarlo con alguien que sepa de esto antes del piloto, y confirmar si existe alguna obligación adicional.
 
@@ -119,6 +129,14 @@ CC12. Crear, editar o borrar un registro se ve al instante en pantalla y no vuel
 
 CC13. El registro con correo y contraseña, el inicio de sesión, la recuperación por correo y el inicio con Google funcionan en un iPhone, en Safari y con la app instalada.
 
+CC14. Cualquier persona con sesión puede leer el documento de parámetros. Quien no tiene sesión no puede. Nadie puede escribirlo desde la app (probado con las reglas).
+
+CC15. Con el documento ausente o mal formado, la app avisa y calcula con la última copia guardada o con las reglas incluidas.
+
+CC16. Agregar una regla con fecha futura no cambia el cálculo de turnos anteriores a esa fecha.
+
+CC17. Subir `avisoVersion` hace que la app pida aceptar el aviso de nuevo antes de continuar.
+
 ## 10. Preguntas abiertas
 
 1. El inicio de sesión se reutiliza de Bitácora AIDA v2 (correo y contraseña, o Google, con recuperación por correo), así que no hace falta que todos tengan Google. Hay que portarlo a React y TypeScript.
@@ -126,4 +144,4 @@ CC13. El registro con correo y contraseña, el inicio de sesión, la recuperaci�
 3. Los movimientos con fecha futura, ¿deben contar en el saldo actual? Por ahora no.
 4. Nombre de la app y correo de contacto para el aviso.
 5. El proyecto de Firebase va en la cuenta personal de Alejandro, no en la de la clínica, y es un proyecto nuevo, separado de Bitácora AIDA.
-6. ¿Las reglas (descansos, nocturna desde las 19:00, 42 horas) son iguales para todos? Se verifica en el piloto. Lo que cambie por persona se arregla con plantillas y horas semanales.
+6. ¿Las reglas (descansos, nocturna desde las 19:00, 42 horas) son iguales para todos? Se verifica en el piloto. Hoy hay un solo grupo de reglas globales. Si algún grupo necesita reglas distintas, se agregan grupos al documento de parámetros. Lo que cambie por persona se arregla con plantillas y horas semanales propias.

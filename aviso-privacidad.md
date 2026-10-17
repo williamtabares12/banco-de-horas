@@ -4,17 +4,17 @@ Notas para Alejandro (borrar antes de publicar):
 
 - Esto es un borrador que armé a partir de lo que pide la Ley 1581 de 2012 en Colombia. No soy abogado. Hazlo revisar con alguien que sepa del tema antes del piloto.
 - Completa lo que está entre corchetes: nombre de la app, nombre completo del responsable y correo de contacto.
-- Si cambias algo de fondo (qué datos se guardan, quién los ve), sube el número de versión y la app volverá a pedir la autorización.
+- Si cambias algo de fondo (qué datos se guardan, quién los ve), sube el número de versión (aquí y en el campo `avisoVersion` del documento de parámetros) y la app volverá a pedir la autorización.
 
 Versión del aviso: 1 (borrador)
 
 ---
 
-## Aviso de privacidad de Banco de Horas
+## Aviso de privacidad de [NOMBRE DE LA APP]
 
 ### 1. Quién es el responsable
 
-ALEJANDRO TABARES, auxiliar de enfermería, creador y administrador de esta app. Contacto: wtabares@comfamiliar.com.
+[NOMBRE COMPLETO DEL RESPONSABLE], auxiliar de enfermería, creador y administrador de esta app. Contacto: [CORREO DE CONTACTO].
 
 Esta app es un registro personal. No es una herramienta oficial de la clínica ni de nómina, y no reemplaza ninguno de sus registros.
 
@@ -55,7 +55,7 @@ Para ejercerlos puedes:
 - Ver y editar tus datos desde la app.
 - Exportarlos desde Ajustes, en JSON y en extracto PDF.
 - Borrar tu cuenta y todos tus datos desde Ajustes, de forma definitiva.
-- Escribir a wtabares@comfamiliar.com.
+- Escribir a [CORREO DE CONTACTO].
 
 ### 8. Por cuánto tiempo
 

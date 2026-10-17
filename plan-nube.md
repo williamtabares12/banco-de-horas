@@ -16,9 +16,10 @@ Deriva de spec-companeros.md (v0.1). Extiende plan.md: la estructura, el dominio
 
 ```
 usuarios/{uid}                     perfil: correo, creadoEn, avisoVersion, avisoAceptadoEn, schemaVersion
-usuarios/{uid}/config/principal    Config (horas semanales, nocturno, plantillas, festivos, etc.)
+usuarios/{uid}/config/principal    Config personal (horas semanales propias, plantillas, festivos propios)
 usuarios/{uid}/turnos/{id}         Turno
 usuarios/{uid}/movimientos/{id}    MovimientoBanco
+configuracion/parametros           Parámetros globales (solo lectura desde la app, ver sección 6b)
 ```
 
 Los documentos conservan los mismos campos que en la versión local, con los mismos id. Eso hace que importar un respaldo sea copiar documentos. `creadoEn` y `modificadoEn` siguen siendo texto ISO del dispositivo. No son prueba legal, porque la hora del celular se puede cambiar.
@@ -35,6 +36,13 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /usuarios/{uid}/{documento=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Parámetros globales: los lee cualquier persona con sesión, nadie los
+    // escribe desde la app (se editan desde la consola de Firebase).
+    match /configuracion/parametros {
+      allow read: if request.auth != null;
+      allow write: if false;
     }
   }
 }
@@ -67,6 +75,28 @@ Función nueva, sin tocar las existentes:
 
 Las pruebas existentes de `banco.ts` no se modifican.
 
+## 6b. Parámetros globales (`configuracion/parametros`)
+
+Es el mismo patrón de Bitácora AIDA v2: un documento que todas las personas con sesión leen y nadie escribe desde la app. Alejandro lo edita desde la consola de Firebase, que no pasa por las reglas. Los valores iniciales y cómo crearlo están en parametros-iniciales.md.
+
+Contenido:
+
+- `version`: número que sube cada vez que se edita.
+- `avisoVersion`: versión vigente del aviso de privacidad. Si sube, la app pide aceptar de nuevo.
+- `reglas`: mapa cuya clave es la fecha desde la que rige la regla y cuyo valor trae `nocturnoDesde`, `nocturnoHasta`, `minutosSemana`, `desfaseQuincenas` y `extrasDescuentanDeuda`. Son mapas y no arreglos porque la consola de Firebase los edita más fácil.
+- `festivosAgregados` y `festivosQuitados`: fechas que se suman o se restan a los festivos calculados por código.
+- `plantillasPorDefecto`: mapa de plantillas que se copian a una persona nueva en su primer ingreso. Cambiar el documento no cambia las plantillas de quienes ya se registraron.
+
+Qué es global y qué es personal. Global: hora nocturna, desfase de pago, extras descuentan deuda, horas semanales por defecto y festivos extra. Personal: saldo inicial, plantillas, horas semanales propias si difieren y festivos propios. En Ajustes, las reglas globales se muestran en solo lectura, con la fecha desde la que rigen.
+
+Vigencia. El dominio recibe la lista de reglas y usa la que rige en la fecha calendario de cada minuto, igual que las tarifas del plan base. Una regla nueva con fecha futura no cambia lo ya calculado. Por eso nunca se edita una regla vieja: se agrega una nueva con su fecha, salvo para corregir un error de tipeo.
+
+Lectura. Una vez por sesión, con la copia en memoria (lección de Bitácora AIDA). Se valida su forma como hace `validarParametros` en Bitácora: tipos correctos y campos completos. Si falta algo o el documento no existe, la app avisa con un mensaje claro y usa la última copia guardada en el dispositivo o, si no hay, las reglas incluidas en la app (las mismas del documento inicial). Nunca calcula con valores a medias.
+
+Dominio. Las funciones de `segmentar`, `banco`, `semana` y `tiempo` reciben las reglas como argumento, con las reglas por defecto como valor predeterminado. Así la versión personal y las pruebas existentes siguen funcionando sin cambios, y la versión de nube pasa las reglas leídas del documento.
+
+Riesgo. Un error de tipeo en la consola afecta a todos a la vez. Por eso la validación, la copia local, subir `version` en cada edición y abrir la app con tu cuenta después de cada cambio, antes de que los demás la abran.
+
 ## 7. Sincronización y conflictos
 
 Comportamiento por defecto de Firestore: la última escritura gana, documento por documento. Es suficiente porque cada persona edita sus propios datos y casi siempre desde un solo dispositivo. Cuando un movimiento se genera de un turno, se escribe en el mismo lote que el turno, para que no queden uno sin el otro.
@@ -96,6 +126,10 @@ Firebase Hosting, con el sitio de Bitácora AIDA aparte. La PWA (T11) se activa 
 | CC11 dos cuentas | Revisión manual con dos celulares, tarea T31 |
 | CC12 cambios al instante, sin releer todo | tests/repositorio-firestore.test.ts |
 | CC13 login en iPhone | Revisión manual en el iPhone, tarea T26 |
+| CC14 lectura y escritura de parámetros | tests/reglas.test.ts (emulador) |
+| CC15 documento ausente o mal formado | tests/parametros.test.ts |
+| CC16 vigencia de reglas | tests/reglas-vigencia.test.ts |
+| CC17 nueva versión del aviso | tests/bienvenida.test.tsx |
 
 ## 11. Riesgos
 

@@ -10,8 +10,9 @@ App web personal para llevar el banco de horas de una clínica (horas que se deb
 - estilo-visual.md: colores, letra, espacios y componentes de la interfaz.
 - spec-companeros.md y plan-nube.md: versión con cuenta y nube para compañeros (Fase 6, desde T22).
 - aviso-privacidad.md: borrador del aviso que la app muestra y hace aceptar.
+- parametros-iniciales.md: valores y forma del documento de parámetros globales.
 
-Lee spec, plan, tasks y estilo-visual antes de escribir código. Para la Fase 6 lee también los tres últimos.
+Lee spec, plan, tasks y estilo-visual antes de escribir código. Para la Fase 6 lee también los cuatro últimos.
 
 ## Forma de trabajar
 
