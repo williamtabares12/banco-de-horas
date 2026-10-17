@@ -1,5 +1,5 @@
 // Reglas de seguridad de Firestore (CC1 y CC2). Corren contra el emulador:
-//   npm run test:reglas
+//   npm run test:nube
 // Con `npm test` se saltan, porque ahí no hay emulador (ni hace falta Java).
 import { afterAll, beforeAll, beforeEach, describe, it } from "vitest";
 import { readFileSync } from "node:fs";
