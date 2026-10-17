@@ -61,7 +61,7 @@ Se empieza cuando las fases 5 y 5b estén terminadas y Alejandro haya usado la a
 - [x] T27. Importar un respaldo JSON a la cuenta, con validación y lotes de máximo 500 operaciones. Hecho cuando CC5 pasa y un JSON inválido no escribe nada.
 - [x] T28. Pantallas: "La clínica te debe X h", etiqueta "Programado" y saldo proyectado, indicador de sincronización, recordatorio de no escribir datos de pacientes en las notas. Con el estilo de estilo-visual.md. Hecho cuando CC4, CC7, CC8 y CC10 se cumplen.
 - [x] T29. Exportar mis datos (JSON y PDF) y borrar mi cuenta con reautenticación y borrado por lotes. Hecho cuando CC6 pasa.
-- [ ] T30. Pantalla "Acerca de": versión de la app, aviso de privacidad (texto de aviso-privacidad.md ya revisado), correo de contacto, leyenda de "Registro personal, no oficial" y botón para reportar un problema. Sin nombre ni logo de la clínica.
+- [x] T30. Pantalla "Acerca de": versión de la app, aviso de privacidad (texto de aviso-privacidad.md ya revisado), correo de contacto, leyenda de "Registro personal, no oficial" y botón para reportar un problema. Sin nombre ni logo de la clínica.
 - [ ] T31. Despliegue en Firebase Hosting con la PWA (T11). Revisar las cuotas vigentes del plan gratuito. Prueba de punta a punta con dos cuentas en dos celulares (CC11). Hecho cuando A no ve nada de B y la app instalada funciona sin internet.
 - [ ] T32. Piloto (lo hace Alejandro, no Claude Code): invitar a 5 a 8 compañeros por enlace, dos semanas, canal de comentarios, lista de problemas. Hecho cuando se cumplen los criterios de la sección 8 de spec-companeros.md.
 

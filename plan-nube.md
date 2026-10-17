@@ -60,6 +60,13 @@ Lo que se reutiliza: las pantallas de inicio de sesión y de registro, los mensa
 
 El inicio con Google puede dar problemas en iPhone, con las ventanas emergentes y con los bloqueos de cookies de terceros de Safari, sobre todo en la app instalada. Se prueba en Safari y en la app instalada (T26). Si falla, se cambia a redirección con `authDomain` igual al dominio de Hosting.
 
+Lecciones del despliegue (octubre de 2026), para repetirlas bien cuando cambie la dirección de la app:
+
+- El dominio de acceso (`authDomain`) debe ser el mismo de la página. Si no, la redirección de Google pierde el estado en Safari y en los navegadores internos (WhatsApp) y falla con "missing initial state". `authDomainPara` lo hace solo para las direcciones del proyecto.
+- El service worker de la PWA no debe responder las rutas `/__/` (el manejador de acceso de Firebase). Va en `navigateFallbackDenylist` de `vite.config.ts`; sin eso, la ventana de Google queda en blanco.
+- Cada dirección nueva hay que autorizarla en Google Cloud (APIs y servicios, Credenciales, el cliente "Web client (auto created by Google Service)"): su origen en "Orígenes autorizados de JavaScript" y `/__/auth/handler` en "URI de redireccionamiento autorizados". Sin eso, Google responde "Acceso bloqueado: la solicitud de esta app no es válida" (`redirect_uri_mismatch`).
+- Un service worker viejo sigue activo en los teléfonos hasta que se actualiza: tras publicar, abrir la app, esperar y recargar dos veces (o cerrarla y abrirla dos veces).
+
 ## 5. Primer ingreso e importación
 
 Al iniciar sesión por primera vez no existe `usuarios/{uid}`. La app detecta eso y muestra la bienvenida. Al terminarla escribe, en un solo lote: el perfil con la versión del aviso aceptado, la configuración, el saldo inicial como un movimiento y las plantillas. Si la persona elige importar un respaldo JSON, se valida con el mismo validador de la versión local y se escribe en lotes de máximo 500 operaciones, que es el límite de Firestore. Un JSON inválido no escribe nada.
