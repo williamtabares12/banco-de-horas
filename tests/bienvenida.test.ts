@@ -30,6 +30,15 @@ describe("el aviso de privacidad se lee de aviso-privacidad.md", () => {
     expect(aviso.secciones[10].titulo).toBe("11. Cambios");
     expect(JSON.stringify(aviso)).not.toMatch(/Notas para Alejandro|Hazlo revisar/);
   });
+  it("no queda ningún dato pendiente entre corchetes en lo que ve la gente", () => {
+    expect(JSON.stringify(aviso)).not.toMatch(/\[[A-ZÁÉÍÓÚÑ ]{4,}\]/);
+  });
+  it("trae el nombre de la app, el responsable y el correo de contacto", () => {
+    const todo = JSON.stringify(aviso);
+    expect(todo).toContain("Banco de Horas");
+    expect(todo).toContain("ALEJANDRO TABARES");
+    expect(todo).toContain("wtabares@comfamiliar.com");
+  });
   it("distingue párrafos de listas", () => {
     const datos = aviso.secciones[1]; // 2. Qué datos se guardan
     const lista = datos.bloques.find((b) => b.tipo === "lista");

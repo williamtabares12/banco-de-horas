@@ -10,11 +10,11 @@ Versión del aviso: 1 (borrador)
 
 ---
 
-## Aviso de privacidad de [NOMBRE DE LA APP]
+## Aviso de privacidad de Banco de Horas
 
 ### 1. Quién es el responsable
 
-[NOMBRE COMPLETO DEL RESPONSABLE], auxiliar de enfermería, creador y administrador de esta app. Contacto: [CORREO DE CONTACTO].
+ALEJANDRO TABARES, auxiliar de enfermería, creador y administrador de esta app. Contacto: wtabares@comfamiliar.com.
 
 Esta app es un registro personal. No es una herramienta oficial de la clínica ni de nómina, y no reemplaza ninguno de sus registros.
 
@@ -55,7 +55,7 @@ Para ejercerlos puedes:
 - Ver y editar tus datos desde la app.
 - Exportarlos desde Ajustes, en JSON y en extracto PDF.
 - Borrar tu cuenta y todos tus datos desde Ajustes, de forma definitiva.
-- Escribir a [CORREO DE CONTACTO].
+- Escribir a wtabares@comfamiliar.com.
 
 ### 8. Por cuánto tiempo
 
