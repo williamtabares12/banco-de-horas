@@ -41,6 +41,9 @@
 
   body {
     margin: 0;
+    /* Zona segura: el notch, la barra de gestos y las esquinas no tapan el contenido (en 0 si el teléfono no tiene) */
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px)
+      env(safe-area-inset-left, 0px);
     background: var(--color-lienzo);
     color: var(--color-texto);
     font-family: var(--fuente);
