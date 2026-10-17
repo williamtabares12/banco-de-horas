@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
 import { ErrorImportacion, exportarJSON, validarConfig } from "../../almacenamiento/respaldo";
 import { agregarFestivo, festivosEfectivos, quitarFestivo, festivosDelAnio } from "../../dominio/festivos";
+import { descripcionDeReglas, type Parametros } from "../../dominio/parametros";
 import { borrarPlantilla, duracionPlantilla, editarPlantilla, nuevaPlantilla } from "../../dominio/plantillas";
 import { diaSemana, formatearDuracion, parsearDuracion } from "../../dominio/tiempo";
 import type { Config, PlantillaTurno } from "../../dominio/tipos";
@@ -26,15 +27,18 @@ type Props = {
   alCerrarSesion?: () => void;
   /** Solo en la versión con cuenta: abre el aviso de privacidad. */
   alVerAviso?: () => void;
+  /** Solo en la versión con cuenta: las reglas de la clínica (se muestran en solo lectura y mandan en el cálculo). */
+  parametros?: Parametros;
 };
 
 type Mensaje = { texto: string; error: boolean } | null;
 
-export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso }: Props) {
+export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso, parametros }: Props) {
   return (
     <section className="pantalla">
       <FormularioConfig
         config={datos.config}
+        soloPersonal={parametros !== undefined}
         onGuardar={(nueva) =>
           cambiar((d) => ({
             ...d,
@@ -48,6 +52,7 @@ export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAv
           }))
         }
       />
+      {parametros && <ReglasDeLaClinica parametros={parametros} />}
       <Plantillas
         plantillas={datos.config.plantillas}
         onCambiar={(plantillas) => cambiar((d) => ({ ...d, config: { ...d.config, plantillas } }))}
@@ -71,7 +76,47 @@ export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAv
   );
 }
 
-function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c: Config) => void }) {
+/** Las reglas que define la clínica, en solo lectura y con la fecha desde la que rigen (plan-nube.md §6b). */
+function ReglasDeLaClinica({ parametros }: { parametros: Parametros }) {
+  const reglas = descripcionDeReglas(parametros.reglas, hoy());
+  const ESTADO = { vigente: "Vigente", programada: "Programada", anterior: "Anterior" } as const;
+  return (
+    <section className="seccion">
+      <h2 className="titulo-seccion">Reglas de la clínica</h2>
+      <p className="texto-suave">
+        Las define la clínica y no se cambian desde la app. Cada regla rige desde su fecha: una regla nueva no cambia
+        lo ya calculado.
+      </p>
+      <ListaFilas>
+        {reglas.map((r) => (
+          <FilaLista
+            key={r.desde}
+            fecha={r.desde}
+            titulo={`Desde el ${r.desde}`}
+            detalle={[
+              `Jornada nocturna: ${r.nocturna}`,
+              `Horas por semana (por defecto): ${r.semana}`,
+              `Los recargos se cobran: ${r.cobro}`,
+              `Las horas extra descuentan deuda: ${r.extras}`,
+            ]}
+            valor={ESTADO[r.estado]}
+          />
+        ))}
+      </ListaFilas>
+    </section>
+  );
+}
+
+function FormularioConfig({
+  config,
+  onGuardar,
+  soloPersonal = false,
+}: {
+  config: Config;
+  onGuardar: (c: Config) => void;
+  /** Con cuenta: la hora nocturna, el desfase y las extras los define la clínica; aquí solo queda lo personal. */
+  soloPersonal?: boolean;
+}) {
   const [semana, setSemana] = useState(aTextoHoras(config.minutosSemana));
   const [desde, setDesde] = useState(config.nocturnoDesde);
   const [hasta, setHasta] = useState(config.nocturnoHasta);
@@ -84,14 +129,18 @@ function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c
     const minutosSemana = parsearDuracion(semana);
     if (minutosSemana === null) return setMensaje({ texto: "No entiendo las horas semanales. Ej: 42", error: true });
     try {
-      const nueva = validarConfig({
-        ...config,
-        minutosSemana,
-        nocturnoDesde: desde,
-        nocturnoHasta: hasta,
-        desfaseQuincenas: Number(desfase),
-        extrasDescuentanDeuda: extras,
-      });
+      const nueva = validarConfig(
+        soloPersonal
+          ? { ...config, minutosSemana }
+          : {
+              ...config,
+              minutosSemana,
+              nocturnoDesde: desde,
+              nocturnoHasta: hasta,
+              desfaseQuincenas: Number(desfase),
+              extrasDescuentanDeuda: extras,
+            },
+      );
       onGuardar(nueva);
       setMensaje({ texto: "Guardado.", error: false });
     } catch (err) {
@@ -105,21 +154,25 @@ function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c
       <Campo etiqueta="Horas por semana">
         <Entrada type="text" inputMode="decimal" value={semana} onChange={(e) => setSemana(e.target.value)} />
       </Campo>
-      <div className="dos-campos">
-        <Campo etiqueta="La noche empieza a las">
-          <Entrada type="time" value={desde} onChange={(e) => setDesde(e.target.value)} required />
-        </Campo>
-        <Campo etiqueta="La noche termina a las">
-          <Entrada type="time" value={hasta} onChange={(e) => setHasta(e.target.value)} required />
-        </Campo>
-      </div>
-      <Campo etiqueta="Los recargos se cobran">
-        <Seleccion value={desfase} onChange={(e) => setDesfase(e.target.value)}>
-          <option value="1">En la quincena siguiente</option>
-          <option value="0">En la misma quincena</option>
-        </Seleccion>
-      </Campo>
-      <Interruptor etiqueta="Las horas extra descuentan deuda del banco" activo={extras} onCambiar={setExtras} />
+      {!soloPersonal && (
+        <>
+          <div className="dos-campos">
+            <Campo etiqueta="La noche empieza a las">
+              <Entrada type="time" value={desde} onChange={(e) => setDesde(e.target.value)} required />
+            </Campo>
+            <Campo etiqueta="La noche termina a las">
+              <Entrada type="time" value={hasta} onChange={(e) => setHasta(e.target.value)} required />
+            </Campo>
+          </div>
+          <Campo etiqueta="Los recargos se cobran">
+            <Seleccion value={desfase} onChange={(e) => setDesfase(e.target.value)}>
+              <option value="1">En la quincena siguiente</option>
+              <option value="0">En la misma quincena</option>
+            </Seleccion>
+          </Campo>
+          <Interruptor etiqueta="Las horas extra descuentan deuda del banco" activo={extras} onCambiar={setExtras} />
+        </>
+      )}
       {mensaje && <Aviso tipo={mensaje.error ? "error" : "confirmacion"}>{mensaje.texto}</Aviso>}
       <div className="acciones">
         <Boton variante="relleno" type="submit">

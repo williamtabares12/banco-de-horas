@@ -1,8 +1,9 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { RepositorioLocal } from "./almacenamiento/local";
 import type { Datos, Repositorio } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
+import { calculoDe, type Parametros } from "./dominio/parametros";
 import { Aviso } from "./ui/componentes/Aviso";
 import { Boton } from "./ui/componentes/Boton";
 import { BotonArchivo } from "./ui/componentes/BotonArchivo";
@@ -49,13 +50,18 @@ type Props = {
   alVerAviso?: () => void;
   /** Solo con cuenta: por qué no se usaron los parámetros de la clínica (null si todo está bien). */
   avisoParametros?: string | null;
+  /** Solo con cuenta: las reglas de la clínica que mandan en el cálculo (hora nocturna, desfase, extras, festivos). */
+  parametros?: Parametros;
 };
 
-export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null }: Props) {
+export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
   const [fallaGuardado, setFallaGuardado] = useState(false);
+  // Con qué se calcula: la configuración y, con cuenta, las reglas de la clínica. Se recalcula solo si cambian.
+  const config = "error" in estado ? null : estado.datos.config;
+  const calculo = useMemo(() => (config ? calculoDe(config, parametros) : null), [config, parametros]);
 
   if (Galeria && location.hash === "#componentes") {
     return (
@@ -134,9 +140,9 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
           alIrARespaldo={() => setPestana("ajustes")}
         />
       )}
-      {pestana === "turnos" && <Turnos datos={datos} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}
+      {pestana === "turnos" && <Turnos datos={datos} calculo={calculo!} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}
       {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
-      {pestana === "quincena" && <Quincena datos={datos} />}
+      {pestana === "quincena" && <Quincena datos={datos} calculo={calculo!} />}
       {pestana === "extracto" && <Extracto datos={datos} alIrABanco={() => setPestana("banco")} />}
       {pestana === "ajustes" && (
         <Ajustes
@@ -144,6 +150,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
           cambiar={cambiar}
           alCerrarSesion={alCerrarSesion}
           alVerAviso={alVerAviso}
+          parametros={parametros}
           importarTexto={(texto) => {
             importar(repo, texto);
             setEstado({ datos: repo.cargar() });

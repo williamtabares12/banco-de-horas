@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
 import { aplicarTurno, movimientoDeTurno } from "../../dominio/banco";
+import type { Calculo } from "../../dominio/parametros";
 import { segmentar } from "../../dominio/segmentar";
 import { duracionMinutos, formatearDuracion } from "../../dominio/tiempo";
 import type { Turno } from "../../dominio/tipos";
@@ -18,6 +19,8 @@ type Vista =
 
 type Props = {
   datos: Datos;
+  /** Con qué se calcula (la configuración y, en la versión con cuenta, las reglas de la clínica). */
+  calculo: Calculo;
   cambiar: (fn: (d: Datos) => Datos) => void;
   /** Abre el formulario de turno nuevo apenas se muestra la pantalla. */
   abrirNuevo?: boolean;
@@ -25,7 +28,7 @@ type Props = {
 
 const hora = (fechaHora: string) => fechaHora.slice(11);
 
-export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
+export function Turnos({ datos, calculo, cambiar, abrirNuevo }: Props) {
   const [vista, setVista] = useState<Vista>(abrirNuevo ? { paso: "formulario" } : { paso: "lista" });
   const { dialogo, preguntar } = useConfirmacion();
 
@@ -35,7 +38,7 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
     cambiar((d) => ({
       ...d,
       turnos: editando ? d.turnos.map((t) => (t.id === turno.id ? turno : t)) : [...d.turnos, turno],
-      movimientos: aplicarTurno(d.movimientos, turno, d.config, momento, nuevoId),
+      movimientos: aplicarTurno(d.movimientos, turno, d.config, momento, nuevoId, calculo.reglas),
     }));
     setVista({ paso: "lista" });
   }
@@ -78,6 +81,7 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
     return (
       <Revision
         datos={datos}
+        calculo={calculo}
         editando={vista.editando}
         entrada={vista.entrada}
         onVolver={() => setVista({ paso: "formulario", editando: vista.editando, entrada: vista.entrada })}
@@ -146,17 +150,18 @@ export function Turnos({ datos, cambiar, abrirNuevo }: Props) {
 
 function Revision(props: {
   datos: Datos;
+  calculo: Calculo;
   editando?: Turno;
   entrada: EntradaTurno;
   onVolver: () => void;
   onConfirmar: () => void;
 }) {
-  const { datos, editando, entrada } = props;
+  const { datos, calculo, editando, entrada } = props;
   const turno = editando ? editarTurno(editando, entrada, "") : nuevoTurno(entrada, "", "previo");
-  const { total } = segmentar(turno.inicio, turno.fin, datos.config, turno.descansoMin);
+  const { total } = segmentar(turno.inicio, turno.fin, calculo.config, turno.descansoMin, calculo.reglas);
   const reloj = duracionMinutos(turno.inicio, turno.fin);
   const netos = minutosNetos(turno);
-  const movimiento = movimientoDeTurno(turno, datos.config);
+  const movimiento = movimientoDeTurno(turno, calculo.config, calculo.reglas);
   const editadoAMano = editando
     ? datos.movimientos.some((m) => m.turnoId === editando.id && !m.automatico)
     : false;
@@ -170,7 +175,7 @@ function Revision(props: {
         ? `Préstamo de ${formatearDuracion(movimiento.minutos)}: la deuda sube.`
         : `Pago de ${formatearDuracion(-movimiento.minutos)}: la deuda baja.`;
   } else if (turno.tipo === "ordinario" && netos > turno.minutosProgramados) {
-    textoMovimiento = "Sin movimiento: las horas extra no descuentan deuda (así está en Ajustes).";
+    textoMovimiento = `Sin movimiento: las horas extra no descuentan deuda (${calculo.reglas ? "así lo definen las reglas de la clínica" : "así está en Ajustes"}).`;
   } else {
     textoMovimiento = "Sin movimiento de banco.";
   }

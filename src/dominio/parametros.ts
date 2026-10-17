@@ -1,5 +1,8 @@
+import { unirFestivos } from "./festivos";
 import { duracionPlantilla } from "./plantillas";
-import type { ReglaGlobal, ReglasGlobales } from "./reglas";
+import { reglasVigentes, type ReglaGlobal, type ReglasGlobales } from "./reglas";
+import { formatearDuracion } from "./tiempo";
+import type { Config, PlantillaTurno } from "./tipos";
 
 /** Una plantilla tal como viene en el documento (sin id: el id se arma al copiarla a una persona). */
 export type PlantillaPorDefecto = { nombre: string; inicio: string; fin: string; descansoMin: number };
@@ -149,3 +152,49 @@ export const PARAMETROS_INCLUIDOS: Parametros = {
     noche12: { nombre: "Noche 12 h", inicio: "19:00", fin: "07:00", descansoMin: 120 },
   },
 };
+
+/** Con qué se calcula: la configuración (con los festivos de la clínica sumados) y, si hay, las reglas versionadas. */
+export type Calculo = { config: Config; reglas?: ReglasGlobales };
+
+/**
+ * Sin parámetros (versión personal) se calcula con la configuración de siempre. Con parámetros, las
+ * reglas (hora nocturna, desfase de cobro, extras que descuentan deuda) salen del documento de la clínica
+ * y a los festivos propios se suman los de la clínica. Las horas semanales siguen siendo personales.
+ */
+export function calculoDe(config: Config, parametros?: Parametros): Calculo {
+  if (!parametros) return { config };
+  return { config: { ...config, ...unirFestivos(parametros, config) }, reglas: parametros.reglas };
+}
+
+/** Las plantillas por defecto del documento, listas para copiarlas a una persona nueva. */
+export function plantillasDeParametros(parametros: Parametros): PlantillaTurno[] {
+  return Object.entries(parametros.plantillasPorDefecto).map(([clave, p]) => ({ id: `plantilla-${clave}`, ...p }));
+}
+
+export type DescripcionRegla = {
+  desde: string;
+  /** "vigente" rige hoy; "programada" todavía no empieza; "anterior" ya fue reemplazada por una más nueva. */
+  estado: "vigente" | "programada" | "anterior";
+  nocturna: string;
+  semana: string;
+  cobro: string;
+  extras: string;
+};
+
+/** Las reglas de la clínica como texto para mostrar en solo lectura, de la más antigua a la más nueva. */
+export function descripcionDeReglas(reglas: ReglasGlobales, hoy: string): DescripcionRegla[] {
+  const vigente = reglasVigentes(reglas, hoy);
+  return Object.keys(reglas)
+    .sort()
+    .map((desde) => {
+      const r = reglas[desde];
+      return {
+        desde,
+        estado: r === vigente ? "vigente" : desde > hoy ? "programada" : "anterior",
+        nocturna: `${r.nocturnoDesde} a ${r.nocturnoHasta}`,
+        semana: formatearDuracion(r.minutosSemana),
+        cobro: r.desfaseQuincenas === 1 ? "En la quincena siguiente" : "En la misma quincena",
+        extras: r.extrasDescuentanDeuda ? "Sí" : "No",
+      };
+    });
+}

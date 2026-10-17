@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
+import type { Calculo } from "../../dominio/parametros";
 import {
   colillaDeQuincena,
   etiquetaQuincena,
@@ -14,13 +15,15 @@ import { hoy } from "../utilidades";
 
 type Props = {
   datos: Datos;
+  /** Con qué se calcula (la configuración y, en la versión con cuenta, las reglas de la clínica). */
+  calculo: Calculo;
 };
 
-export function Quincena({ datos }: Props) {
+export function Quincena({ datos, calculo }: Props) {
   const [q, setQ] = useState(() => quincenaDe(hoy()));
-  const { config, turnos } = datos;
-  const horas = useMemo(() => horasDeQuincena(turnos, q, config), [turnos, q, config]);
-  const colilla = colillaDeQuincena(q, config.desfaseQuincenas);
+  const { turnos } = datos;
+  const horas = useMemo(() => horasDeQuincena(turnos, q, calculo.config, calculo.reglas), [turnos, q, calculo]);
+  const colilla = colillaDeQuincena(q, calculo.reglas ?? calculo.config.desfaseQuincenas);
 
   return (
     <section className="pantalla">

@@ -1,6 +1,8 @@
 import { CONFIG_POR_DEFECTO, copiarPlantillas } from "./config";
 import { nuevoMovimiento } from "./banco";
+import { plantillasDeParametros, type Parametros } from "./parametros";
 import { editarPlantilla } from "./plantillas";
+import { reglasVigentes } from "./reglas";
 import type { Config, MovimientoBanco, PlantillaTurno } from "./tipos";
 
 /** Pasos del primer ingreso (spec-companeros.md RF-C2). La importación del respaldo llega en T27. */
@@ -31,8 +33,22 @@ export type PerfilNube = {
 const MINUTOS_SEMANA_MAX = 7 * 24 * 60;
 const HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-/** El aviso empieza sin aceptar: hay que marcarlo a propósito. */
-export function respuestasPorDefecto(hoy: string): Respuestas {
+/**
+ * El aviso empieza sin aceptar: hay que marcarlo a propósito. Con los parámetros de la clínica, las horas
+ * semanales y la hora nocturna salen de la regla que rige hoy y las plantillas, del documento.
+ */
+export function respuestasPorDefecto(hoy: string, parametros?: Parametros): Respuestas {
+  if (parametros) {
+    const regla = reglasVigentes(parametros.reglas, hoy);
+    return {
+      avisoAceptado: false,
+      saldoFecha: hoy,
+      saldoMinutos: 0,
+      minutosSemana: regla.minutosSemana,
+      nocturnoDesde: regla.nocturnoDesde,
+      plantillas: plantillasDeParametros(parametros),
+    };
+  }
   return {
     avisoAceptado: false,
     saldoFecha: hoy,
@@ -105,4 +121,14 @@ export function crearDatosIniciales(
 
 export function crearPerfil(correo: string, avisoVersion: number, ahora: string): PerfilNube {
   return { correo, creadoEn: ahora, avisoVersion, avisoAceptadoEn: ahora, schemaVersion: 2 };
+}
+
+/**
+ * Qué pantalla toca al entrar con la cuenta (CC17). Sin perfil es la primera vez. Si la versión vigente
+ * del aviso (la del documento de parámetros) es más nueva que la que la persona aceptó, se pide aceptarla
+ * de nuevo sin tocar sus datos. Si el número bajara por error, no se vuelve a pedir lo ya aceptado.
+ */
+export function pantallaDeCuenta(perfil: PerfilNube | null, avisoVigente: number): "bienvenida" | "nuevoAviso" | "app" {
+  if (!perfil) return "bienvenida";
+  return perfil.avisoVersion < avisoVigente ? "nuevoAviso" : "app";
 }

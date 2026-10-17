@@ -4,6 +4,7 @@ import { ErrorImportacion, importarJSON } from "../../almacenamiento/respaldo";
 import { saldo } from "../../dominio/banco";
 import type { AvisoPrivacidad } from "../../dominio/aviso";
 import { PASOS, errorDelPaso, puedeContinuar, respuestasPorDefecto, type Respuestas } from "../../dominio/bienvenida";
+import type { Parametros } from "../../dominio/parametros";
 import { formatearDuracion, parsearDuracion } from "../../dominio/tiempo";
 import { Aviso } from "../componentes/Aviso";
 import { BarraAvance } from "../componentes/BarraAvance";
@@ -20,6 +21,8 @@ type Props = {
   aviso: AvisoPrivacidad;
   /** Hoy, AAAA-MM-DD: fecha que se propone para el saldo inicial. */
   hoy: string;
+  /** Las reglas de la clínica: de ahí salen las horas semanales y las plantillas con que se empieza. */
+  parametros?: Parametros;
   /** Guarda la cuenta. Si falla, se muestra el error y se puede reintentar. */
   alTerminar: (respuestas: Respuestas) => Promise<void>;
   /** Crea la cuenta con los datos de un respaldo de la versión personal, saltándose los pasos 2 a 4. */
@@ -27,11 +30,11 @@ type Props = {
 };
 
 /** Primer ingreso en cuatro pasos (RF-C2): aviso, saldo inicial, jornada y plantillas. */
-export function Bienvenida({ aviso, hoy, alTerminar, alImportar }: Props) {
+export function Bienvenida({ aviso, hoy, parametros, alTerminar, alImportar }: Props) {
   const [paso, setPaso] = useState(0);
-  const [base, setBase] = useState<Respuestas>(() => respuestasPorDefecto(hoy));
+  const [base, setBase] = useState<Respuestas>(() => respuestasPorDefecto(hoy, parametros));
   const [saldoTexto, setSaldoTexto] = useState("0");
-  const [semanaTexto, setSemanaTexto] = useState(() => aTextoHoras(respuestasPorDefecto(hoy).minutosSemana));
+  const [semanaTexto, setSemanaTexto] = useState(() => aTextoHoras(respuestasPorDefecto(hoy, parametros).minutosSemana));
   const [guardando, setGuardando] = useState(false);
   const [falla, setFalla] = useState<string | null>(null);
   const { dialogo, preguntar } = useConfirmacion();
@@ -139,9 +142,9 @@ export function Bienvenida({ aviso, hoy, alTerminar, alImportar }: Props) {
             <Campo etiqueta="Horas por semana">
               <Entrada type="text" inputMode="decimal" value={semanaTexto} onChange={(e) => setSemanaTexto(e.target.value)} />
             </Campo>
-            <Campo etiqueta="La noche empieza a las">
-              <Entrada type="time" value={base.nocturnoDesde} onChange={(e) => setBase({ ...base, nocturnoDesde: e.target.value })} />
-            </Campo>
+            <p className="texto-suave">
+              La hora en que empieza la jornada nocturna ({base.nocturnoDesde}) la define la clínica y no se cambia aquí.
+            </p>
           </div>
         )}
 

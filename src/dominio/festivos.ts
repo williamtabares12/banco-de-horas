@@ -68,6 +68,14 @@ export function esFestivo(f: string, cambios: CambiosFestivos): boolean {
   return festivosDelAnio(Number(f.slice(0, 4))).includes(f);
 }
 
+/** Junta los cambios de festivos de dos fuentes (por ejemplo, los de la clínica y los propios), sin repetir. */
+export function unirFestivos(a: CambiosFestivos, b: CambiosFestivos): CambiosFestivos {
+  return {
+    festivosAgregados: [...new Set([...a.festivosAgregados, ...b.festivosAgregados])],
+    festivosQuitados: [...new Set([...a.festivosQuitados, ...b.festivosQuitados])],
+  };
+}
+
 /** Festivos del año con los cambios manuales aplicados, ordenados. */
 export function festivosEfectivos(anio: number, cambios: CambiosFestivos): string[] {
   const delAnio = (f: string) => f.startsWith(`${anio}-`);

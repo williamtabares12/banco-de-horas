@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import avisoMarkdown from "../../../aviso-privacidad.md?raw";
 import { RepositorioFirestore } from "../../almacenamiento/firestore";
-import { leerDeFirestore, lectorDeParametros } from "../../almacenamiento/parametros";
+import { leerDeFirestore, lectorDeParametros, type ResultadoParametros } from "../../almacenamiento/parametros";
 import {
   anularRegistroGoogleSinAceptar,
   cerrarSesion,
@@ -19,7 +19,7 @@ import {
 import App from "../../App";
 import { debeAnularse, mensajeDeErrorAcceso } from "../../dominio/acceso";
 import { leerAviso } from "../../dominio/aviso";
-import { crearDatosIniciales, crearPerfil } from "../../dominio/bienvenida";
+import { crearDatosIniciales, crearPerfil, pantallaDeCuenta } from "../../dominio/bienvenida";
 import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
 import { ahora, hoy, nuevoId } from "../utilidades";
@@ -133,7 +133,7 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
   const [estado, setEstado] = useState<"leyendo" | "listo" | { error: string }>("leyendo");
   const [, actualizar] = useState(0);
   const [hoja, setHoja] = useState(false);
-  const [avisoParametros, setAvisoParametros] = useState<string | null>(null);
+  const [parametros, setParametros] = useState<ResultadoParametros | null>(null);
 
   useEffect(() => {
     let vivo = true;
@@ -150,16 +150,17 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
     };
   }, [repo]);
 
-  // Si los parámetros de la clínica no se pudieron usar, se avisa (se sigue con la última copia o con lo incluido).
+  // Los parámetros de la clínica se leen antes de decidir qué pantalla toca: de ahí salen la versión vigente del
+  // aviso, las reglas y las plantillas por defecto. Si no se pueden usar, se sigue con la última copia o con lo incluido.
   useEffect(() => {
     let vivo = true;
-    leerParametros().then((r) => vivo && setAvisoParametros(r.aviso));
+    leerParametros().then((r) => vivo && setParametros(r));
     return () => {
       vivo = false;
     };
   }, []);
 
-  if (estado === "leyendo") return <Cargando />;
+  if (estado === "leyendo" || !parametros) return <Cargando />;
 
   if (typeof estado === "object") {
     return (
@@ -178,31 +179,41 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
   }
 
   const perfil = repo.perfilGuardado();
-  if (!perfil) {
+  const avisoVigente = parametros.parametros.avisoVersion;
+  const pantalla = pantallaDeCuenta(perfil, avisoVigente);
+
+  if (pantalla === "bienvenida") {
     return (
       <Bienvenida
         aviso={aviso}
         hoy={hoy()}
+        parametros={parametros.parametros}
         alTerminar={async (respuestas) => {
           const momento = ahora();
-          await repo.crearCuenta(crearPerfil(usuario.correo, aviso.version, momento), crearDatosIniciales(respuestas, momento, nuevoId));
+          await repo.crearCuenta(crearPerfil(usuario.correo, avisoVigente, momento), crearDatosIniciales(respuestas, momento, nuevoId));
           actualizar((n) => n + 1);
         }}
         alImportar={async (datos) => {
-          await repo.crearCuenta(crearPerfil(usuario.correo, aviso.version, ahora()), datos);
+          await repo.crearCuenta(crearPerfil(usuario.correo, avisoVigente, ahora()), datos);
           actualizar((n) => n + 1);
         }}
       />
     );
   }
-  // Si el aviso cambió de versión, se pide aceptarlo otra vez. Solo eso: los datos no se tocan.
-  if (perfil.avisoVersion !== aviso.version) {
-    return <NuevoAviso aviso={aviso} alAceptar={() => repo.aceptarAviso(aviso.version, ahora())} />;
+  // Si subió la versión vigente del aviso, se pide aceptarlo otra vez. Solo eso: los datos no se tocan.
+  if (pantalla === "nuevoAviso") {
+    return <NuevoAviso aviso={aviso} alAceptar={() => repo.aceptarAviso(avisoVigente, ahora())} />;
   }
 
   return (
     <>
-      <App repo={repo} alCerrarSesion={() => cerrarSesion(nube)} alVerAviso={() => setHoja(true)} avisoParametros={avisoParametros} />
+      <App
+        repo={repo}
+        alCerrarSesion={() => cerrarSesion(nube)}
+        alVerAviso={() => setHoja(true)}
+        parametros={parametros.parametros}
+        avisoParametros={parametros.aviso}
+      />
       {hoja && <HojaPrivacidad aviso={aviso} alCerrar={() => setHoja(false)} />}
     </>
   );
