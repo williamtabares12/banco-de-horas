@@ -1,3 +1,4 @@
+import type { ReglasGlobales } from "./reglas";
 import { segmentar, type Categorias, type ConfigSegmentar } from "./segmentar";
 import { quincenaDeCobro, type Quincena } from "./tiempo";
 import type { Turno } from "./tipos";
@@ -12,10 +13,10 @@ const MESES = [
  * quincena de la fecha en que se trabajó, así que un turno que cruza del 15 al
  * 16 reparte sus horas entre las dos.
  */
-export function horasDeQuincena(turnos: Turno[], q: Quincena, config: ConfigSegmentar): Categorias {
+export function horasDeQuincena(turnos: Turno[], q: Quincena, config: ConfigSegmentar, reglas?: ReglasGlobales): Categorias {
   const suma: Categorias = { diurno: 0, nocturno: 0, dominicalDiurno: 0, dominicalNocturno: 0 };
   for (const turno of turnos) {
-    for (const parte of segmentar(turno.inicio, turno.fin, config, turno.descansoMin).porQuincena) {
+    for (const parte of segmentar(turno.inicio, turno.fin, config, turno.descansoMin, reglas).porQuincena) {
       if (parte.quincena.anio !== q.anio || parte.quincena.mes !== q.mes || parte.quincena.numero !== q.numero) continue;
       suma.diurno += parte.minutos.diurno;
       suma.nocturno += parte.minutos.nocturno;
@@ -26,8 +27,11 @@ export function horasDeQuincena(turnos: Turno[], q: Quincena, config: ConfigSegm
   return suma;
 }
 
-/** Quincena de la colilla donde se cobra lo trabajado en la quincena `q`. */
-export function colillaDeQuincena(q: Quincena, desfase: 0 | 1): Quincena {
+/**
+ * Quincena de la colilla donde se cobra lo trabajado en la quincena `q`. El desfase puede ser un valor
+ * suelto (0 o 1) o las reglas versionadas, y entonces se usa el que rige el primer día de la quincena.
+ */
+export function colillaDeQuincena(q: Quincena, desfase: 0 | 1 | ReglasGlobales): Quincena {
   const primerDia = `${q.anio}-${String(q.mes).padStart(2, "0")}-${q.numero === 1 ? "01" : "16"}`;
   return quincenaDeCobro(primerDia, desfase);
 }

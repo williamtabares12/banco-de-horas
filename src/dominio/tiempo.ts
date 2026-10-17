@@ -1,6 +1,8 @@
 // Fechas como texto local "YYYY-MM-DD". Se usa Date.UTC solo como calendario
 // (suma de días, día de la semana), sin zonas horarias ni horario de verano.
 
+import { reglasVigentes, type ReglasGlobales } from "./reglas";
+
 export type Quincena = { anio: number; mes: number; numero: 1 | 2 };
 
 const MS_DIA = 24 * 60 * 60 * 1000;
@@ -34,9 +36,16 @@ export function quincenaDe(fecha: string): Quincena {
   return { anio, mes, numero: dia <= 15 ? 1 : 2 };
 }
 
-/** Quincena de la colilla donde se cobra lo trabajado en `fecha`. */
-export function quincenaDeCobro(fecha: string, desfase: 0 | 1): Quincena {
+/**
+ * Quincena de la colilla donde se cobra lo trabajado en `fecha`. El desfase puede ser un valor suelto
+ * (0 o 1) o las reglas versionadas, y entonces se usa el que rige el primer día de esa quincena.
+ */
+export function quincenaDeCobro(fecha: string, desfase: 0 | 1 | ReglasGlobales): Quincena {
   const q = quincenaDe(fecha);
+  if (typeof desfase === "object") {
+    const primerDia = `${q.anio}-${String(q.mes).padStart(2, "0")}-${q.numero === 1 ? "01" : "16"}`;
+    desfase = reglasVigentes(desfase, primerDia).desfaseQuincenas;
+  }
   if (desfase === 0) return q;
   if (q.numero === 1) return { ...q, numero: 2 };
   return q.mes === 12

@@ -1,3 +1,4 @@
+import { reglasVigentes, type ReglasGlobales } from "./reglas";
 import { minutosNetos } from "./turnos";
 import type { Config, MotivoPago, MovimientoBanco, Turno } from "./tipos";
 
@@ -13,9 +14,10 @@ export type FilaExtracto = { movimiento: MovimientoBanco; saldoDespues: number }
 
 /**
  * Movimiento de banco que genera un turno (sección 7 del spec), o null si no
- * genera ninguno. La fecha es la del inicio del turno.
+ * genera ninguno. La fecha es la del inicio del turno. Si se pasan `reglas`, "las extras descuentan
+ * deuda" sale de la regla que rige en esa fecha; si no, de `config`.
  */
-export function movimientoDeTurno(turno: Turno, config: ConfigBanco): MovimientoAutomatico | null {
+export function movimientoDeTurno(turno: Turno, config: ConfigBanco, reglas?: ReglasGlobales): MovimientoAutomatico | null {
   const fecha = turno.inicio.slice(0, 10);
   const reales = minutosNetos(turno);
 
@@ -27,7 +29,8 @@ export function movimientoDeTurno(turno: Turno, config: ConfigBanco): Movimiento
 
   const delta = reales - turno.minutosProgramados;
   if (delta < 0) return { fecha, tipo: "prestamo", minutos: -delta };
-  if (delta > 0 && config.extrasDescuentanDeuda) return { fecha, tipo: "pago", minutos: -delta };
+  const extrasDescuentan = reglas ? reglasVigentes(reglas, fecha).extrasDescuentanDeuda : config.extrasDescuentanDeuda;
+  if (delta > 0 && extrasDescuentan) return { fecha, tipo: "pago", minutos: -delta };
   return null;
 }
 
@@ -97,11 +100,12 @@ export function aplicarTurno(
   config: ConfigBanco,
   ahora: string,
   nuevoId: () => string,
+  reglas?: ReglasGlobales,
 ): MovimientoBanco[] {
   const existente = movimientos.find((m) => m.turnoId === turno.id);
   if (existente && !existente.automatico) return movimientos;
 
-  const calculado = movimientoDeTurno(turno, config);
+  const calculado = movimientoDeTurno(turno, config, reglas);
   const resto = movimientos.filter((m) => m !== existente);
   if (!calculado) return resto;
 

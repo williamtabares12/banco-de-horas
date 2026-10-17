@@ -1,4 +1,5 @@
 import { esFestivo, type CambiosFestivos } from "./festivos";
+import { reglasVigentes, type ReglasGlobales } from "./reglas";
 import { diaSemana, duracionMinutos, horaAMinutos, quincenaDe, sumarDias, type Quincena } from "./tiempo";
 
 export type Categorias = {
@@ -52,13 +53,30 @@ function restarDescanso(total: Categorias, porQuincena: Categorias[], descansoMi
   }
 }
 
+/** ¿Este minuto del día (0 a 1439) es de noche? La ventana puede cruzar la medianoche (19:00 a 06:00). */
+function ventanaNocturna(nocturnoDesde: string, nocturnoHasta: string): (m: number) => boolean {
+  const desde = horaAMinutos(nocturnoDesde);
+  const hasta = horaAMinutos(nocturnoHasta);
+  return (m) => (desde > hasta ? m >= desde || m < hasta : m >= desde && m < hasta);
+}
+
 /**
  * Parte un turno minuto a minuto. Cada minuto se clasifica por su fecha
  * calendario y su hora, y se asigna a la quincena de esa fecha. Después se resta
  * el descanso (en minutos) de la categoría mayoritaria, así que el resultado son
  * minutos netos.
+ *
+ * La hora nocturna sale de `reglas` (versionadas: cada minuto usa la regla que rige en su fecha
+ * calendario). Sin `reglas` se usa la de `config`, como en la versión personal. Los festivos salen
+ * siempre de `config`.
  */
-export function segmentar(inicio: string, fin: string, config: ConfigSegmentar, descansoMin = 0): Segmentacion {
+export function segmentar(
+  inicio: string,
+  fin: string,
+  config: ConfigSegmentar,
+  descansoMin = 0,
+  reglas?: ReglasGlobales,
+): Segmentacion {
   const [fechaIni, horaIni] = inicio.split("T");
   const desde = horaAMinutos(horaIni);
   const duracion = duracionMinutos(inicio, fin);
@@ -67,14 +85,9 @@ export function segmentar(inicio: string, fin: string, config: ConfigSegmentar, 
     throw new Error("El descanso debe ser un número entero de minutos, 0 o más");
   }
 
-  const nocheDesde = horaAMinutos(config.nocturnoDesde);
-  const nocheHasta = horaAMinutos(config.nocturnoHasta);
-  const esNoche = (m: number) =>
-    nocheDesde > nocheHasta ? m >= nocheDesde || m < nocheHasta : m >= nocheDesde && m < nocheHasta;
-
   const total = vacio();
   const porQuincena = new Map<string, { quincena: Quincena; minutos: Categorias }>();
-  const dias = new Map<number, { fecha: string; dominical: boolean; minutos: Categorias }>();
+  const dias = new Map<number, { fecha: string; dominical: boolean; esNoche: (m: number) => boolean; minutos: Categorias }>();
 
   for (let i = 0; i < duracion; i++) {
     const t = desde + i;
@@ -89,14 +102,16 @@ export function segmentar(inicio: string, fin: string, config: ConfigSegmentar, 
         grupo = { quincena: q, minutos: vacio() };
         porQuincena.set(clave, grupo);
       }
+      const horaNocturna = reglas ? reglasVigentes(reglas, fecha) : config;
       dia = {
         fecha,
         dominical: diaSemana(fecha) === 0 || esFestivo(fecha, config),
+        esNoche: ventanaNocturna(horaNocturna.nocturnoDesde, horaNocturna.nocturnoHasta),
         minutos: grupo.minutos,
       };
       dias.set(offset, dia);
     }
-    const noche = esNoche(t % 1440);
+    const noche = dia.esNoche(t % 1440);
     const categoria: keyof Categorias = dia.dominical
       ? noche ? "dominicalNocturno" : "dominicalDiurno"
       : noche ? "nocturno" : "diurno";

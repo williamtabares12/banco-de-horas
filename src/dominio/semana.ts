@@ -1,3 +1,4 @@
+import { REGLAS_POR_DEFECTO, reglasVigentes, type ReglasGlobales } from "./reglas";
 import { inicioSemana } from "./tiempo";
 import { minutosNetos } from "./turnos";
 import type { Turno } from "./tipos";
@@ -19,4 +20,12 @@ export function minutosDeSemana(turnos: Turno[], fecha: string): number {
   return turnos
     .filter((t) => inicioSemana(t.inicio.slice(0, 10)) === lunes)
     .reduce((suma, t) => suma + aporteSemana(t), 0);
+}
+
+/**
+ * Meta de la semana (lunes a domingo) que contiene `fecha`, en minutos. Se busca con el lunes de esa
+ * semana: una regla que arranca a mitad de semana empieza a regir la semana siguiente.
+ */
+export function metaSemana(fecha: string, reglas: ReglasGlobales = REGLAS_POR_DEFECTO): number {
+  return reglasVigentes(reglas, inicioSemana(fecha)).minutosSemana;
 }
