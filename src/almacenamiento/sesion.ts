@@ -2,6 +2,7 @@
 // el resto de la app solo conoce estas funciones, no los detalles de Firebase.
 import { initializeApp } from "firebase/app";
 import {
+  EmailAuthProvider,
   GoogleAuthProvider,
   connectAuthEmulator,
   createUserWithEmailAndPassword,
@@ -10,6 +11,8 @@ import {
   getAuth,
   getRedirectResult,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  reauthenticateWithPopup,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -158,6 +161,34 @@ export async function anularRegistroGoogleSinAceptar({ auth }: Nube): Promise<vo
     // si no se puede borrar (sesión vencida, por ejemplo), al menos que no quede con la sesión abierta
     await signOut(auth);
   }
+}
+
+/** Con qué proveedores entró la persona (por ejemplo "password" o "google.com"). */
+export function proveedoresDelUsuario({ auth }: Nube): string[] {
+  return (auth.currentUser?.providerData ?? []).map((p) => p.providerId);
+}
+
+function usuarioActual({ auth }: Nube) {
+  if (!auth.currentUser) throw new Error("No hay una sesión iniciada");
+  return auth.currentUser;
+}
+
+/** Operaciones delicadas (como borrar la cuenta) piden volver a confirmar quién es: con la contraseña... */
+export async function reautenticarConClave(nube: Nube, clave: string): Promise<void> {
+  const usuario = usuarioActual(nube);
+  await reauthenticateWithCredential(usuario, EmailAuthProvider.credential(usuario.email ?? "", clave));
+}
+
+/** ...o con la ventana de Google (hay que llamarla desde un toque de la persona, o el navegador la bloquea). */
+export async function reautenticarConGoogle(nube: Nube): Promise<void> {
+  const proveedor = new GoogleAuthProvider();
+  proveedor.setCustomParameters({ prompt: "select_account" });
+  await reauthenticateWithPopup(usuarioActual(nube), proveedor);
+}
+
+/** Elimina el usuario de Authentication. Pide una confirmación reciente (ver arriba). */
+export async function borrarUsuario(nube: Nube): Promise<void> {
+  await deleteUser(usuarioActual(nube));
 }
 
 export function cerrarSesion({ auth }: Nube): Promise<void> {

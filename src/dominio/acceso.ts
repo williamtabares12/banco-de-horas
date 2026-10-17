@@ -86,3 +86,27 @@ export function authDomainPara(host: string, proyecto: string, porDefecto: strin
   const propias = [`${proyecto}.web.app`, `${proyecto}.firebaseapp.com`];
   return propias.includes(actual) ? actual : porDefecto;
 }
+
+/**
+ * Qué decirle a la persona si no se pudo borrar la cuenta. Siempre dice si se puede repetir, y nunca
+ * enseña códigos técnicos. Si falló la confirmación de identidad, no se borró nada.
+ */
+export function mensajeDeErrorBorrado(codigo: string): string {
+  switch (codigo) {
+    case "auth/wrong-password":
+    case "auth/invalid-credential":
+      return "La contraseña no es correcta. No se borró nada.";
+    case "auth/popup-closed-by-user":
+    case "auth/cancelled-popup-request":
+      return "Cancelaste la confirmación con Google. No se borró nada.";
+    case "auth/popup-blocked":
+      return "El navegador no dejó abrir la ventana de Google. Abre la app en Safari o Chrome e inténtalo de nuevo.";
+    case "auth/network-request-failed":
+    case "unavailable":
+      return "No hay conexión. Revisa tu internet y vuelve a intentarlo: borrar la cuenta se puede repetir sin problema.";
+    case "auth/requires-recent-login":
+      return "Por seguridad, tienes que volver a confirmar quién eres. Inténtalo de nuevo.";
+    default:
+      return "No se pudo borrar la cuenta. Inténtalo de nuevo: se puede repetir sin problema.";
+  }
+}

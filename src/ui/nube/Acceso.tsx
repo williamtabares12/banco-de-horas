@@ -16,6 +16,8 @@ type Props = {
   modoInicial?: ModoAcceso;
   /** Un error para mostrar al abrir (por ejemplo, una cuenta de Google que se anuló por no aceptar el aviso). */
   errorInicial?: string | null;
+  /** Un mensaje normal para mostrar al abrir (por ejemplo, que la cuenta se borró). */
+  confirmacionInicial?: string | null;
   alIniciarConCorreo: (correo: string, contrasena: string) => Promise<ResultadoAcceso>;
   alRegistrar: (nombre: string, correo: string, contrasena: string) => Promise<ResultadoAcceso>;
   /** `aceptoAviso`: si marcó la casilla antes de abrir Google (solo existe en "Crear cuenta"). */
@@ -29,14 +31,16 @@ type Mensaje = { tipo: "error" | "confirmacion"; texto: string } | null;
  * Pantalla sin sesión (portada del login de Bitácora AIDA v2): iniciar sesión, crear cuenta, entrar
  * con Google y recuperar la contraseña. Crear la cuenta exige marcar la casilla del aviso de privacidad.
  */
-export function Acceso({ aviso, modoInicial = "login", errorInicial = null, alIniciarConCorreo, alRegistrar, alEntrarConGoogle, alRecuperar }: Props) {
+export function Acceso({ aviso, modoInicial = "login", errorInicial = null, confirmacionInicial = null, alIniciarConCorreo, alRegistrar, alEntrarConGoogle, alRecuperar }: Props) {
   const [modo, setModo] = useState<ModoAcceso>(modoInicial);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [avisoAceptado, setAvisoAceptado] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [mensaje, setMensaje] = useState<Mensaje>(errorInicial ? { tipo: "error", texto: errorInicial } : null);
+  const [mensaje, setMensaje] = useState<Mensaje>(
+    errorInicial ? { tipo: "error", texto: errorInicial } : confirmacionInicial ? { tipo: "confirmacion", texto: confirmacionInicial } : null,
+  );
   const [hoja, setHoja] = useState(false);
 
   const esRegistro = modo === "registro";

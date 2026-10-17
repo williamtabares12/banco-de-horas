@@ -2,6 +2,7 @@ import { type FirebaseApp } from "firebase/app";
 import {
   collection,
   doc,
+  getDocsFromServer,
   initializeFirestore,
   onSnapshot,
   persistentLocalCache,
@@ -256,6 +257,30 @@ export class RepositorioFirestore implements Repositorio {
       else lote.delete(ref);
     }
     return lote;
+  }
+
+  /**
+   * Borra TODO lo de esta persona: la configuración, los turnos, los movimientos y, al final, el perfil (RF-C9).
+   * Lee del servidor lo que hay (no de la caché) y borra en lotes de máximo 500. Se puede repetir: si se cortó
+   * a medias, vuelve a buscar lo que queda y termina. El perfil va al final para que un corte no deje datos
+   * huérfanos: mientras exista, la cuenta "existe" y se puede reintentar. Deja de escuchar antes de empezar,
+   * para que la pantalla no vea los datos desapareciendo (y no muestre la bienvenida).
+   */
+  async borrarTodo(): Promise<void> {
+    this.detener();
+    const rutas: string[] = [];
+    for (const subcoleccion of ["turnos", "movimientos", "config"]) {
+      const instantanea = await getDocsFromServer(collection(this.db, `${this.base}/${subcoleccion}`));
+      instantanea.forEach((d) => rutas.push(d.ref.path));
+    }
+    for (let i = 0; i < rutas.length; i += MAX_LOTE) {
+      const lote = writeBatch(this.db);
+      for (const ruta of rutas.slice(i, i + MAX_LOTE)) lote.delete(doc(this.db, ruta));
+      await lote.commit();
+    }
+    const perfil = writeBatch(this.db);
+    perfil.delete(doc(this.db, this.base));
+    await perfil.commit();
   }
 
   /** Vuelve a aceptar el aviso cuando cambió de versión. Solo toca esos dos campos del perfil. */

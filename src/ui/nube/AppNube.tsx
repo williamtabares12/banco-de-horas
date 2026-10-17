@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import avisoMarkdown from "../../../aviso-privacidad.md?raw";
 import { RepositorioFirestore } from "../../almacenamiento/firestore";
 import { leerDeFirestore, lectorDeParametros, type ResultadoParametros } from "../../almacenamiento/parametros";
+import { borrarCuentaConClave, borrarCuentaConGoogle, proveedorDe } from "../../almacenamiento/cuenta";
 import {
   anularRegistroGoogleSinAceptar,
   cerrarSesion,
@@ -12,12 +13,13 @@ import {
   ingresarConGoogle,
   iniciarNube,
   iniciarSesionConCorreo,
+  proveedoresDelUsuario,
   registrarConCorreo,
   resultadoDeRedireccion,
   type Usuario,
 } from "../../almacenamiento/sesion";
 import App from "../../App";
-import { debeAnularse, mensajeDeErrorAcceso } from "../../dominio/acceso";
+import { debeAnularse, mensajeDeErrorAcceso, mensajeDeErrorBorrado } from "../../dominio/acceso";
 import { leerAviso } from "../../dominio/aviso";
 import { crearDatosIniciales, crearPerfil, pantallaDeCuenta } from "../../dominio/bienvenida";
 import { Aviso } from "../componentes/Aviso";
@@ -61,6 +63,7 @@ export default function AppNube() {
   const [volviendoDeGoogle] = useState(hayRedireccionPendiente); // true solo al abrir la página tras una redirección
   const [revisandoGoogle, setRevisandoGoogle] = useState(volviendoDeGoogle);
   const [errorInicial, setErrorInicial] = useState<string | null>(null);
+  const [cuentaBorrada, setCuentaBorrada] = useState(false); // para decir "tu cuenta se borró" al volver al acceso
 
   useEffect(
     () =>
@@ -113,6 +116,7 @@ export default function AppNube() {
         aviso={aviso}
         modoInicial={errorInicial === SIN_CUENTA_GOOGLE ? "registro" : "login"}
         errorInicial={errorInicial}
+        confirmacionInicial={cuentaBorrada ? "Tu cuenta y todos tus datos se borraron." : null}
         alIniciarConCorreo={(correo, contrasena) => iniciarSesionConCorreo(nube, correo, contrasena).then(bien, comoResultado)}
         alRegistrar={(nombre, correo, contrasena) => registrarConCorreo(nube, nombre, correo, contrasena).then(bien, comoResultado)}
         alEntrarConGoogle={conGoogle}
@@ -125,10 +129,10 @@ export default function AppNube() {
       />
     );
   }
-  return <Cuenta key={sesion.uid} usuario={sesion} />;
+  return <Cuenta key={sesion.uid} usuario={sesion} alBorrarCuenta={setCuentaBorrada} />;
 }
 
-function Cuenta({ usuario }: { usuario: Usuario }) {
+function Cuenta({ usuario, alBorrarCuenta }: { usuario: Usuario; alBorrarCuenta: (borrada: boolean) => void }) {
   const repo = useMemo(() => new RepositorioFirestore(nube.db, usuario.uid), [usuario.uid]);
   const [estado, setEstado] = useState<"leyendo" | "listo" | { error: string }>("leyendo");
   const [, actualizar] = useState(0);
@@ -183,6 +187,7 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
     );
   }
 
+  const proveedor = proveedorDe(proveedoresDelUsuario(nube));
   const perfil = repo.perfilGuardado();
   const avisoVigente = parametros.parametros.avisoVersion;
   const pantalla = pantallaDeCuenta(perfil, avisoVigente);
@@ -219,6 +224,20 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
         parametros={parametros.parametros}
         avisoParametros={parametros.aviso}
         pendienteDeSincronizar={pendiente}
+        cuenta={{
+          proveedor,
+          alBorrar: async (clave) => {
+            // Se avisa antes: al borrarse el usuario, la sesión se cierra y el acceso ya tiene que saber por qué.
+            alBorrarCuenta(true);
+            try {
+              await (proveedor === "google.com" ? borrarCuentaConGoogle(nube, repo) : borrarCuentaConClave(nube, repo, clave));
+              return { ok: true };
+            } catch (e) {
+              alBorrarCuenta(false);
+              return { ok: false, error: mensajeDeErrorBorrado(codigoDeError(e)) };
+            }
+          },
+        }}
       />
       {hoja && <HojaPrivacidad aviso={aviso} alCerrar={() => setHoja(false)} />}
     </>

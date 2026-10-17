@@ -4,6 +4,7 @@ import type { Datos, Repositorio } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { calculoDe, type Parametros } from "./dominio/parametros";
+import type { ResultadoBorrado } from "./ui/nube/BorrarCuenta";
 import { Aviso } from "./ui/componentes/Aviso";
 import { Boton } from "./ui/componentes/Boton";
 import { IndicadorSincronizacion } from "./ui/componentes/IndicadorSincronizacion";
@@ -55,9 +56,11 @@ type Props = {
   parametros?: Parametros;
   /** Solo con cuenta: true si lo último está guardado solo en este dispositivo; false si ya se sincronizó. */
   pendienteDeSincronizar?: boolean;
+  /** Solo con cuenta: ofrece "Borrar mi cuenta" en Ajustes. */
+  cuenta?: { proveedor: "password" | "google.com" | "otro"; alBorrar: (clave: string) => Promise<ResultadoBorrado> };
 };
 
-export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros, pendienteDeSincronizar }: Props) {
+export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros, pendienteDeSincronizar, cuenta }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
@@ -155,6 +158,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
           alCerrarSesion={alCerrarSesion}
           alVerAviso={alVerAviso}
           parametros={parametros}
+          cuenta={cuenta}
           importarTexto={(texto) => {
             importar(repo, texto);
             setEstado({ datos: repo.cargar() });

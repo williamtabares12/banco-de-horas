@@ -14,6 +14,7 @@ import { Enlace } from "../componentes/Enlace";
 import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { Interruptor } from "../componentes/Interruptor";
 import { useConfirmacion } from "../componentes/useConfirmacion";
+import { BorrarCuenta, type ResultadoBorrado } from "../nube/BorrarCuenta";
 import { aTextoHoras, hoy, nuevoId } from "../utilidades";
 
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -29,11 +30,13 @@ type Props = {
   alVerAviso?: () => void;
   /** Solo en la versión con cuenta: las reglas de la clínica (se muestran en solo lectura y mandan en el cálculo). */
   parametros?: Parametros;
+  /** Solo en la versión con cuenta: lo que hace falta para ofrecer "Borrar mi cuenta". */
+  cuenta?: { proveedor: "password" | "google.com" | "otro"; alBorrar: (clave: string) => Promise<ResultadoBorrado> };
 };
 
 type Mensaje = { texto: string; error: boolean } | null;
 
-export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso, parametros }: Props) {
+export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso, parametros, cuenta }: Props) {
   return (
     <section className="pantalla">
       <FormularioConfig
@@ -72,6 +75,7 @@ export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAv
           </div>
         </section>
       )}
+      {cuenta && <BorrarCuenta proveedor={cuenta.proveedor} alBorrar={cuenta.alBorrar} />}
     </section>
   );
 }
