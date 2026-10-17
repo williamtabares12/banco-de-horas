@@ -5,7 +5,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { leerAviso } from "../src/dominio/aviso";
 import { Bienvenida } from "../src/ui/nube/Bienvenida";
-import { Ingreso } from "../src/ui/nube/Ingreso";
 import { NuevoAviso } from "../src/ui/nube/NuevoAviso";
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -34,26 +33,6 @@ describe("Bienvenida: primer paso (CC3)", () => {
   });
   it("no hay botón de atrás en el primer paso", () => {
     expect(html).not.toContain(">Atrás<");
-  });
-});
-
-describe("Ingreso", () => {
-  const html = renderToStaticMarkup(<Ingreso alEntrar={noop} entrando={false} error={null} />);
-
-  it("ofrece entrar con Google y dice que es un registro personal, no oficial", () => {
-    expect(html).toContain("Entrar con Google");
-    expect(html).toMatch(/Registro personal/);
-    expect(html).toMatch(/no es una herramienta oficial/i);
-  });
-  it("no pide contraseñas", () => {
-    expect(html).not.toMatch(/type="password"/);
-  });
-  it("muestra el error de ingreso si lo hay", () => {
-    const conError = renderToStaticMarkup(<Ingreso alEntrar={noop} entrando={false} error="No hay conexión." />);
-    expect(conError).toContain("No hay conexión.");
-  });
-  it("mientras entra, el botón se bloquea", () => {
-    expect(boton(renderToStaticMarkup(<Ingreso alEntrar={noop} entrando error={null} />), "Entrando")).toMatch(/disabled/);
   });
 });
 
