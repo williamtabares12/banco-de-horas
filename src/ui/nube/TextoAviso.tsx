@@ -1,10 +1,10 @@
 import type { AvisoPrivacidad } from "../../dominio/aviso";
 
 /** El texto del aviso de privacidad tal como está en aviso-privacidad.md. */
-export function TextoAviso({ aviso }: { aviso: AvisoPrivacidad }) {
+export function TextoAviso({ aviso, sinTitulo = false }: { aviso: AvisoPrivacidad; sinTitulo?: boolean }) {
   return (
     <>
-      <h2 className="titulo-seccion">{aviso.titulo}</h2>
+      {!sinTitulo && <h2 className="titulo-seccion">{aviso.titulo}</h2>}
       {aviso.secciones.map((s) => (
         <div key={s.titulo} className="seccion">
           <h3 className="subtitulo">{s.titulo}</h3>

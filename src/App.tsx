@@ -45,9 +45,11 @@ type Props = {
   repo?: Repositorio;
   /** Solo con cuenta: muestra el botón de cerrar sesión en Ajustes. */
   alCerrarSesion?: () => void;
+  /** Solo con cuenta: abre el aviso de privacidad desde Ajustes. */
+  alVerAviso?: () => void;
 };
 
-export default function App({ repo = repoLocal, alCerrarSesion }: Props) {
+export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
@@ -134,6 +136,7 @@ export default function App({ repo = repoLocal, alCerrarSesion }: Props) {
           datos={datos}
           cambiar={cambiar}
           alCerrarSesion={alCerrarSesion}
+          alVerAviso={alVerAviso}
           importarTexto={(texto) => {
             importar(repo, texto);
             setEstado({ datos: repo.cargar() });

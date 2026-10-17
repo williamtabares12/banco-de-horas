@@ -410,6 +410,13 @@
     border-radius: var(--radio-caja);
   }
 
+  /* Hoja con mucho texto (el aviso de privacidad): se desplaza dentro, sin salirse de la pantalla */
+  .dialogo__hoja--larga {
+    max-width: 560px;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+
   .dialogo__titulo {
     margin: 0;
     font-size: var(--texto-subtitulo);

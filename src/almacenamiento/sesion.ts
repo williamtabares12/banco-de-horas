@@ -1,12 +1,21 @@
+// Toda la interacción con Firebase Authentication vive aquí (portado de auth.js de Bitácora AIDA v2):
+// el resto de la app solo conoce estas funciones, no los detalles de Firebase.
 import { initializeApp } from "firebase/app";
 import {
   GoogleAuthProvider,
   connectAuthEmulator,
+  createUserWithEmailAndPassword,
+  deleteUser,
+  getAdditionalUserInfo,
   getAuth,
+  getRedirectResult,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
   signOut,
+  updateProfile,
   type Auth,
 } from "firebase/auth";
 import { connectFirestoreEmulator, type Firestore } from "firebase/firestore";
@@ -52,32 +61,102 @@ export function escucharSesion(
   );
 }
 
+/** Código de error de Firebase (por ejemplo "auth/wrong-password"), o "" si no es un error de Firebase. */
+export function codigoDeError(e: unknown): string {
+  return (e as { code?: string } | null)?.code ?? "";
+}
+
+/** Crea la cuenta con correo y contraseña y le pone el nombre (para saludar sin leer nada más). */
+export async function registrarConCorreo({ auth }: Nube, nombre: string, correo: string, contrasena: string): Promise<void> {
+  const credencial = await createUserWithEmailAndPassword(auth, correo, contrasena);
+  await updateProfile(credencial.user, { displayName: nombre.trim() });
+}
+
+export async function iniciarSesionConCorreo({ auth }: Nube, correo: string, contrasena: string): Promise<void> {
+  await signInWithEmailAndPassword(auth, correo, contrasena);
+}
+
+export async function enviarCorreoRecuperacion({ auth }: Nube, correo: string): Promise<void> {
+  await sendPasswordResetEmail(auth, correo);
+}
+
 // Cuando la ventana emergente no se puede usar (Safari en el iPhone a veces la bloquea), se pasa a la redirección.
 const SIN_VENTANA = ["auth/popup-blocked", "auth/operation-not-supported-in-this-environment"];
 
-/** `soloRedireccion` salta la ventana emergente: así se prueba el camino de respaldo (y en el panel de pruebas no hay ventanas). */
-export async function ingresarConGoogle({ auth }: Nube, soloRedireccion = false): Promise<void> {
+// Con la redirección la página se recarga y se pierde lo que había en pantalla: si la persona marcó el
+// aviso antes de abrir Google, se recuerda aquí (solo mientras dura la pestaña) para decidir al volver.
+const CLAVE_ACEPTO_AVISO = "banco-horas:google-acepto-aviso";
+
+function recordarAviso(acepto: boolean) {
+  try {
+    sessionStorage.setItem(CLAVE_ACEPTO_AVISO, acepto ? "1" : "0");
+  } catch {
+    // sin sessionStorage: al volver se tratará como "no aceptó", que es lo más seguro
+  }
+}
+
+/** ¿Estamos volviendo de Google por redirección? Mientras tanto no se debe dibujar nada que dependa de la sesión. */
+export function hayRedireccionPendiente(): boolean {
+  try {
+    return sessionStorage.getItem(CLAVE_ACEPTO_AVISO) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Entra con Google. Con la ventana emergente devuelve si la cuenta es nueva; con la redirección
+ * (respaldo, o `soloRedireccion` en el modo emulador) devuelve null y el resultado se lee al volver,
+ * con `resultadoDeRedireccion`.
+ */
+export async function ingresarConGoogle(
+  { auth }: Nube,
+  aceptoAviso: boolean,
+  soloRedireccion = false,
+): Promise<{ esNuevo: boolean } | null> {
   const proveedor = new GoogleAuthProvider();
   proveedor.setCustomParameters({ prompt: "select_account" });
-  if (soloRedireccion) return signInWithRedirect(auth, proveedor);
+  const redirigir = () => {
+    recordarAviso(aceptoAviso);
+    return signInWithRedirect(auth, proveedor).then(() => null);
+  };
+  if (soloRedireccion) return redirigir();
   try {
-    await signInWithPopup(auth, proveedor);
+    const credencial = await signInWithPopup(auth, proveedor);
+    return { esNuevo: Boolean(getAdditionalUserInfo(credencial)?.isNewUser) };
   } catch (e) {
-    const codigo = (e as { code?: string }).code ?? "";
-    if (SIN_VENTANA.includes(codigo)) return signInWithRedirect(auth, proveedor);
+    if (SIN_VENTANA.includes(codigoDeError(e))) return redirigir();
     throw e;
+  }
+}
+
+/** Al volver de Google por redirección: si la cuenta es nueva y si la persona había aceptado el aviso. */
+export async function resultadoDeRedireccion({ auth }: Nube): Promise<{ esNuevo: boolean; aceptoAviso: boolean } | null> {
+  let aceptoAviso = false;
+  try {
+    aceptoAviso = sessionStorage.getItem(CLAVE_ACEPTO_AVISO) === "1";
+    sessionStorage.removeItem(CLAVE_ACEPTO_AVISO);
+  } catch {
+    // ver recordarAviso
+  }
+  const credencial = await getRedirectResult(auth);
+  if (!credencial) return null;
+  return { esNuevo: Boolean(getAdditionalUserInfo(credencial)?.isNewUser), aceptoAviso };
+}
+
+/**
+ * Deshace una cuenta de Google recién creada sin haber aceptado el aviso: borra la cuenta en vez de solo
+ * cerrar sesión, para no dejar una cuenta sin consentimiento.
+ */
+export async function anularRegistroGoogleSinAceptar({ auth }: Nube): Promise<void> {
+  try {
+    if (auth.currentUser) await deleteUser(auth.currentUser);
+  } catch {
+    // si no se puede borrar (sesión vencida, por ejemplo), al menos que no quede con la sesión abierta
+    await signOut(auth);
   }
 }
 
 export function cerrarSesion({ auth }: Nube): Promise<void> {
   return signOut(auth);
-}
-
-/** Texto para mostrar cuando el ingreso falla. Cerrar la ventana no es un error. */
-export function mensajeDeIngreso(e: unknown): string | null {
-  const codigo = (e as { code?: string }).code ?? "";
-  if (codigo === "auth/popup-closed-by-user" || codigo === "auth/cancelled-popup-request") return null;
-  if (codigo === "auth/network-request-failed") return "No hay conexión. Para entrar necesitas internet.";
-  if (codigo === "auth/unauthorized-domain") return "Esta dirección no está autorizada para iniciar sesión.";
-  return "No se pudo iniciar sesión. Intenta de nuevo.";
 }

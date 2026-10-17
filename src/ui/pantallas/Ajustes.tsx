@@ -24,11 +24,13 @@ type Props = {
   importarTexto: (texto: string) => void;
   /** Solo en la versión con cuenta. */
   alCerrarSesion?: () => void;
+  /** Solo en la versión con cuenta: abre el aviso de privacidad. */
+  alVerAviso?: () => void;
 };
 
 type Mensaje = { texto: string; error: boolean } | null;
 
-export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion }: Props) {
+export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso }: Props) {
   return (
     <section className="pantalla">
       <FormularioConfig
@@ -61,6 +63,7 @@ export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion }: Props
           <h2 className="titulo-seccion">Sesión</h2>
           <div className="acciones">
             <Boton onClick={alCerrarSesion}>Cerrar sesión</Boton>
+            {alVerAviso && <Enlace onClick={alVerAviso}>Aviso de privacidad</Enlace>}
           </div>
         </section>
       )}
