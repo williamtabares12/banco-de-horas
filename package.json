@@ -11,7 +11,7 @@
     "check:estilo": "node scripts/check-estilo.mjs --estricto",
     "test": "vitest run",
     "emuladores": "firebase emulators:start --only auth,firestore",
-    "test:nube": "firebase emulators:exec --only firestore \"vitest run tests/reglas.test.ts tests/repositorioFirestore.test.ts\"",
+    "test:nube": "firebase emulators:exec --only firestore \"vitest run tests/reglas.test.ts tests/repositorioFirestore.test.ts tests/importar.test.ts\"",
     "dev:nube": "vite --mode nube",
     "dev:emulador": "vite --mode emulador",
     "build:nube": "tsc -b && vite build --mode nube --outDir dist-nube"

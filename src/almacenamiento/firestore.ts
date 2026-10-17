@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { CONFIG_POR_DEFECTO } from "../dominio/config";
 import type { PerfilNube } from "../dominio/bienvenida";
-import type { Config, MovimientoBanco } from "../dominio/tipos";
+import type { Config, MovimientoBanco, Turno } from "../dominio/tipos";
 import { VERSION_ESQUEMA } from "./migracion";
 import type { Datos, Repositorio } from "./repositorio";
 import { leerDatos } from "./respaldo";
@@ -54,9 +54,17 @@ function canonico(valor: unknown): string {
   return JSON.stringify(ordenar(valor));
 }
 
+/** Lo que se escribe al crear una cuenta: lo de la bienvenida, o un respaldo completo. */
+export type DatosIniciales = {
+  config: Config;
+  turnos?: Turno[];
+  movimientos: MovimientoBanco[];
+  ultimoRespaldo?: string;
+};
+
 const sinUndefined = (valor: object): DocumentData => JSON.parse(JSON.stringify(valor));
 
-type Operacion = { tipo: "set"; ruta: string; datos: DocumentData; unir?: boolean } | { tipo: "delete"; ruta: string };
+export type Operacion = { tipo: "set"; ruta: string; datos: DocumentData; unir?: boolean } | { tipo: "delete"; ruta: string };
 
 /**
  * Los datos de una persona en Firestore (plan-nube.md §2):
@@ -199,24 +207,55 @@ export class RepositorioFirestore implements Repositorio {
   }
 
   /**
-   * Primer ingreso: escribe perfil, configuración y saldo inicial en un solo lote. Si algo falla no
-   * queda nada a medias, así que la bienvenida se puede repetir. Espera al servidor: entrar con
-   * Google ya exige conexión.
+   * Lo que se escribe al crear la cuenta, partido en lotes de máximo 500 operaciones. El perfil va en
+   * el ÚLTIMO lote: si algo se corta a medias, la cuenta todavía "no existe" y la bienvenida se puede
+   * repetir sin dejar nada a medias (volver a escribir los mismos documentos no duplica nada).
    */
-  async crearCuenta(perfil: PerfilNube, inicial: { config: Config; movimientos: MovimientoBanco[] }): Promise<void> {
-    const lote = writeBatch(this.db);
-    lote.set(doc(this.db, this.base), perfil, { merge: true });
-    lote.set(doc(this.db, `${this.base}/config/principal`), sinUndefined(inicial.config));
-    for (const m of inicial.movimientos) lote.set(doc(this.db, `${this.base}/movimientos/${m.id}`), sinUndefined(m));
-    await lote.commit();
+  lotesDeCuenta(perfil: PerfilNube, inicial: DatosIniciales): Operacion[][] {
+    const operaciones: Operacion[] = [
+      { tipo: "set", ruta: `${this.base}/config/principal`, datos: sinUndefined(inicial.config) },
+      ...(inicial.turnos ?? []).map((t): Operacion => ({ tipo: "set", ruta: `${this.base}/turnos/${t.id}`, datos: sinUndefined(t) })),
+      ...inicial.movimientos.map((m): Operacion => ({ tipo: "set", ruta: `${this.base}/movimientos/${m.id}`, datos: sinUndefined(m) })),
+    ];
+    const datosPerfil: DocumentData = { ...perfil };
+    if (inicial.ultimoRespaldo !== undefined) datosPerfil.ultimoRespaldo = inicial.ultimoRespaldo;
+    const lotes: Operacion[][] = [];
+    for (let i = 0; i < operaciones.length; i += MAX_LOTE) lotes.push(operaciones.slice(i, i + MAX_LOTE));
+    const ultimo = lotes[lotes.length - 1];
+    const perfilOp: Operacion = { tipo: "set", ruta: this.base, datos: datosPerfil, unir: true };
+    if (ultimo && ultimo.length < MAX_LOTE) ultimo.push(perfilOp);
+    else lotes.push([perfilOp]);
+    return lotes;
+  }
+
+  /**
+   * Primer ingreso, con o sin respaldo importado: escribe perfil, configuración y datos. Si es poca
+   * cosa va todo en un solo lote (o se escribe todo o nada). Espera al servidor: entrar con Google
+   * ya exige conexión.
+   */
+  async crearCuenta(perfil: PerfilNube, inicial: DatosIniciales): Promise<void> {
+    // Se arman todos los lotes antes de enviar ninguno: un id inválido lanza aquí y no se escribe nada.
+    const lotes = this.lotesDeCuenta(perfil, inicial).map((ops) => this.armarLote(ops));
+    for (const lote of lotes) await lote.commit(); // en orden: el perfil, que va en el último, es lo que "abre" la cuenta
     // El perfil, la configuración y el saldo llegan por oyentes distintos: se espera a verlos todos,
     // para que la app no arranque con el perfil nuevo y la configuración vieja.
     await this.hasta(
       () =>
         this.perfilGuardado() !== null &&
         canonico(this.actual.config) === canonico(inicial.config) &&
-        inicial.movimientos.every((m) => this.actual.movimientos.some((x) => x.id === m.id)),
+        (inicial.turnos ?? []).length === this.actual.turnos.length &&
+        inicial.movimientos.length === this.actual.movimientos.length,
     );
+  }
+
+  private armarLote(operaciones: Operacion[]) {
+    const lote = writeBatch(this.db);
+    for (const op of operaciones) {
+      const ref = doc(this.db, op.ruta);
+      if (op.tipo === "set") lote.set(ref, op.datos, op.unir ? { merge: true } : {});
+      else lote.delete(ref);
+    }
+    return lote;
   }
 
   /** Vuelve a aceptar el aviso cuando cambió de versión. Solo toca esos dos campos del perfil. */
@@ -273,15 +312,7 @@ export class RepositorioFirestore implements Repositorio {
 
     // Primero se arman todos los lotes (una ruta inválida lanza aquí y no se escribe nada) y después se envían.
     const lotes = [];
-    for (let i = 0; i < operaciones.length; i += MAX_LOTE) {
-      const lote = writeBatch(this.db);
-      for (const op of operaciones.slice(i, i + MAX_LOTE)) {
-        const ref = doc(this.db, op.ruta);
-        if (op.tipo === "set") lote.set(ref, op.datos, op.unir ? { merge: true } : {});
-        else lote.delete(ref);
-      }
-      lotes.push(lote);
-    }
+    for (let i = 0; i < operaciones.length; i += MAX_LOTE) lotes.push(this.armarLote(operaciones.slice(i, i + MAX_LOTE)));
 
     this.actual = structuredClone(datos); // se ve ya, sin esperar al servidor
     for (const lote of lotes) lote.commit().catch((e: Error) => this.oyentesError.forEach((o) => o(e)));

@@ -10,17 +10,17 @@ Versión del aviso: 1 (borrador)
 
 ---
 
-## Aviso de privacidad de Banco de Horas
+## Aviso de privacidad de [NOMBRE DE LA APP]
 
 ### 1. Quién es el responsable
 
-ALEJANDRO TABARES, auxiliar de enfermería, creador y administrador de esta app. Contacto: wtabares@comfamiliar.com.
+[NOMBRE COMPLETO DEL RESPONSABLE], auxiliar de enfermería, creador y administrador de esta app. Contacto: [CORREO DE CONTACTO].
 
 Esta app es un registro personal. No es una herramienta oficial de la clínica ni de nómina, y no reemplaza ninguno de sus registros.
 
 ### 2. Qué datos se guardan
 
-- El nombre y el correo de tu cuenta de Google, que se usan para iniciar sesión.
+- El nombre y el correo de tu cuenta (de Google o de tu registro con correo), que se usan para iniciar sesión.
 - Los turnos que registras (fecha, horas de inicio y fin, descanso, tipo).
 - Los movimientos de tu banco de horas (préstamos, pagos, ajustes, capacitaciones o reuniones), con sus fechas y las notas que escribas.
 - Tu configuración (horas semanales, inicio de la jornada nocturna, plantillas de turno).
@@ -32,7 +32,7 @@ Solo para mostrarte a ti tu banco de horas, tus horas nocturnas y dominicales, y
 
 ### 4. Qué no se guarda y qué no debes escribir
 
-La app no pide ni guarda contraseñas, documentos de identidad, salario ni datos de pacientes. No escribas nombres ni documentos de pacientes en las notas. Tampoco datos de salud tuyos o de otras personas.
+La app no guarda contraseñas por su cuenta: si te registras con correo, las maneja el servicio de inicio de sesión de Google (Firebase) y el responsable no puede verlas. Tampoco pide documentos de identidad, salario ni datos de pacientes. No escribas nombres ni documentos de pacientes en las notas. Tampoco datos de salud tuyos o de otras personas.
 
 ### 5. Quién puede ver tus datos
 
@@ -55,7 +55,7 @@ Para ejercerlos puedes:
 - Ver y editar tus datos desde la app.
 - Exportarlos desde Ajustes, en JSON y en extracto PDF.
 - Borrar tu cuenta y todos tus datos desde Ajustes, de forma definitiva.
-- Escribir a wtabares@comfamiliar.com.
+- Escribir a [CORREO DE CONTACTO].
 
 ### 8. Por cuánto tiempo
 

@@ -4,61 +4,61 @@ Se hacen en orden. Cada una termina cuando sus pruebas pasan y está commiteada.
 
 ## Fase 0: base
 
-- [x] T0. Crear el proyecto con Vite (plantilla react-ts), instalar Vitest, configurar `npm test`, crear las carpetas de plan.md sección 2 y una prueba de humo que pase. Hecho cuando `npm run dev` abre una página y `npm test` pasa.
+- [ ] T0. Crear el proyecto con Vite (plantilla react-ts), instalar Vitest, configurar `npm test`, crear las carpetas de plan.md sección 2 y una prueba de humo que pase. Hecho cuando `npm run dev` abre una página y `npm test` pasa.
 
 ## Fase 1: dominio (solo lógica, sin pantallas)
 
-- [x] T1. `tiempo.ts` y `festivos.ts`. Pruebas: quincena de una fecha, colilla donde se cobra (CA6), semana lunes-domingo, festivos 2026 y 2027 contra el calendario oficial. Hecho cuando Alejandro confirma la lista de festivos generada.
-- [x] T2. `segmentar.ts`. Pruebas: CA1, turno diurno, turno que cruza medianoche a domingo, turno que cruza de domingo a lunes, turno en festivo, turno que cruza de la quincena 1 a la 2, quincena sin turnos nocturnos ni dominicales (CA9).
-- [x] T3. `banco.ts`. Pruebas: CA2, CA3, CA4, CA5 (parte de saldo), CA7, movimiento editado a mano que no se sobrescribe, interruptor `extrasDescuentanDeuda`.
-- [x] T4. `semana.ts`. Pruebas: CA5 (parte de semana), semana con turnos ordinarios, alquiler con destino semana, alquiler con destino deuda (no suma), semana que arranca en lunes.
+- [ ] T1. `tiempo.ts` y `festivos.ts`. Pruebas: quincena de una fecha, colilla donde se cobra (CA6), semana lunes-domingo, festivos 2026 y 2027 contra el calendario oficial. Hecho cuando Alejandro confirma la lista de festivos generada.
+- [ ] T2. `segmentar.ts`. Pruebas: CA1, turno diurno, turno que cruza medianoche a domingo, turno que cruza de domingo a lunes, turno en festivo, turno que cruza de la quincena 1 a la 2, quincena sin turnos nocturnos ni dominicales (CA9).
+- [ ] T3. `banco.ts`. Pruebas: CA2, CA3, CA4, CA5 (parte de saldo), CA7, movimiento editado a mano que no se sobrescribe, interruptor `extrasDescuentanDeuda`.
+- [ ] T4. `semana.ts`. Pruebas: CA5 (parte de semana), semana con turnos ordinarios, alquiler con destino semana, alquiler con destino deuda (no suma), semana que arranca en lunes.
 
 ## Fase 2: datos
 
-- [x] T5. `Repositorio` y su implementación en localStorage. Exportar e importar JSON con validación (un JSON dañado no borra los datos actuales). Pruebas: guardar, leer, exportar, importar, importar archivo inválido.
+- [ ] T5. `Repositorio` y su implementación en localStorage. Exportar e importar JSON con validación (un JSON dañado no borra los datos actuales). Pruebas: guardar, leer, exportar, importar, importar archivo inválido.
 
 ## Fase 3: pantallas
 
-- [x] T6. Ajustes y Banco: configuración, saldo inicial, préstamos, pagos y ajustes manuales con nota.
-- [x] T7. Turnos e Inicio: formulario de turno con desglose de horas y movimiento de banco antes de confirmar, lista editable, tarjetas de Inicio.
-- [x] T8. Quincena: selector, horas por categoría y colilla donde se cobran.
-- [x] T9. Extracto: vista imprimible con saldo corriente y botón para imprimir o guardar como PDF.
+- [ ] T6. Ajustes y Banco: configuración, saldo inicial, préstamos, pagos y ajustes manuales con nota.
+- [ ] T7. Turnos e Inicio: formulario de turno con desglose de horas y movimiento de banco antes de confirmar, lista editable, tarjetas de Inicio.
+- [ ] T8. Quincena: selector, horas por categoría y colilla donde se cobran.
+- [ ] T9. Extracto: vista imprimible con saldo corriente y botón para imprimir o guardar como PDF.
 
 ## Fase 4: cierre
 
 - [ ] T10. Verificación opcional (CA8): si Alejandro quiere, carga los turnos de una quincena cuya colilla ya tiene y compara las horas por categoría con la línea de recargos. Si no coincide, se ajusta la regla en el spec primero y después en el código. No bloquea el resto.
-- [x] T11. PWA con vite-plugin-pwa: instalable y funcional sin internet. Aviso de respaldo en Inicio.
-- [x] T12. README con cómo correr, probar y exportar los datos, y cómo publicar en un hosting estático gratuito.
+- [ ] T11. PWA con vite-plugin-pwa: instalable y funcional sin internet. Aviso de respaldo en Inicio.
+- [ ] T12. README con cómo correr, probar y exportar los datos, y cómo publicar en un hosting estático gratuito.
 
 ## Fase 5: descansos (cambio del spec v0.7)
 
 Se hacen después de lo que ya esté construido, en este orden. La app ya tiene datos reales guardados en el celular de Alejandro, así que primero se protege eso.
 
-- [x] T13. Modelo y migración. Agregar `descansoMin` al turno, `plantillas` a la configuración y `schemaVersion` al almacenamiento. Migrar los datos viejos: turnos con descanso 0 y plantillas de ejemplo (Día 8 h, Día 12 h, Noche 12 h). Pruebas: CA13 con un JSON del formato anterior, importar un respaldo viejo.
-- [x] T14. Dominio con descanso. Minutos netos en `segmentar.ts`, `banco.ts` y `semana.ts`. Pruebas: CA2, CA10, CA11, CA5 con minutos netos, descanso mayor que la categoría mayoritaria no baja de cero.
-- [x] T15. Plantillas en pantalla: crear, editar y borrar en Ajustes. En el formulario de turno, elegir plantilla rellena inicio, fin, descanso y programadas, todo editable. El desglose y el movimiento de banco usan minutos netos. Prueba: CA12.
-- [x] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas. Si ya se hizo T19, queda cubierta por el criterio CA18.
-- [x] T17. Pago por capacitación o reunión (spec v0.8). Agregar `motivo` opcional al movimiento. En Banco, el botón de pago pide el motivo (capacitación o reunión, u otro), con fecha, duración y nota. Extracto con etiqueta. Pruebas: CA14, CA15, y que los pagos manuales viejos sigan funcionando como "Otro". No requiere migración de datos.
+- [ ] T13. Modelo y migración. Agregar `descansoMin` al turno, `plantillas` a la configuración y `schemaVersion` al almacenamiento. Migrar los datos viejos: turnos con descanso 0 y plantillas de ejemplo (Día 8 h, Día 12 h, Noche 12 h). Pruebas: CA13 con un JSON del formato anterior, importar un respaldo viejo.
+- [ ] T14. Dominio con descanso. Minutos netos en `segmentar.ts`, `banco.ts` y `semana.ts`. Pruebas: CA2, CA10, CA11, CA5 con minutos netos, descanso mayor que la categoría mayoritaria no baja de cero.
+- [ ] T15. Plantillas en pantalla: crear, editar y borrar en Ajustes. En el formulario de turno, elegir plantilla rellena inicio, fin, descanso y programadas, todo editable. El desglose y el movimiento de banco usan minutos netos. Prueba: CA12.
+- [ ] T16. Arreglo visual: la barra de pestañas se corta en celular (se ve "Quincen" truncado). Que se desplace de lado o use letra más pequeña en pantallas angostas. Si ya se hizo T19, queda cubierta por el criterio CA18.
+- [ ] T17. Pago por capacitación o reunión (spec v0.8). Agregar `motivo` opcional al movimiento. En Banco, el botón de pago pide el motivo (capacitación o reunión, u otro), con fecha, duración y nota. Extracto con etiqueta. Pruebas: CA14, CA15, y que los pagos manuales viejos sigan funcionando como "Otro". No requiere migración de datos.
 
 ## Fase 5b: estilo visual (cambio del spec v0.9)
 
 Solo cambia la apariencia. No se toca `src/dominio/` ni los datos guardados, y las pruebas existentes deben seguir en verde.
 
-- [x] T18. Tokens y base. Crear `src/ui/estilo/tokens.css` con las variables de estilo-visual.md sección 8, estilos globales (fondo `--color-lienzo`, letra del sistema, 17 px de base, cifras tabulares), color de tema en el manifiesto y en la etiqueta meta, y `scripts/check-estilo.mjs` con `npm run check:estilo`. Hecho cuando CA16 pasa.
-- [x] T19. Componentes. Botón relleno, botón de contorno, enlace, pestañas con desplazamiento de lado (activa en azul), campo de formulario, fila de lista, barra de avance, interruptor y diálogo de confirmación, según la sección 5 del documento de estilo. Hecho cuando CA17 y CA18 se cumplen.
-- [x] T20. Pantallas. Rehacer Inicio, Turnos, Banco, Quincena, Extracto (con estilos de impresión) y Ajustes con esos componentes. Sin tarjetas con fondo, sin sombras y sin tema oscuro. Hecho cuando CA21 se cumple y `npm run check:estilo` pasa.
-- [x] T21. Revisión en el celular de Alejandro (iPhone, en Safari y con la app instalada): contraste, tamaños táctiles, campos sin zoom, pestañas sin cortar. Lista de hallazgos para corregir. Hecho cuando CA19 y CA20 se cumplen.
+- [ ] T18. Tokens y base. Crear `src/ui/estilo/tokens.css` con las variables de estilo-visual.md sección 8, estilos globales (fondo `--color-lienzo`, letra del sistema, 17 px de base, cifras tabulares), color de tema en el manifiesto y en la etiqueta meta, y `scripts/check-estilo.mjs` con `npm run check:estilo`. Hecho cuando CA16 pasa.
+- [ ] T19. Componentes. Botón relleno, botón de contorno, enlace, pestañas con desplazamiento de lado (activa en azul), campo de formulario, fila de lista, barra de avance, interruptor y diálogo de confirmación, según la sección 5 del documento de estilo. Hecho cuando CA17 y CA18 se cumplen.
+- [ ] T20. Pantallas. Rehacer Inicio, Turnos, Banco, Quincena, Extracto (con estilos de impresión) y Ajustes con esos componentes. Sin tarjetas con fondo, sin sombras y sin tema oscuro. Hecho cuando CA21 se cumple y `npm run check:estilo` pasa.
+- [ ] T21. Revisión en el celular de Alejandro (iPhone, en Safari y con la app instalada): contraste, tamaños táctiles, campos sin zoom, pestañas sin cortar. Lista de hallazgos para corregir. Hecho cuando CA19 y CA20 se cumplen.
 
 ## Fase 6: versión para compañeros (spec-companeros.md y plan-nube.md)
 
 Se empieza cuando las fases 5 y 5b estén terminadas y Alejandro haya usado la app unos días. Primero las reglas de seguridad y sus pruebas, después el código de nube. Las pruebas de dominio existentes no se modifican para que pasen.
 
-- [x] T22. Proyecto y entorno de Firebase. Alejandro crea el proyecto nuevo en su cuenta personal (plan gratuito), activa Authentication con Google, Firestore y Hosting. Claude Code lo guía paso a paso, instala `firebase-tools`, configura los emuladores de Auth y Firestore y el archivo `firebase.json`. Sin secretos en el repositorio. Hecho cuando `npm run emuladores` levanta Auth y Firestore.
-- [x] T23. Reglas de seguridad y sus pruebas. Escribir primero las pruebas con dos usuarios y un visitante sin sesión, y después las reglas de plan-nube.md sección 3. Hecho cuando CC1 y CC2 pasan en el emulador.
-- [x] T24. Dominio: saldo actual, saldo proyectado, movimientos "Programado" y saldo a favor. Funciones nuevas, sin tocar las existentes. Hecho cuando CC7, CC8 y CC9 pasan.
-- [x] T25. `RepositorioFirestore` con caché local persistente y lectura en tiempo real. Pruebas en el emulador: guardar, leer, editar, borrar, turno y su movimiento en el mismo lote. Hecho cuando pasan y el repositorio local sigue funcionando para las pruebas.
-- [ ] T26. Inicio de sesión con Google y primer ingreso en pasos (aviso y casilla, saldo inicial, horas semanales, plantillas). Cierre de sesión. Probar en Safari del iPhone y con la app instalada; si falla en la instalada, probar redirección con `authDomain` propio. Hecho cuando CC3 pasa y el ingreso funciona en un iPhone.
-- [ ] T27. Importar un respaldo JSON a la cuenta, con validación y lotes de máximo 500 operaciones. Hecho cuando CC5 pasa y un JSON inválido no escribe nada.
+- [ ] T22. Proyecto y entorno de Firebase. Alejandro crea el proyecto nuevo en su cuenta personal (plan gratuito), activa Authentication con Google, Firestore y Hosting. Claude Code lo guía paso a paso, instala `firebase-tools`, configura los emuladores de Auth y Firestore (el de Firestore necesita Java instalado) y el archivo `firebase.json`. Sin secretos en el repositorio. Hecho cuando `npm run emuladores` levanta Auth y Firestore.
+- [ ] T23. Reglas de seguridad y sus pruebas. Escribir primero las pruebas con dos usuarios y un visitante sin sesión, y después las reglas de plan-nube.md sección 3. Después Alejandro las publica en la consola de Firebase: en modo producción, Firestore niega todo hasta que haya reglas. Hecho cuando CC1 y CC2 pasan en el emulador y las reglas están publicadas.
+- [ ] T24. Dominio: saldo actual, saldo proyectado, movimientos "Programado" y saldo a favor. Funciones nuevas, sin tocar las existentes. Hecho cuando CC7, CC8 y CC9 pasan.
+- [ ] T25. `RepositorioFirestore` con caché local persistente y lectura en tiempo real. Pruebas en el emulador: guardar, leer, editar, borrar, turno y su movimiento en el mismo lote. Los cambios se ven al instante y no se vuelve a leer todo el historial después de cada operación (CC12). Hecho cuando pasan y el repositorio local sigue funcionando para las pruebas.
+- [ ] T26. Inicio de sesión y primer ingreso. Primero, portar a React y TypeScript el login de Bitácora AIDA v2: módulo `auth`, pantallas de inicio de sesión y de registro, recuperación por correo, inicio con Google y la hoja de política de privacidad. Se hace leyendo el repositorio bitacora-aida-v2 (Alejandro le da la ruta a Claude Code) y adaptando también sus pruebas. Después, el primer ingreso en pasos (aviso y casilla, saldo inicial, horas semanales, plantillas) y el cierre de sesión. Probar en Safari del iPhone y con la app instalada; si Google falla en la instalada, probar redirección con `authDomain` propio. Hecho cuando CC3 y CC13 pasan.
+- [x] T27. Importar un respaldo JSON a la cuenta, con validación y lotes de máximo 500 operaciones. Hecho cuando CC5 pasa y un JSON inválido no escribe nada.
 - [ ] T28. Pantallas: "La clínica te debe X h", etiqueta "Programado" y saldo proyectado, indicador de sincronización, recordatorio de no escribir datos de pacientes en las notas. Con el estilo de estilo-visual.md. Hecho cuando CC4, CC7, CC8 y CC10 se cumplen.
 - [ ] T29. Exportar mis datos (JSON y PDF) y borrar mi cuenta con reautenticación y borrado por lotes. Hecho cuando CC6 pasa.
 - [ ] T30. Pantalla "Acerca de": versión de la app, aviso de privacidad (texto de aviso-privacidad.md ya revisado), correo de contacto, leyenda de "Registro personal, no oficial" y botón para reportar un problema. Sin nombre ni logo de la clínica.

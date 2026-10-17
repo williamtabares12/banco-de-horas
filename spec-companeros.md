@@ -28,7 +28,7 @@ Auxiliares de enfermería del servicio, con celular (iPhone o Android) y, en su 
 
 ## 5. Requisitos funcionales
 
-RF-C1. Inicio de sesión con Google. La app no maneja contraseñas. Se puede cerrar sesión.
+RF-C1. Registro e inicio de sesión como en Bitácora AIDA v2: con correo y contraseña o con Google, y recuperación de contraseña por correo. Se puede cerrar sesión. La sesión decide qué pantalla se ve.
 
 RF-C2. Primer ingreso. Una pantalla de bienvenida en pasos:
 
@@ -64,9 +64,9 @@ RF-C14. El cálculo de horas, banco, descansos y semana es idéntico al de la ve
 
 ## 6. Datos y privacidad
 
-Qué se guarda: correo y nombre de la cuenta de Google, turnos, movimientos, configuración, y fecha y versión del aviso aceptado.
+Qué se guarda: correo y nombre de la cuenta (de Google o del registro con correo), turnos, movimientos, configuración, y fecha y versión del aviso aceptado.
 
-Qué no se guarda: contraseñas, documentos de identidad, salario, datos de pacientes.
+Qué no se guarda: contraseñas propias (si alguien se registra con correo, las maneja Firebase Authentication y la app no las ve), documentos de identidad, salario, datos de pacientes.
 
 Quién los ve: solo su titular, desde la app. Alejandro, como dueño técnico del proyecto, tiene acceso a la base desde la consola de Firebase. Se compromete, en el aviso, a no consultar datos individuales salvo que el titular lo pida o para corregir un error, y en ese caso solo lo necesario.
 
@@ -115,9 +115,13 @@ CC10. `npm run check:estilo` pasa.
 
 CC11. Dos cuentas distintas en dos celulares, con datos propios, no ven nada de la otra (prueba de punta a punta antes del piloto).
 
+CC12. Crear, editar o borrar un registro se ve al instante en pantalla y no vuelve a leer todo el historial.
+
+CC13. El registro con correo y contraseña, el inicio de sesión, la recuperación por correo y el inicio con Google funcionan en un iPhone, en Safari y con la app instalada.
+
 ## 10. Preguntas abiertas
 
-1. ¿Todos los compañeros del piloto tienen cuenta de Google? Si no, se agrega correo y contraseña.
+1. El inicio de sesión se reutiliza de Bitácora AIDA v2 (correo y contraseña, o Google, con recuperación por correo), así que no hace falta que todos tengan Google. Hay que portarlo a React y TypeScript.
 2. ¿La jefe o coordinación debería ver algo? Por ahora nada. Si algún día se pide, sería decisión de cada persona, compartiendo su extracto en PDF.
 3. Los movimientos con fecha futura, ¿deben contar en el saldo actual? Por ahora no.
 4. Nombre de la app y correo de contacto para el aviso.

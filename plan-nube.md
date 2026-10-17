@@ -4,7 +4,7 @@ Deriva de spec-companeros.md (v0.1). Extiende plan.md: la estructura, el dominio
 
 ## 1. Decisiones
 
-- Firebase, el mismo conjunto que usa Bitácora AIDA v2: Authentication (solo Google), Cloud Firestore y Hosting.
+- Firebase, el mismo conjunto que usa Bitácora AIDA v2: Authentication (correo y contraseña, y Google), Cloud Firestore y Hosting.
 - Proyecto de Firebase nuevo, en la cuenta personal de Alejandro, en el plan gratuito (Spark). Separado de Bitácora AIDA para aislar datos y cuotas.
 - SDK modular de Firebase para web.
 - La interfaz `Repositorio` ya existe. Se agrega `RepositorioFirestore` que la implementa. `RepositorioLocal` queda para las pruebas y para leer respaldos viejos. La UI y el dominio no se enteran del cambio.
@@ -46,7 +46,11 @@ La `apiKey` de Firebase para web no es un secreto: la seguridad la dan las regla
 
 ## 4. Inicio de sesión
 
-Google, con la ventana emergente del SDK en escritorio. En iPhone puede dar problemas con las ventanas emergentes y con los bloqueos de cookies de terceros de Safari, sobre todo en la app instalada. Se prueba en Safari y en la app instalada (T26). Si falla, se cambia a redirección con `authDomain` igual al dominio de Hosting.
+Se reutiliza el diseño del inicio de sesión de Bitácora AIDA v2, que ya está probado, portado a React y TypeScript. Un módulo `auth` encapsula todo lo de Firebase Auth y expone: registrarConCorreo, iniciarSesionConCorreo, iniciarSesionConGoogle, enviarCorreoRecuperacion, cerrarSesion y observarSesion. Ninguna otra parte de la app toca Firebase Auth directamente, y la sesión decide qué pantalla se ve.
+
+Lo que se reutiliza: las pantallas de inicio de sesión y de registro, los mensajes de error en español, la recuperación de contraseña, el texto de la autorización y la política de privacidad en una hoja que sube desde abajo, accesible desde el inicio de sesión y desde la pantalla principal. El código vive en el repositorio bitacora-aida-v2: se lee y se adapta, con sus pruebas, no se copia a ciegas. Esa versión está escrita en JavaScript sin React, así que es un port. El proyecto de Firebase de esta app es otro, por lo que las cuentas no se comparten con Bitácora AIDA.
+
+El inicio con Google puede dar problemas en iPhone, con las ventanas emergentes y con los bloqueos de cookies de terceros de Safari, sobre todo en la app instalada. Se prueba en Safari y en la app instalada (T26). Si falla, se cambia a redirección con `authDomain` igual al dominio de Hosting.
 
 ## 5. Primer ingreso e importación
 
@@ -66,6 +70,8 @@ Las pruebas existentes de `banco.ts` no se modifican.
 ## 7. Sincronización y conflictos
 
 Comportamiento por defecto de Firestore: la última escritura gana, documento por documento. Es suficiente porque cada persona edita sus propios datos y casi siempre desde un solo dispositivo. Cuando un movimiento se genera de un turno, se escribe en el mismo lote que el turno, para que no queden uno sin el otro.
+
+Dos lecciones de Bitácora AIDA v2 que se aplican desde el inicio: no volver a leer todo el historial después de cada crear, editar o borrar (se actualiza la caché en memoria, o llega solo con la escucha en tiempo real), y mostrar el cambio al instante en pantalla. Con la latencia de Firestore, un borrado parecía no funcionar hasta que otra acción redibujaba la lista.
 
 ## 8. Borrado de cuenta
 
@@ -88,6 +94,8 @@ Firebase Hosting, con el sitio de Bitácora AIDA aparte. La PWA (T11) se activa 
 | CC9 pruebas de dominio | Las existentes, sin cambios |
 | CC10 estilo | `npm run check:estilo` |
 | CC11 dos cuentas | Revisión manual con dos celulares, tarea T31 |
+| CC12 cambios al instante, sin releer todo | tests/repositorio-firestore.test.ts |
+| CC13 login en iPhone | Revisión manual en el iPhone, tarea T26 |
 
 ## 11. Riesgos
 

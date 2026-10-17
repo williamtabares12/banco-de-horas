@@ -16,7 +16,7 @@ const noop = () => {};
 const boton = (html: string, texto: string) => new RegExp(`<button[^>]*>(?:(?!</button>).)*${texto}(?:(?!</button>).)*</button>`).exec(html)?.[0] ?? "";
 
 describe("Bienvenida: primer paso (CC3)", () => {
-  const html = renderToStaticMarkup(<Bienvenida aviso={aviso} hoy="2026-10-16" alTerminar={async () => {}} />);
+  const html = renderToStaticMarkup(<Bienvenida aviso={aviso} hoy="2026-10-16" alTerminar={async () => {}} alImportar={async () => {}} />);
 
   it("muestra el aviso completo y la casilla con el texto de la autorización", () => {
     expect(html).toContain("1. Quién es el responsable");

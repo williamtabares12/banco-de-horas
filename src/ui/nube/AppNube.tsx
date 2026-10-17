@@ -119,6 +119,10 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
           await repo.crearCuenta(crearPerfil(usuario.correo, aviso.version, momento), crearDatosIniciales(respuestas, momento, nuevoId));
           actualizar((n) => n + 1);
         }}
+        alImportar={async (datos) => {
+          await repo.crearCuenta(crearPerfil(usuario.correo, aviso.version, ahora()), datos);
+          actualizar((n) => n + 1);
+        }}
       />
     );
   }

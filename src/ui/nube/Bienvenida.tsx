@@ -1,12 +1,17 @@
 import { useState } from "react";
+import type { Datos } from "../../almacenamiento/repositorio";
+import { ErrorImportacion, importarJSON } from "../../almacenamiento/respaldo";
+import { saldo } from "../../dominio/banco";
 import type { AvisoPrivacidad } from "../../dominio/aviso";
 import { PASOS, errorDelPaso, puedeContinuar, respuestasPorDefecto, type Respuestas } from "../../dominio/bienvenida";
-import { parsearDuracion } from "../../dominio/tiempo";
+import { formatearDuracion, parsearDuracion } from "../../dominio/tiempo";
 import { Aviso } from "../componentes/Aviso";
 import { BarraAvance } from "../componentes/BarraAvance";
 import { Boton } from "../componentes/Boton";
+import { BotonArchivo } from "../componentes/BotonArchivo";
 import { Campo, Entrada } from "../componentes/Campo";
 import { Interruptor } from "../componentes/Interruptor";
+import { useConfirmacion } from "../componentes/useConfirmacion";
 import { Plantillas } from "../pantallas/Ajustes";
 import { TextoAviso } from "./TextoAviso";
 import { aTextoHoras } from "../utilidades";
@@ -17,16 +22,19 @@ type Props = {
   hoy: string;
   /** Guarda la cuenta. Si falla, se muestra el error y se puede reintentar. */
   alTerminar: (respuestas: Respuestas) => Promise<void>;
+  /** Crea la cuenta con los datos de un respaldo de la versión personal, saltándose los pasos 2 a 4. */
+  alImportar: (datos: Datos) => Promise<void>;
 };
 
 /** Primer ingreso en cuatro pasos (RF-C2): aviso, saldo inicial, jornada y plantillas. */
-export function Bienvenida({ aviso, hoy, alTerminar }: Props) {
+export function Bienvenida({ aviso, hoy, alTerminar, alImportar }: Props) {
   const [paso, setPaso] = useState(0);
   const [base, setBase] = useState<Respuestas>(() => respuestasPorDefecto(hoy));
   const [saldoTexto, setSaldoTexto] = useState("0");
   const [semanaTexto, setSemanaTexto] = useState(() => aTextoHoras(respuestasPorDefecto(hoy).minutosSemana));
   const [guardando, setGuardando] = useState(false);
   const [falla, setFalla] = useState<string | null>(null);
+  const { dialogo, preguntar } = useConfirmacion();
 
   // Lo que se escribe como texto ("4:30") se convierte a minutos; si no se entiende queda NaN y el paso lo rechaza.
   const respuestas: Respuestas = {
@@ -49,6 +57,36 @@ export function Bienvenida({ aviso, hoy, alTerminar }: Props) {
       setFalla("No se pudo guardar tu cuenta. Revisa la conexión e intenta de nuevo.");
       setGuardando(false);
     }
+  }
+
+  /** Lee y valida el archivo antes de tocar nada; si es válido, pide confirmar mostrando qué trae. */
+  async function elegirRespaldo(archivo: File) {
+    setFalla(null);
+    let datos: Datos;
+    try {
+      datos = importarJSON(await archivo.text());
+    } catch (e) {
+      setFalla(e instanceof ErrorImportacion ? e.message : "No se pudo leer el archivo");
+      return;
+    }
+    const total = saldo(datos.movimientos);
+    const quedara = total >= 0 ? `Debes ${formatearDuracion(total)} a la clínica` : `La clínica te debe ${formatearDuracion(-total)}`;
+    preguntar(
+      {
+        titulo: "¿Importar este respaldo?",
+        mensaje: `Trae ${datos.turnos.length} turnos y ${datos.movimientos.length} movimientos. ${quedara}. Se omiten los pasos que quedan.`,
+        textoConfirmar: "Importar",
+      },
+      async () => {
+        setGuardando(true);
+        try {
+          await alImportar(datos);
+        } catch {
+          setFalla("No se pudo guardar tu cuenta. Revisa la conexión e intenta de nuevo.");
+          setGuardando(false);
+        }
+      },
+    );
   }
 
   return (
@@ -85,6 +123,13 @@ export function Bienvenida({ aviso, hoy, alTerminar }: Props) {
             <Campo etiqueta="Horas que debes">
               <Entrada type="text" inputMode="decimal" placeholder="ej. 4 o 4:30" value={saldoTexto} onChange={(e) => setSaldoTexto(e.target.value)} />
             </Campo>
+            <div className="seccion">
+              <h3 className="subtitulo">¿Ya usas la versión personal?</h3>
+              <p>Importa el respaldo que exportaste desde Ajustes y sigues con tus datos, sin llenar los demás pasos.</p>
+              <div className="acciones">
+                <BotonArchivo etiqueta="Importar mi respaldo" accept="application/json,.json" onArchivo={elegirRespaldo} />
+              </div>
+            </div>
           </div>
         )}
 
@@ -117,6 +162,7 @@ export function Bienvenida({ aviso, hoy, alTerminar }: Props) {
             </Boton>
           )}
         </div>
+        {dialogo}
       </section>
     </main>
   );
