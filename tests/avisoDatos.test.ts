@@ -10,7 +10,7 @@ const PLANTILLA = readFileSync(join(RAIZ, "aviso-privacidad.md"), "utf8");
 describe("los datos del aviso se rellenan al leerlo, no en el documento", () => {
   it("DATOS_AVISO tiene el nombre de la app, el responsable y el correo de contacto", () => {
     expect(DATOS_AVISO).toEqual({
-      nombreApp: "Banco de Horas",
+      nombreApp: "Arena",
       responsable: "ALEJANDRO TABARES",
       correoContacto: "wtabares@comfamiliar.com",
     });
@@ -19,7 +19,7 @@ describe("los datos del aviso se rellenan al leerlo, no en el documento", () => 
   it("el documento puede seguir siendo la plantilla con corchetes: la app los rellena sola", () => {
     const texto = JSON.stringify(leerAviso(PLANTILLA));
     expect(texto).not.toMatch(/\[(NOMBRE|CORREO)[^\]]*\]/);
-    expect(texto).toContain("Banco de Horas");
+    expect(texto).toContain("Arena");
     expect(texto).toContain("ALEJANDRO TABARES");
     expect(texto).toContain("wtabares@comfamiliar.com");
   });
@@ -27,7 +27,6 @@ describe("los datos del aviso se rellenan al leerlo, no en el documento", () => 
   it("se pueden pasar otros datos (por ejemplo, otro correo de contacto)", () => {
     const otro = { nombreApp: "Mi App", responsable: "ANA PÉREZ", correoContacto: "ana@correo.com" };
     const texto = JSON.stringify(leerAviso(PLANTILLA, otro));
-    expect(texto).toContain("Mi App");
     expect(texto).toContain("ANA PÉREZ");
     expect(texto).toContain("ana@correo.com");
     expect(texto).not.toContain("wtabares@comfamiliar.com");

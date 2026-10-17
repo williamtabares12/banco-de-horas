@@ -35,7 +35,7 @@ describe("el aviso de privacidad se lee de aviso-privacidad.md", () => {
   });
   it("trae el nombre de la app, el responsable y el correo de contacto", () => {
     const todo = JSON.stringify(aviso);
-    expect(todo).toContain("Banco de Horas");
+    expect(todo).toContain("Arena");
     expect(todo).toContain("ALEJANDRO TABARES");
     expect(todo).toContain("wtabares@comfamiliar.com");
   });

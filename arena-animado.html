@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arena animado</title>
+<style>
+:root{--color-texto:#1d1d1f;--color-lienzo:#f5f5f7;--color-decorativo:#2997ff;--ciclo:5s}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;background:var(--color-lienzo);color-scheme:light}
+.arena{width:96px;height:96px;display:block}
+.vidrio{transform-box:view-box;transform-origin:32px 32px;animation:giro var(--ciclo) infinite}
+.arriba,.abajo{transform-box:view-box;fill:var(--color-decorativo)}
+.arriba{transform-origin:32px 32px;animation:vaciar var(--ciclo) linear infinite}
+.abajo{transform-origin:32px 56px;animation:llenar var(--ciclo) linear infinite}
+.hilo{stroke:var(--color-decorativo);stroke-width:1.6;stroke-linecap:round;stroke-dasharray:3 3;animation:cae .35s linear infinite,hilo var(--ciclo) infinite}
+@keyframes vaciar{0%{transform:scaleY(1)}70%,100%{transform:scaleY(0)}}
+@keyframes llenar{0%{transform:scaleY(0)}70%,100%{transform:scaleY(1)}}
+@keyframes hilo{0%,2%{opacity:0}5%,66%{opacity:1}70%,100%{opacity:0}}
+@keyframes cae{to{stroke-dashoffset:-6}}
+@keyframes giro{0%,74%{transform:rotate(0)}90%,100%{transform:rotate(180deg)}}
+@media (prefers-reduced-motion:reduce){
+ .vidrio,.arriba,.abajo,.hilo{animation:none}
+ .abajo{transform:scaleY(0)} .hilo{opacity:0}
+}
+</style></head><body>
+<svg class="arena" viewBox="0 0 64 64" fill="none" role="img" aria-label="Reloj de arena">
+ <defs>
+  <clipPath id="ca"><path d="M22 10H42C42 21 36 26 32 30C28 26 22 21 22 10Z"/></clipPath>
+  <clipPath id="cb"><path d="M32 34C36 38 42 43 42 54H22C22 43 28 38 32 34Z"/></clipPath>
+ </defs>
+ <g class="vidrio">
+  <g clip-path="url(#ca)"><rect class="arriba" x="16" y="8" width="32" height="24"/></g>
+  <g clip-path="url(#cb)"><rect class="abajo" x="16" y="32" width="32" height="24"/></g>
+  <path class="hilo" d="M32 31V50"/>
+  <path d="M16 8H48M16 56H48" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M20 8H44C44 22 36 27 32 32C36 37 44 42 44 56H20C20 42 28 37 32 32C28 27 20 22 20 8Z" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+ </g>
+</svg>
+</body></html>

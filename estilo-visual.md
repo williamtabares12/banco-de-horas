@@ -16,10 +16,10 @@ Cambios frente a la versión actual: el tema oscuro se retira (solo tema claro) 
 | `--color-texto-suave` | `#707070` | Etiquetas, fechas, texto secundario. Es el gris más claro permitido para texto |
 | `--color-lienzo` | `#f5f5f7` | Fondo de todas las pantallas |
 | `--color-realce` | `#f4f8fb` | Fondo de un bloque destacado (por ejemplo el saldo) |
+| `--color-sobre-accion` | `#ffffff` | Texto sobre `--color-accion` (botón relleno y pestaña activa). Da 4,70 a 1; `--color-realce` daba 4,40 y no cumplía el criterio CA19 |
 | `--color-relleno` | `#e2e2e5` | Pista de la barra de avance, botones deshabilitados |
 | `--color-linea` | `#d2d2d7` | Líneas finas de 1 px entre filas, bordes de campos |
 | `--color-accion` | `#0071e3` | Solo relleno de botones principales y lo seleccionado (pestaña activa, interruptor encendido) |
-| `--color-sobre-accion` | `#ffffff` | Texto sobre `--color-accion` (botón relleno y pestaña activa). Da 4,70 a 1; `--color-realce` daba 4,40 y no cumplía el criterio CA19 |
 | `--color-enlace` | `#0066cc` | Texto de enlaces y de botones de contorno, y su borde |
 | `--color-decorativo` | `#2997ff` | Relleno de la barra de avance y trazos de íconos. Nunca en botones |
 | `--color-icono` | `#858585` | Solo trazos de íconos y bordes. Nunca texto |
@@ -34,10 +34,10 @@ Reglas:
 
 ## 3. Tipografía
 
-Se usa la letra del sistema, que en iPhone es SF Pro. No se descarga ninguna fuente, para que la app siga funcionando sin internet.
+En iPhone y Mac se usa la letra del sistema (SF Pro). En Android se usa Inter, incluida dentro de la app (archivo propio, no descargada de internet), para que se vea igual en todos los celulares y funcione sin conexión. Los tamaños de letra se definen en rem, para respetar el tamaño de letra que cada persona eligió en su teléfono.
 
 ```css
-font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 ```
 
 | Rol | Tamaño | Peso | Interlineado | Espaciado de letras |
@@ -62,6 +62,9 @@ Reglas:
 - Radio de botones, pestañas y etiquetas: 980 px (completamente redondeados). Radio de campos, diálogos e imágenes: 8 px. No hay otros radios.
 - Sin sombras en ningún elemento. La jerarquía sale del tamaño de letra, de las líneas finas y de los cambios de superficie.
 - Zonas táctiles de al menos 44 px de alto.
+- Alturas con `100dvh` y márgenes con `env(safe-area-inset-*)`, para que nada quede tapado por la barra del navegador ni por la barra de gestos de iPhone o Android.
+- `color-scheme: light` y `theme-color` del color del lienzo, para que el modo oscuro automático de algunos navegadores Android no deforme los colores.
+- Sin el resaltado azul de toque del navegador (`-webkit-tap-highlight-color: transparent`). Cada elemento tocable tiene su propio estado presionado, con un cambio de opacidad, igual en iPhone y Android.
 
 ## 5. Componentes
 
@@ -94,6 +97,14 @@ Diálogo de confirmación: sobre un velo negro de 40 % de opacidad, hoja de `--c
 - Ajustes: filas agrupadas con líneas finas, interruptores y botones de contorno para exportar e importar.
 - Estados vacíos: una frase de 17 px peso 300 y el botón relleno que lleva a la acción.
 
+## 6b. Marca y movimiento
+
+La marca es el reloj de arena. En el ícono de la app va con fondo `--color-texto` y contorno `--color-lienzo` (icono-app-oscuro.svg). En las pantallas va con contorno `--color-texto` y arena `--color-decorativo` (icono-reloj-arena.svg). Nada de degradados ni sombras en el logo.
+
+El único movimiento de la app es el reloj de arena animado de arena-animado.html: ciclo de 5 s (la arena baja durante 3,5 s, el reloj gira 180° y se repite). Se hace con CSS dentro del SVG, sin librerías. Aparece solo en el login y en la pantalla de carga, con 96 px de lado. Con `prefers-reduced-motion: reduce` queda quieto. Cualquier otra animación necesita aprobación de Alejandro.
+
+Pantalla de carga: lienzo `--color-lienzo`, reloj de arena centrado, la palabra "Arena" en 21 px peso 600 debajo, y el mensaje de demora en 17 px peso 300. Sin barra de progreso ni porcentajes.
+
 ## 7. Lo que no se hace
 
 - Sombras, degradados, fondos oscuros o tarjetas con relleno sobre el lienzo.
@@ -118,7 +129,7 @@ Diálogo de confirmación: sobre un velo negro de 40 % de opacidad, hoja de `--c
   --color-decorativo: #2997ff;
   --color-icono: #858585;
 
-  --fuente: "SF Pro Text", -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+  --fuente: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
   --esp-4: 4px;  --esp-8: 8px;  --esp-12: 12px; --esp-16: 16px; --esp-20: 20px;
   --esp-24: 24px; --esp-40: 40px; --esp-48: 48px; --esp-56: 56px;

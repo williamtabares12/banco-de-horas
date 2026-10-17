@@ -13,7 +13,7 @@ export type AvisoPrivacidad = {
 export type DatosAviso = { nombreApp: string; responsable: string; correoContacto: string };
 
 export const DATOS_AVISO: DatosAviso = {
-  nombreApp: "Banco de Horas",
+  nombreApp: "Arena",
   responsable: "ALEJANDRO TABARES",
   correoContacto: "wtabares@comfamiliar.com",
 };

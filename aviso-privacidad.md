@@ -3,14 +3,14 @@
 Notas para Alejandro (borrar antes de publicar):
 
 - Esto es un borrador que armé a partir de lo que pide la Ley 1581 de 2012 en Colombia. No soy abogado. Hazlo revisar con alguien que sepa del tema antes del piloto.
-- Completa lo que está entre corchetes: nombre de la app, nombre completo del responsable y correo de contacto.
+- Completa lo que está entre corchetes: nombre completo del responsable y correo de contacto (el nombre de la app ya es Arena).
 - Si cambias algo de fondo (qué datos se guardan, quién los ve), sube el número de versión (aquí y en el campo `avisoVersion` del documento de parámetros) y la app volverá a pedir la autorización.
 
 Versión del aviso: 1 (borrador)
 
 ---
 
-## Aviso de privacidad de [NOMBRE DE LA APP]
+## Aviso de privacidad de Arena
 
 ### 1. Quién es el responsable
 

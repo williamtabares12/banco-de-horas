@@ -70,6 +70,18 @@ RF-C17. Las reglas llevan fecha de inicio de vigencia. Agregar una regla nueva n
 
 RF-C18. El documento de parámetros trae la versión vigente del aviso de privacidad. Si sube, la app pide aceptar el aviso de nuevo antes de continuar.
 
+RF-C19. Instalación guiada. En Android, un botón "Instalar app" cuando el navegador lo permite. En iPhone, una guía corta de tres pasos (Compartir, Añadir a pantalla de inicio, Añadir). Se oculta si la app ya está instalada.
+
+RF-C20. Navegadores dentro de otras apps. Si la app se abre en un navegador embebido que no permite iniciar sesión con Google, avisa "Ábrela en Chrome o Safari" y deja copiar el enlace.
+
+RF-C21. Botón atrás. En Android, y con el gesto de atrás en iPhone, primero se cierra una hoja o diálogo abierto, luego se vuelve a la pantalla anterior, y desde Inicio se sale de la app.
+
+RF-C22. Hora en 24 horas. Antes de guardar un turno se muestran la hora de inicio y la de fin en formato de 24 horas, sin importar cómo las muestre el selector de hora del teléfono (a. m. y p. m. o 24 horas).
+
+RF-C23. Marca y login. La pantalla de inicio de sesión muestra el reloj de arena animado (arena-animado.html), el nombre "Arena" y la frase "Tus horas, claras y tuyas". Selector Entrar | Crear cuenta arriba de los botones. Los botones actuales no cambian ni de forma ni de orden. Todo cabe sin desplazarse en una pantalla de 360 x 640. El pie dice "Solo tú ves tus datos desde la app. Registro personal, no es una herramienta oficial de la clínica" y enlaza al aviso de privacidad.
+
+RF-C24. Pantalla de carga. Mientras la app resuelve la sesión y trae los datos por primera vez se muestra el reloj de arena animado con la palabra "Arena" debajo, no un letrero de "Cargando". Si hay copia local de los datos, la app abre directo sin esta pantalla. La pantalla aparece solo si la espera pasa de 300 ms, para que no parpadee. Si la espera pasa de 6 segundos, se añade debajo "Está tardando más de lo normal. Revisa tu conexión." y el botón de contorno "Seguir sin conexión" cuando haya copia local. Un lector de pantalla anuncia "Abriendo Arena".
+
 ## 6. Datos y privacidad
 
 Qué se guarda: correo y nombre de la cuenta (de Google o del registro con correo), turnos, movimientos, configuración, y fecha y versión del aviso aceptado.
@@ -93,7 +105,7 @@ Marco legal: en Colombia el tratamiento de datos personales se rige por la Ley 1
 
 ## 8. Piloto
 
-- De 5 a 8 compañeros, dos semanas, invitados por enlace.
+- De 5 a 8 compañeros, dos semanas, invitados por enlace. Al menos 2 con iPhone y 2 con Android, y al menos una persona con un Android de gama baja.
 - Un canal para recibir comentarios (por ejemplo, un grupo de WhatsApp) y una lista donde Alejandro anota cada problema.
 - Criterios para dar el piloto por bueno:
   1. Al menos 5 personas registran movimientos durante las dos semanas.
@@ -127,7 +139,7 @@ CC11. Dos cuentas distintas en dos celulares, con datos propios, no ven nada de 
 
 CC12. Crear, editar o borrar un registro se ve al instante en pantalla y no vuelve a leer todo el historial.
 
-CC13. El registro con correo y contraseña, el inicio de sesión, la recuperación por correo y el inicio con Google funcionan en un iPhone, en Safari y con la app instalada.
+CC13. El registro con correo y contraseña, el inicio de sesión, la recuperación por correo y el inicio con Google funcionan en un iPhone (Safari y app instalada) y en un Android (Chrome con la app instalada, y Samsung Internet).
 
 CC14. Cualquier persona con sesión puede leer el documento de parámetros. Quien no tiene sesión no puede. Nadie puede escribirlo desde la app (probado con las reglas).
 
@@ -137,11 +149,23 @@ CC16. Agregar una regla con fecha futura no cambia el cálculo de turnos anterio
 
 CC17. Subir `avisoVersion` hace que la app pida aceptar el aviso de nuevo antes de continuar.
 
+CC18. La app se instala, abre sin internet y permite iniciar sesión (correo y Google) en un iPhone y en un Android.
+
+CC19. El botón atrás de Android cierra primero una hoja o diálogo abierto y después vuelve a la pantalla anterior. Desde Inicio, sale de la app.
+
+CC20. Un turno de 07:00 a 19:00 se confirma con el texto "07:00" y "19:00", aunque el selector del teléfono muestre p. m.
+
+CC21. El login muestra el reloj de arena animado y todos sus elementos, sin desplazamiento, en una pantalla de 360 x 640. Los botones existentes quedan en el mismo orden.
+
+CC22. Con la sesión resolviéndose en menos de 300 ms no aparece pantalla de carga. Con una espera simulada de 8 s aparece el reloj de arena, luego el mensaje de demora, y la app nunca queda en blanco.
+
+CC23. Con "reducir movimiento" activado en el teléfono, el reloj de arena queda quieto en login y en carga, y las dos pantallas siguen siendo comprensibles.
+
 ## 10. Preguntas abiertas
 
 1. El inicio de sesión se reutiliza de Bitácora AIDA v2 (correo y contraseña, o Google, con recuperación por correo), así que no hace falta que todos tengan Google. Hay que portarlo a React y TypeScript.
 2. ¿La jefe o coordinación debería ver algo? Por ahora nada. Si algún día se pide, sería decisión de cada persona, compartiendo su extracto en PDF.
 3. Los movimientos con fecha futura, ¿deben contar en el saldo actual? Por ahora no.
-4. Nombre de la app y correo de contacto para el aviso.
+4. El nombre de la app es Arena (confirmado el 16 de octubre de 2026). Antes de publicar, revisar que no choque con otra app en Play Store y App Store y que `arena.web.app` (o la variante que haya libre) esté disponible en Firebase Hosting. Falta el correo de contacto para el aviso.
 5. El proyecto de Firebase va en la cuenta personal de Alejandro, no en la de la clínica, y es un proyecto nuevo, separado de Bitácora AIDA.
 6. ¿Las reglas (descansos, nocturna desde las 19:00, 42 horas) son iguales para todos? Se verifica en el piloto. Hoy hay un solo grupo de reglas globales. Si algún grupo necesita reglas distintas, se agregan grupos al documento de parámetros. Lo que cambie por persona se arregla con plantillas y horas semanales propias.
