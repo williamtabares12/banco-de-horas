@@ -120,6 +120,8 @@ Cliente: pedir de nuevo el inicio de sesión (Firebase lo exige para operaciones
 
 Firebase Hosting, con el sitio de Bitácora AIDA aparte. La PWA (T11) se activa aquí, porque Hosting da HTTPS. Dominio gratuito `*.web.app`. Se despliega a mano con `firebase deploy`; no hace falta integración continua para un piloto.
 
+Dirección de la app: `arena-horas.web.app`, un segundo sitio de Hosting del mismo proyecto (`arena.web.app` ya lo tiene otro proyecto; se eligió `arena-horas` el 17 de octubre de 2026). El sitio original, `banco-horas-f6890.web.app`, sigue existiendo y `firebase.json` publica solo en `arena-horas`. Cada dirección nueva exige tres pasos: agregarla a los dominios autorizados de Firebase Authentication, y en Google Cloud autorizar su origen y su `/__/auth/handler` (ver las lecciones de la sección 4).
+
 ## 10. Pruebas
 
 | Criterio | Dónde |

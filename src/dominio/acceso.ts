@@ -79,11 +79,12 @@ export function debeAnularse(r: { esNuevo: boolean; aceptoAviso: boolean }): boo
  * Dominio con el que Firebase maneja el acceso. Debe ser el MISMO de la página: si la app se abre en
  * `proyecto.web.app` y el acceso va por `proyecto.firebaseapp.com`, la redirección de Google cruza de
  * sitio y Safari (y los navegadores internos, como el de WhatsApp) le niegan el sessionStorage, y el
- * ingreso falla con "missing initial state". Solo se acepta una dirección de este proyecto.
+ * ingreso falla con "missing initial state". Solo se acepta una dirección de los sitios de Hosting de este
+ * proyecto (por defecto, el del mismo nombre del proyecto).
  */
-export function authDomainPara(host: string, proyecto: string, porDefecto: string): string {
+export function authDomainPara(host: string, proyecto: string, porDefecto: string, sitios: string[] = [proyecto]): string {
   const actual = host.toLowerCase();
-  const propias = [`${proyecto}.web.app`, `${proyecto}.firebaseapp.com`];
+  const propias = sitios.flatMap((sitio) => [`${sitio}.web.app`, `${sitio}.firebaseapp.com`]);
   return propias.includes(actual) ? actual : porDefecto;
 }
 

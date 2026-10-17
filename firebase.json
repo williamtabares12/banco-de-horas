@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "arena-horas",
     "public": "dist-nube",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   },

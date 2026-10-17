@@ -23,7 +23,7 @@ import {
 } from "firebase/auth";
 import { connectFirestoreEmulator, type Firestore } from "firebase/firestore";
 import { authDomainPara } from "../dominio/acceso";
-import { CONFIG_FIREBASE } from "./configFirebase";
+import { CONFIG_FIREBASE, SITIOS_HOSTING } from "./configFirebase";
 import { crearFirestore } from "./firestore";
 
 export type Usuario = { uid: string; correo: string; nombre: string };
@@ -42,7 +42,7 @@ let nube: Nube | null = null;
 export function iniciarNube(usarEmuladores: boolean): Nube {
   if (nube) return nube;
   // El dominio de acceso es el de la página (ver authDomainPara): así la redirección de Google no pierde el estado.
-  const authDomain = authDomainPara(globalThis.location?.host ?? "", CONFIG_FIREBASE.projectId, CONFIG_FIREBASE.authDomain);
+  const authDomain = authDomainPara(globalThis.location?.host ?? "", CONFIG_FIREBASE.projectId, CONFIG_FIREBASE.authDomain, SITIOS_HOSTING);
   const app = initializeApp(usarEmuladores ? { ...CONFIG_FIREBASE, apiKey: "demo-emulador" } : { ...CONFIG_FIREBASE, authDomain });
   const auth = getAuth(app);
   const db = crearFirestore(app);
