@@ -19,6 +19,11 @@ export default defineConfig({
     VitePWA({
       // El service worker se actualiza solo cuando hay una versión nueva publicada.
       registerType: 'autoUpdate',
+      workbox: {
+        // Firebase Hosting sirve su propio manejador de acceso en /__/auth/handler (y /__/firebase/init.json).
+        // Si el service worker las respondiera con index.html, la ventana de Google quedaría en blanco.
+        navigateFallbackDenylist: [/^\/__\//],
+      },
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
         name: 'Banco de horas',
