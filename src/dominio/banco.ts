@@ -36,6 +36,31 @@ export function saldo(movimientos: MovimientoBanco[]): number {
   return movimientos.reduce((suma, m) => suma + m.minutos, 0);
 }
 
+/** Programado: su fecha es posterior a hoy (AAAA-MM-DD). El de hoy ya cuenta. */
+export function esProgramado(movimiento: MovimientoBanco, hoy: string): boolean {
+  return movimiento.fecha > hoy;
+}
+
+/** Saldo de hoy: solo los movimientos con fecha hasta hoy. Los programados no cuentan. */
+export function saldoActual(movimientos: MovimientoBanco[], hoy: string): number {
+  return saldo(movimientos.filter((m) => !esProgramado(m, hoy)));
+}
+
+/** Saldo cuando lleguen todas las fechas: cuenta también los programados. */
+export function saldoProyectado(movimientos: MovimientoBanco[]): number {
+  return saldo(movimientos);
+}
+
+/** Saldo a favor: por debajo de cero la clínica le debe a la persona (RF-C6). */
+export function saldoAFavor(saldoMin: number): boolean {
+  return saldoMin < 0;
+}
+
+/** Minutos que la clínica le debe a la persona; 0 si no hay saldo a favor. */
+export function minutosAFavor(saldoMin: number): number {
+  return Math.max(0, -saldoMin);
+}
+
 /** Aviso (no bloqueo) de que se pagó más de lo que se debía. */
 export function saldoNegativo(movimientos: MovimientoBanco[]): boolean {
   return saldo(movimientos) < 0;
