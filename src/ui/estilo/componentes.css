@@ -151,6 +151,13 @@
     color: var(--color-texto-suave);
   }
 
+  .campo__ayuda {
+    font-size: var(--texto-caption);
+    line-height: var(--interlinea-caption);
+    letter-spacing: var(--espaciado-caption);
+    color: var(--color-texto-suave);
+  }
+
   .campo__control {
     width: 100%;
     min-width: 0;

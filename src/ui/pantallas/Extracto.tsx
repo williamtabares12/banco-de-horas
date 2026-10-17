@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
-import { saldo } from "../../dominio/banco";
-import { formatearDuracion } from "../../dominio/tiempo";
+import { cantidadProgramados, saldoActual, saldoCorto, saldoProyectado } from "../../dominio/banco";
 import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
 import { filasExtracto } from "../extractoFilas";
@@ -16,8 +15,10 @@ type Props = {
 };
 
 export function Extracto({ datos, alIrABanco }: Props) {
-  const filas = filasExtracto(datos);
-  const total = saldo(datos.movimientos);
+  const dia = hoy();
+  const filas = filasExtracto(datos, dia);
+  const total = saldoActual(datos.movimientos, dia);
+  const hayProgramados = cantidadProgramados(datos.movimientos, dia) > 0;
   const [mensaje, setMensaje] = useState<{ texto: string; error: boolean } | null>(null);
 
   async function guardar() {
@@ -92,8 +93,14 @@ export function Extracto({ datos, alIrABanco }: Props) {
           <tfoot>
             <tr>
               <td colSpan={2}>Saldo actual</td>
-              <td className="num">{formatearDuracion(total)}</td>
+              <td className="num">{saldoCorto(total)}</td>
             </tr>
+            {hayProgramados && (
+              <tr>
+                <td colSpan={2}>Saldo proyectado</td>
+                <td className="num">{saldoCorto(saldoProyectado(datos.movimientos))}</td>
+              </tr>
+            )}
           </tfoot>
         </table>
       </div>

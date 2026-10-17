@@ -86,7 +86,7 @@ export function FormularioMovimiento({ tipo, inicial, onGuardar, onCancelar }: P
           </Seleccion>
         </Campo>
       )}
-      <Campo etiqueta="Nota (opcional)">
+      <Campo etiqueta="Nota (opcional)" ayuda="No escribas nombres ni documentos de pacientes.">
         <Entrada
           type="text"
           placeholder={esCapacitacion ? "ej. nombre del evento o quién lo convocó" : "ej. quién lo autorizó"}

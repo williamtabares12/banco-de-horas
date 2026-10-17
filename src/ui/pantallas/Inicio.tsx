@@ -1,6 +1,6 @@
 import type { Datos } from "../../almacenamiento/repositorio";
 import { necesitaRespaldo } from "../../almacenamiento/respaldo";
-import { saldo, saldoNegativo, totales } from "../../dominio/banco";
+import { cantidadProgramados, esProgramado, saldoActual, saldoCorto, saldoProyectado, textoDeSaldo, totales } from "../../dominio/banco";
 import { minutosDeSemana } from "../../dominio/semana";
 import { formatearDuracion } from "../../dominio/tiempo";
 import { Aviso } from "../componentes/Aviso";
@@ -16,8 +16,13 @@ type Props = {
 };
 
 export function Inicio({ datos, alRegistrar, alIrARespaldo }: Props) {
-  const { prestado, pagado } = totales(datos.movimientos);
-  const semana = minutosDeSemana(datos.turnos, hoy());
+  const dia = hoy();
+  // Lo programado (con fecha futura) todavía no cuenta: ni en el saldo actual ni en lo prestado y pagado.
+  const vigentes = datos.movimientos.filter((m) => !esProgramado(m, dia));
+  const { prestado, pagado } = totales(vigentes);
+  const saldo = textoDeSaldo(saldoActual(datos.movimientos, dia));
+  const programados = cantidadProgramados(datos.movimientos, dia);
+  const semana = minutosDeSemana(datos.turnos, dia);
   const meta = datos.config.minutosSemana;
 
   return (
@@ -26,7 +31,7 @@ export function Inicio({ datos, alRegistrar, alIrARespaldo }: Props) {
         Registrar turno
       </Boton>
 
-      {necesitaRespaldo(datos, hoy()) && (
+      {necesitaRespaldo(datos, dia) && (
         <Aviso tipo="aviso">
           Hace más de 14 días que no descargas un respaldo. Los datos viven solo en este dispositivo: si se borran los
           datos del navegador, se pierden. <Enlace onClick={alIrARespaldo}>Ir a Ajustes</Enlace>
@@ -35,11 +40,22 @@ export function Inicio({ datos, alRegistrar, alIrARespaldo }: Props) {
 
       <div className="bloques">
         <div className="bloque bloque--realce">
-          <span className="etiqueta">Debo a la clínica</span>
-          <span className="cifra">{formatearDuracion(saldo(datos.movimientos))}</span>
+          <span className="etiqueta">{saldo.etiqueta}</span>
+          <span className="cifra">{saldo.duracion}</span>
         </div>
 
-        {saldoNegativo(datos.movimientos) && <Aviso tipo="aviso">El saldo está en negativo. Revisa los pagos en Banco.</Aviso>}
+        {programados > 0 && (
+          <div className="bloque">
+            <div className="etiqueta-valor">
+              <span className="etiqueta">Saldo proyectado</span>
+              <span className="etiqueta-valor__valor">{saldoCorto(saldoProyectado(datos.movimientos))}</span>
+            </div>
+            <p className="texto-suave">
+              Incluye {programados} programado{programados === 1 ? "" : "s"}, que todavía no cuenta{programados === 1 ? "" : "n"} en el
+              saldo actual.
+            </p>
+          </div>
+        )}
 
         <div className="bloque dos-columnas">
           <div className="par">

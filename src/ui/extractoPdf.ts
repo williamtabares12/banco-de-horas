@@ -1,6 +1,5 @@
 import type { Datos } from "../almacenamiento/repositorio";
-import { saldo } from "../dominio/banco";
-import { formatearDuracion } from "../dominio/tiempo";
+import { cantidadProgramados, saldoActual, saldoCorto, saldoProyectado } from "../dominio/banco";
 import { filasExtracto, type FilaTexto } from "./extractoFilas";
 import { ajustarTexto, Pdf } from "./pdf";
 
@@ -17,6 +16,7 @@ const INTERLINEA_DETALLE = 10.5;
 const RELLENO_FILA = 8;
 const LIMITE_INFERIOR = MARGEN + 24; // deja sitio al número de página
 const ALTO_RESUMEN = 28; // línea y "Saldo actual"
+const ALTO_LINEA_PROYECTADO = 16; // la línea extra "Saldo proyectado", solo si hay movimientos programados
 
 /** Líneas de detalle ya partidas para que quepan en la columna. */
 const lineasDetalle = (fila: FilaTexto) => fila.detalle.flatMap((d) => ajustarTexto(d, ANCHO_MOV, TAM_DETALLE));
@@ -29,7 +29,8 @@ const altoFila = (fila: FilaTexto) => INTERLINEA + lineasDetalle(fila).length * 
  */
 export function construirExtractoPdf(datos: Datos, hoy: string): Uint8Array<ArrayBuffer> {
   const pdf = new Pdf();
-  const filas = filasExtracto(datos);
+  const filas = filasExtracto(datos, hoy);
+  const hayProgramados = cantidadProgramados(datos.movimientos, hoy) > 0;
   let y = 0;
 
   function iniciarPagina(primera: boolean) {
@@ -59,7 +60,7 @@ export function construirExtractoPdf(datos: Datos, hoy: string): Uint8Array<Arra
   filas.forEach((fila, i) => {
     const alto = altoFila(fila);
     // la última fila viaja junto con el saldo actual: el resumen nunca queda solo en una página
-    const necesario = alto + (i === filas.length - 1 ? ALTO_RESUMEN : 0);
+    const necesario = alto + (i === filas.length - 1 ? ALTO_RESUMEN + (hayProgramados ? ALTO_LINEA_PROYECTADO : 0) : 0);
     if (y - necesario < LIMITE_INFERIOR) {
       pdf.nuevaPagina();
       iniciarPagina(false);
@@ -78,7 +79,15 @@ export function construirExtractoPdf(datos: Datos, hoy: string): Uint8Array<Arra
 
   if (filas.length > 0) {
     pdf.texto(COL_FECHA, y - 16, "Saldo actual", { tam: 11, negrita: true });
-    pdf.texto(COL_SALDO_DER, y - 16, formatearDuracion(saldo(datos.movimientos)), { tam: 11, negrita: true, alinear: "der" });
+    pdf.texto(COL_SALDO_DER, y - 16, saldoCorto(saldoActual(datos.movimientos, hoy)), { tam: 11, negrita: true, alinear: "der" });
+    if (hayProgramados) {
+      pdf.texto(COL_FECHA, y - 16 - ALTO_LINEA_PROYECTADO, "Saldo proyectado", { tam: 11, negrita: true });
+      pdf.texto(COL_SALDO_DER, y - 16 - ALTO_LINEA_PROYECTADO, saldoCorto(saldoProyectado(datos.movimientos)), {
+        tam: 11,
+        negrita: true,
+        alinear: "der",
+      });
+    }
   }
 
   const total = pdf.numPaginas;

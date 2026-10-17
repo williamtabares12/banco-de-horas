@@ -1,4 +1,5 @@
 import { reglasVigentes, type ReglasGlobales } from "./reglas";
+import { formatearDuracion } from "./tiempo";
 import { minutosNetos } from "./turnos";
 import type { Config, MotivoPago, MovimientoBanco, Turno } from "./tipos";
 
@@ -62,6 +63,29 @@ export function saldoAFavor(saldoMin: number): boolean {
 /** Minutos que la clínica le debe a la persona; 0 si no hay saldo a favor. */
 export function minutosAFavor(saldoMin: number): number {
   return Math.max(0, -saldoMin);
+}
+
+export type TextoDeSaldo = { etiqueta: "Debo a la clínica" | "La clínica te debe"; duracion: string; aFavor: boolean };
+
+/**
+ * Cómo se dice un saldo en pantalla (RF-C6). Con deuda o en cero: "Debo a la clínica" y las horas. Por
+ * debajo de cero: "La clínica te debe" y las horas en positivo. No es un error: es un saldo a favor.
+ */
+export function textoDeSaldo(saldoMin: number): TextoDeSaldo {
+  return saldoAFavor(saldoMin)
+    ? { etiqueta: "La clínica te debe", duracion: formatearDuracion(minutosAFavor(saldoMin)), aFavor: true }
+    : { etiqueta: "Debo a la clínica", duracion: formatearDuracion(saldoMin), aFavor: false };
+}
+
+/** El saldo para una celda de tabla: las horas, o "La clínica te debe X h" si está a favor. */
+export function saldoCorto(saldoMin: number): string {
+  const t = textoDeSaldo(saldoMin);
+  return t.aFavor ? `${t.etiqueta} ${t.duracion}` : t.duracion;
+}
+
+/** Cuántos movimientos están programados (con fecha posterior a hoy). */
+export function cantidadProgramados(movimientos: MovimientoBanco[], hoy: string): number {
+  return movimientos.filter((m) => esProgramado(m, hoy)).length;
 }
 
 /** Aviso (no bloqueo) de que se pagó más de lo que se debía. */

@@ -6,6 +6,7 @@ import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { calculoDe, type Parametros } from "./dominio/parametros";
 import { Aviso } from "./ui/componentes/Aviso";
 import { Boton } from "./ui/componentes/Boton";
+import { IndicadorSincronizacion } from "./ui/componentes/IndicadorSincronizacion";
 import { BotonArchivo } from "./ui/componentes/BotonArchivo";
 import { Pestanas } from "./ui/componentes/Pestanas";
 import { useConfirmacion } from "./ui/componentes/useConfirmacion";
@@ -52,9 +53,11 @@ type Props = {
   avisoParametros?: string | null;
   /** Solo con cuenta: las reglas de la clínica que mandan en el cálculo (hora nocturna, desfase, extras, festivos). */
   parametros?: Parametros;
+  /** Solo con cuenta: true si lo último está guardado solo en este dispositivo; false si ya se sincronizó. */
+  pendienteDeSincronizar?: boolean;
 };
 
-export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros }: Props) {
+export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros, pendienteDeSincronizar }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
@@ -109,6 +112,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
     <main className="aplicacion">
       <header className="encabezado">
         <h1 className="titulo-app">Banco de horas</h1>
+        {pendienteDeSincronizar !== undefined && <IndicadorSincronizacion pendiente={pendienteDeSincronizar} />}
         <Pestanas
           elementos={PESTANAS}
           activa={pestana}

@@ -1,14 +1,24 @@
 import { useState } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
-import { editarMovimiento, extracto, minutosConSigno, nuevoMovimiento, saldo, saldoNegativo } from "../../dominio/banco";
+import {
+  cantidadProgramados,
+  editarMovimiento,
+  esProgramado,
+  extracto,
+  minutosConSigno,
+  nuevoMovimiento,
+  saldoActual,
+  saldoCorto,
+  saldoProyectado,
+  textoDeSaldo,
+} from "../../dominio/banco";
 import { formatearDuracion } from "../../dominio/tiempo";
 import type { MovimientoBanco } from "../../dominio/tipos";
-import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
 import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { FormularioMovimiento, type ValoresMovimiento } from "../componentes/FormularioMovimiento";
 import { useConfirmacion } from "../componentes/useConfirmacion";
-import { ahora, etiquetaMovimiento, nuevoId } from "../utilidades";
+import { ahora, etiquetaMovimiento, hoy, nuevoId } from "../utilidades";
 
 type Tipo = MovimientoBanco["tipo"];
 type Abierto = { tipo: Tipo; editando?: MovimientoBanco } | null;
@@ -26,6 +36,9 @@ export function Banco({ datos, cambiar }: Props) {
   const movimientos = datos.movimientos;
   const hayInicial = movimientos.some((m) => m.tipo === "saldo_inicial");
   const filas = extracto(movimientos).reverse(); // lo más reciente primero
+  const dia = hoy();
+  const saldo = textoDeSaldo(saldoActual(movimientos, dia));
+  const programados = cantidadProgramados(movimientos, dia);
 
   function guardar(valores: ValoresMovimiento) {
     if (!abierto) return;
@@ -73,17 +86,22 @@ export function Banco({ datos, cambiar }: Props) {
     <section className="pantalla">
       <div className="bloques">
         <div className="bloque bloque--realce">
-          <span className="etiqueta">Debo a la clínica</span>
-          <span className="cifra">{formatearDuracion(saldo(movimientos))}</span>
+          <span className="etiqueta">{saldo.etiqueta}</span>
+          <span className="cifra">{saldo.duracion}</span>
         </div>
+        {programados > 0 && (
+          <div className="bloque">
+            <div className="etiqueta-valor">
+              <span className="etiqueta">Saldo proyectado</span>
+              <span className="etiqueta-valor__valor">{saldoCorto(saldoProyectado(movimientos))}</span>
+            </div>
+            <p className="texto-suave">
+              Incluye {programados} programado{programados === 1 ? "" : "s"}, que todavía no cuenta{programados === 1 ? "" : "n"} en el
+              saldo actual.
+            </p>
+          </div>
+        )}
       </div>
-
-      {saldoNegativo(movimientos) && (
-        <Aviso tipo="aviso">
-          El saldo quedó en negativo: has pagado {formatearDuracion(-saldo(movimientos))} más de lo que debías. Revisa los
-          pagos o agrega un saldo inicial o préstamo que falte.
-        </Aviso>
-      )}
 
       {abierto && (
         <FormularioMovimiento
@@ -123,9 +141,10 @@ export function Banco({ datos, cambiar }: Props) {
                 fecha={m.fecha}
                 titulo={etiquetaMovimiento(m)}
                 detalle={[
+                  ...(esProgramado(m, dia) ? ["Programado: todavía no cuenta en el saldo actual"] : []),
                   ...(m.automatico ? ["Automático, a partir de un turno"] : []),
                   ...(m.nota ? [m.nota] : []),
-                  `Saldo después: ${formatearDuracion(saldoDespues)}`,
+                  `Saldo después: ${saldoCorto(saldoDespues)}`,
                 ]}
                 valor={conSigno(m.minutos)}
                 acciones={

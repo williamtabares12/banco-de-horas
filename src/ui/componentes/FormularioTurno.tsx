@@ -139,7 +139,7 @@ export function FormularioTurno({ inicial, plantillas, onContinuar, onCancelar }
           </Seleccion>
         </Campo>
       )}
-      <Campo etiqueta="Nota (opcional)">
+      <Campo etiqueta="Nota (opcional)" ayuda="No escribas nombres ni documentos de pacientes.">
         <Entrada type="text" value={nota} onChange={(e) => setNota(e.target.value)} />
       </Campo>
       {error && <Aviso tipo="error">{error}</Aviso>}

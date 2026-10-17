@@ -1,5 +1,5 @@
 import type { Datos } from "../almacenamiento/repositorio";
-import { extracto } from "../dominio/banco";
+import { esProgramado, extracto, saldoCorto } from "../dominio/banco";
 import { formatearDuracion } from "../dominio/tiempo";
 import type { MovimientoBanco, Turno } from "../dominio/tipos";
 import { etiquetaMovimiento } from "./utilidades";
@@ -16,9 +16,10 @@ export type FilaTexto = {
 
 export const conSigno = (minutos: number) => (minutos > 0 ? "+" : "") + formatearDuracion(minutos);
 
-/** Texto de apoyo de un movimiento: el turno que lo originó, si todavía existe, y la nota. */
-function detalle(m: MovimientoBanco, turnos: Turno[]): string[] {
+/** Texto de apoyo de un movimiento: si está programado, el turno que lo originó, si todavía existe, y la nota. */
+function detalle(m: MovimientoBanco, turnos: Turno[], hoy?: string): string[] {
   const lineas: string[] = [];
+  if (hoy !== undefined && esProgramado(m, hoy)) lineas.push("Programado");
   const turno = m.turnoId ? turnos.find((t) => t.id === m.turnoId) : undefined;
   if (turno) {
     const tipo = turno.tipo === "alquiler" ? "quirófano de alquiler" : "turno";
@@ -28,14 +29,17 @@ function detalle(m: MovimientoBanco, turnos: Turno[]): string[] {
   return lineas;
 }
 
-/** Filas del extracto en orden cronológico, con el saldo acumulado después de cada movimiento. */
-export function filasExtracto(datos: Datos): FilaTexto[] {
+/**
+ * Filas del extracto en orden cronológico, con el saldo acumulado después de cada movimiento. Si se da la
+ * fecha de hoy, los movimientos con fecha posterior llevan la línea "Programado".
+ */
+export function filasExtracto(datos: Datos, hoy?: string): FilaTexto[] {
   return extracto(datos.movimientos).map(({ movimiento: m, saldoDespues }) => ({
     id: m.id,
     fecha: m.fecha,
     tipo: etiquetaMovimiento(m),
-    detalle: detalle(m, datos.turnos),
+    detalle: detalle(m, datos.turnos, hoy),
     horas: conSigno(m.minutos),
-    saldo: formatearDuracion(saldoDespues),
+    saldo: saldoCorto(saldoDespues),
   }));
 }

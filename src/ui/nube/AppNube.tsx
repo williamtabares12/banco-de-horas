@@ -133,6 +133,7 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
   const [estado, setEstado] = useState<"leyendo" | "listo" | { error: string }>("leyendo");
   const [, actualizar] = useState(0);
   const [hoja, setHoja] = useState(false);
+  const [pendiente, setPendiente] = useState(false); // lo último está solo en este dispositivo
   const [parametros, setParametros] = useState<ResultadoParametros | null>(null);
 
   useEffect(() => {
@@ -142,7 +143,11 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
       (e: Error) => vivo && setEstado({ error: e.message }),
     );
     // Cambia el perfil (por ejemplo, al terminar la bienvenida): se vuelve a dibujar.
-    const dejar = repo.suscribir(() => vivo && actualizar((n) => n + 1));
+    const dejar = repo.suscribir((_datos, sincronizacion) => {
+      if (!vivo) return;
+      setPendiente(sincronizacion.pendiente);
+      actualizar((n) => n + 1);
+    });
     return () => {
       vivo = false;
       dejar();
@@ -213,6 +218,7 @@ function Cuenta({ usuario }: { usuario: Usuario }) {
         alVerAviso={() => setHoja(true)}
         parametros={parametros.parametros}
         avisoParametros={parametros.aviso}
+        pendienteDeSincronizar={pendiente}
       />
       {hoja && <HojaPrivacidad aviso={aviso} alCerrar={() => setHoja(false)} />}
     </>
