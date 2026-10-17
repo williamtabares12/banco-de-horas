@@ -12,7 +12,7 @@ describe("los datos del aviso se rellenan al leerlo, no en el documento", () => 
     expect(DATOS_AVISO).toEqual({
       nombreApp: "Arena",
       responsable: "ALEJANDRO TABARES",
-      correoContacto: "wtabares@comfamiliar.com",
+      correoContacto: "wiliamtabares.12@gmail.com",
     });
   });
 
@@ -21,7 +21,7 @@ describe("los datos del aviso se rellenan al leerlo, no en el documento", () => 
     expect(texto).not.toMatch(/\[(NOMBRE|CORREO)[^\]]*\]/);
     expect(texto).toContain("Arena");
     expect(texto).toContain("ALEJANDRO TABARES");
-    expect(texto).toContain("wtabares@comfamiliar.com");
+    expect(texto).toContain("wiliamtabares.12@gmail.com");
   });
 
   it("se pueden pasar otros datos (por ejemplo, otro correo de contacto)", () => {
@@ -29,7 +29,7 @@ describe("los datos del aviso se rellenan al leerlo, no en el documento", () => 
     const texto = JSON.stringify(leerAviso(PLANTILLA, otro));
     expect(texto).toContain("ANA PÉREZ");
     expect(texto).toContain("ana@correo.com");
-    expect(texto).not.toContain("wtabares@comfamiliar.com");
+    expect(texto).not.toContain("wiliamtabares.12@gmail.com");
   });
 
   it("si el documento ya viene relleno, también se lee bien", () => {

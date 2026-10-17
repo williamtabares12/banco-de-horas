@@ -23,7 +23,7 @@ describe("Acerca de (RF-C11)", () => {
   });
 
   it("muestra el correo de contacto del aviso, como enlace", () => {
-    expect(m).toMatch(/<a [^>]*href="mailto:wtabares@comfamiliar\.com"[^>]*>wtabares@comfamiliar\.com<\/a>/);
+    expect(m).toMatch(/<a [^>]*href="mailto:wiliamtabares\.12@gmail\.com"[^>]*>wiliamtabares\.12@gmail\.com<\/a>/);
   });
 
   describe("reportar un problema", () => {

@@ -37,7 +37,7 @@ describe("el aviso de privacidad se lee de aviso-privacidad.md", () => {
     const todo = JSON.stringify(aviso);
     expect(todo).toContain("Arena");
     expect(todo).toContain("ALEJANDRO TABARES");
-    expect(todo).toContain("wtabares@comfamiliar.com");
+    expect(todo).toContain("wiliamtabares.12@gmail.com");
   });
   it("distingue párrafos de listas", () => {
     const datos = aviso.secciones[1]; // 2. Qué datos se guardan

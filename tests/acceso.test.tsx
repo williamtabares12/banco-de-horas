@@ -79,7 +79,7 @@ describe("HojaPrivacidad", () => {
     expect(html).toContain("11. Cambios");
   });
   it("trae los datos de contacto ya rellenos", () => {
-    expect(html).toContain("wtabares@comfamiliar.com");
+    expect(html).toContain("wiliamtabares.12@gmail.com");
     expect(html).not.toMatch(/\[CORREO/);
   });
   it("se cierra con un botón", () => {

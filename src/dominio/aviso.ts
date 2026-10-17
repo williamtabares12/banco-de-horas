@@ -15,7 +15,7 @@ export type DatosAviso = { nombreApp: string; responsable: string; correoContact
 export const DATOS_AVISO: DatosAviso = {
   nombreApp: "Arena",
   responsable: "ALEJANDRO TABARES",
-  correoContacto: "wtabares@comfamiliar.com",
+  correoContacto: "wiliamtabares.12@gmail.com",
 };
 
 /**
