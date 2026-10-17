@@ -1,3 +1,4 @@
+import { lineaEn24Horas } from "../../dominio/hora24";
 import { useState, type FormEvent } from "react";
 import { valoresDePlantilla } from "../../dominio/plantillas";
 import { parsearDuracion } from "../../dominio/tiempo";
@@ -98,6 +99,11 @@ export function FormularioTurno({ inicial, plantillas, onContinuar, onCancelar }
           <Entrada type="time" value={horaFin} onChange={(e) => setHoraFin(e.target.value)} required />
         </Campo>
       </div>
+      {lineaEn24Horas(horaInicio, horaFin) && (
+        <p className="texto-suave" aria-live="polite">
+          {lineaEn24Horas(horaInicio, horaFin)}
+        </p>
+      )}
       <p className="texto-suave">Si la hora de fin es menor o igual a la de inicio, el turno termina al día siguiente.</p>
       {tipo === "ordinario" ? (
         <>

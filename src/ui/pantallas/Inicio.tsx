@@ -3,6 +3,7 @@ import { necesitaRespaldo } from "../../almacenamiento/respaldo";
 import { cantidadProgramados, esProgramado, saldoActual, saldoCorto, saldoProyectado, textoDeSaldo, totales } from "../../dominio/banco";
 import { minutosDeSemana } from "../../dominio/semana";
 import { formatearDuracion } from "../../dominio/tiempo";
+import type { ReactNode } from "react";
 import { Aviso } from "../componentes/Aviso";
 import { BarraAvance } from "../componentes/BarraAvance";
 import { Boton } from "../componentes/Boton";
@@ -13,9 +14,11 @@ type Props = {
   datos: Datos;
   alRegistrar: () => void;
   alIrARespaldo: () => void;
+  /** Aviso para instalar la app (si corresponde y no se descartó). */
+  instalar?: ReactNode;
 };
 
-export function Inicio({ datos, alRegistrar, alIrARespaldo }: Props) {
+export function Inicio({ datos, alRegistrar, alIrARespaldo, instalar }: Props) {
   const dia = hoy();
   // Lo programado (con fecha futura) todavía no cuenta: ni en el saldo actual ni en lo prestado y pagado.
   const vigentes = datos.movimientos.filter((m) => !esProgramado(m, dia));
@@ -30,6 +33,8 @@ export function Inicio({ datos, alRegistrar, alIrARespaldo }: Props) {
       <Boton variante="relleno" onClick={alRegistrar}>
         Registrar turno
       </Boton>
+
+      {instalar}
 
       {necesitaRespaldo(datos, dia) && (
         <Aviso tipo="aviso">

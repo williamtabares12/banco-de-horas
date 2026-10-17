@@ -19,6 +19,8 @@
 
   html {
     -webkit-text-size-adjust: 100%;
+    /* Sin el resaltado azul de toque del navegador: cada elemento tocable tiene su propio estado presionado */
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Los títulos y párrafos no traen márgenes del navegador: el espacio lo ponen las pantallas */

@@ -10,6 +10,7 @@ import { Boton } from "../componentes/Boton";
 import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { FormularioTurno } from "../componentes/FormularioTurno";
 import { useConfirmacion } from "../componentes/useConfirmacion";
+import { useCapa } from "../navegacion";
 import { ahora, nuevoId } from "../utilidades";
 
 type Vista =
@@ -30,6 +31,11 @@ const hora = (fechaHora: string) => fechaHora.slice(11);
 
 export function Turnos({ datos, calculo, cambiar, abrirNuevo }: Props) {
   const [vista, setVista] = useState<Vista>(abrirNuevo ? { paso: "formulario" } : { paso: "lista" });
+  // Atrás: de la revisión vuelve al formulario, y del formulario a la lista (RF-C21)
+  useCapa(vista.paso !== "lista", () => setVista({ paso: "lista" }));
+  useCapa(vista.paso === "revisar", () =>
+    setVista((v) => (v.paso === "revisar" ? { paso: "formulario", editando: v.editando, entrada: v.entrada } : v)),
+  );
   const { dialogo, preguntar } = useConfirmacion();
 
   function confirmar(editando: Turno | undefined, entrada: EntradaTurno) {

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { RepositorioLocal } from "./almacenamiento/local";
 import type { Datos, Repositorio } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
@@ -6,6 +6,9 @@ import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { calculoDe, type Parametros } from "./dominio/parametros";
 import { Acerca } from "./ui/nube/Acerca";
 import type { ResultadoBorrado } from "./ui/nube/BorrarCuenta";
+import { InstalarApp } from "./ui/InstalarApp";
+import { useInstalacion } from "./ui/instalar";
+import { navegacion } from "./ui/navegacion";
 import { versionDeLaApp } from "./ui/version";
 import { Aviso } from "./ui/componentes/Aviso";
 import { Boton } from "./ui/componentes/Boton";
@@ -39,6 +42,8 @@ const PESTANAS: { id: Pestana; nombre: string }[] = [
 // "Acerca de" solo existe en la versión con cuenta (donde hay aviso de privacidad y a quién reportar)
 const PESTANA_ACERCA = { id: "acerca" as const, nombre: "Acerca de" };
 
+const CLAVE_INSTALAR_DESCARTADA = "arena:instalar-descartada";
+
 type Estado = { datos: Datos } | { error: string };
 
 function cargarInicial(repo: Repositorio): Estado {
@@ -68,6 +73,31 @@ type Props = {
 export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros, pendienteDeSincronizar, cuenta }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
+  // El botón atrás de Android y el gesto de iPhone vuelven a la pestaña anterior (RF-C21)
+  useEffect(() => {
+    navegacion?.iniciar("inicio", (id) => setPestana(id as Pestana));
+  }, []);
+  // Instalar la app (RF-C19): en Inicio, un aviso que se puede descartar (se recuerda); en Ajustes, siempre
+  const instalacion = useInstalacion();
+  const [descartada, setDescartada] = useState(() => {
+    try {
+      return localStorage.getItem(CLAVE_INSTALAR_DESCARTADA) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const descartarInstalacion = () => {
+    setDescartada(true);
+    try {
+      localStorage.setItem(CLAVE_INSTALAR_DESCARTADA, "1");
+    } catch {
+      // sin almacenamiento: se oculta solo mientras la app esté abierta
+    }
+  };
+  const irA = (id: Pestana) => {
+    navegacion?.irAPestana(id);
+    setPestana(id);
+  };
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
   const [fallaGuardado, setFallaGuardado] = useState(false);
   // Con qué se calcula: la configuración y, con cuenta, las reglas de la clínica. Se recalcula solo si cambian.
@@ -126,7 +156,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
           activa={pestana}
           onCambiar={(id) => {
             setAbrirTurnoNuevo(false);
-            setPestana(id);
+            irA(id);
           }}
         />
       </header>
@@ -145,17 +175,18 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
       {pestana === "inicio" && (
         <Inicio
           datos={datos}
+          instalar={descartada ? undefined : <InstalarApp opcion={instalacion.opcion} alInstalar={instalacion.instalar} alDescartar={descartarInstalacion} />}
           alRegistrar={() => {
             setAbrirTurnoNuevo(true);
-            setPestana("turnos");
+            irA("turnos");
           }}
-          alIrARespaldo={() => setPestana("ajustes")}
+          alIrARespaldo={() => irA("ajustes")}
         />
       )}
       {pestana === "turnos" && <Turnos datos={datos} calculo={calculo!} cambiar={cambiar} abrirNuevo={abrirTurnoNuevo} />}
       {pestana === "banco" && <Banco datos={datos} cambiar={cambiar} />}
       {pestana === "quincena" && <Quincena datos={datos} calculo={calculo!} />}
-      {pestana === "extracto" && <Extracto datos={datos} alIrABanco={() => setPestana("banco")} />}
+      {pestana === "extracto" && <Extracto datos={datos} alIrABanco={() => irA("banco")} />}
       {pestana === "acerca" && alVerAviso && <Acerca {...versionDeLaApp()} alVerAviso={alVerAviso} />}
       {pestana === "ajustes" && (
         <Ajustes
@@ -165,6 +196,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
           alVerAviso={alVerAviso}
           parametros={parametros}
           cuenta={cuenta}
+          instalar={<InstalarApp opcion={instalacion.opcion} alInstalar={instalacion.instalar} />}
           importarTexto={(texto) => {
             importar(repo, texto);
             setEstado({ datos: repo.cargar() });

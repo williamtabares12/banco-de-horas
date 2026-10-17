@@ -18,6 +18,7 @@ import { Boton } from "../componentes/Boton";
 import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { FormularioMovimiento, type ValoresMovimiento } from "../componentes/FormularioMovimiento";
 import { useConfirmacion } from "../componentes/useConfirmacion";
+import { useCapa } from "../navegacion";
 import { ahora, etiquetaMovimiento, hoy, nuevoId } from "../utilidades";
 
 type Tipo = MovimientoBanco["tipo"];
@@ -32,6 +33,7 @@ const conSigno = (minutos: number) => (minutos > 0 ? "+" : "") + formatearDuraci
 
 export function Banco({ datos, cambiar }: Props) {
   const [abierto, setAbierto] = useState<Abierto>(null);
+  useCapa(abierto !== null, () => setAbierto(null)); // atrás cierra el formulario (RF-C21)
   const { dialogo, preguntar } = useConfirmacion();
   const movimientos = datos.movimientos;
   const hayInicial = movimientos.some((m) => m.tipo === "saldo_inicial");

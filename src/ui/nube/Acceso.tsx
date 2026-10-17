@@ -8,6 +8,7 @@ import { Enlace } from "../componentes/Enlace";
 import { Interruptor } from "../componentes/Interruptor";
 import { Pestanas } from "../componentes/Pestanas";
 import { RelojArena } from "../componentes/RelojArena";
+import { copiarTexto } from "../copiar";
 import { HojaPrivacidad } from "./HojaPrivacidad";
 
 /** Lo que devuelve cada acción de acceso: salió bien, o un mensaje listo para mostrar. */
@@ -25,6 +26,8 @@ type Props = {
   /** `aceptoAviso`: si marcó la casilla antes de abrir Google (solo existe en "Crear cuenta"). */
   alEntrarConGoogle: (aceptoAviso: boolean) => Promise<ResultadoAcceso>;
   alRecuperar: (correo: string) => Promise<ResultadoAcceso>;
+  /** Se abrió dentro del navegador de otra app (WhatsApp, Instagram...): ahí Google no deja entrar, y se avisa (RF-C20). */
+  navegadorEmbebido?: boolean;
 };
 
 type Mensaje = { tipo: "error" | "confirmacion"; texto: string } | null;
@@ -33,7 +36,7 @@ type Mensaje = { tipo: "error" | "confirmacion"; texto: string } | null;
  * Pantalla sin sesión (portada del login de Bitácora AIDA v2): iniciar sesión, crear cuenta, entrar
  * con Google y recuperar la contraseña. Crear la cuenta exige marcar la casilla del aviso de privacidad.
  */
-export function Acceso({ aviso, modoInicial = "login", errorInicial = null, confirmacionInicial = null, alIniciarConCorreo, alRegistrar, alEntrarConGoogle, alRecuperar }: Props) {
+export function Acceso({ aviso, modoInicial = "login", errorInicial = null, confirmacionInicial = null, alIniciarConCorreo, alRegistrar, alEntrarConGoogle, alRecuperar, navegadorEmbebido = false }: Props) {
   const [modo, setModo] = useState<ModoAcceso>(modoInicial);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -44,6 +47,7 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
     errorInicial ? { tipo: "error", texto: errorInicial } : confirmacionInicial ? { tipo: "confirmacion", texto: confirmacionInicial } : null,
   );
   const [hoja, setHoja] = useState(false);
+  const [enlaceCopiado, setEnlaceCopiado] = useState<boolean | null>(null);
 
   const esRegistro = modo === "registro";
   const sinAceptar = esRegistro && !avisoAceptado;
@@ -92,6 +96,23 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
         <p className="acceso__frase">Tus horas, claras y tuyas</p>
       </div>
 
+      {navegadorEmbebido && (
+        <div className="seccion">
+          <Aviso tipo="aviso">
+            Ábrela en Chrome o Safari. Dentro de esta app, Google no deja iniciar sesión. Copia el enlace y pégalo en tu navegador.
+          </Aviso>
+          <div className="acciones">
+            <Boton
+              onClick={async () => setEnlaceCopiado(await copiarTexto(location.origin, navigator.clipboard))}
+            >
+              Copiar enlace
+            </Boton>
+          </div>
+          {enlaceCopiado === true && <p className="texto-suave">Enlace copiado. Pégalo en Chrome o Safari.</p>}
+          {enlaceCopiado === false && <p className="texto-suave">No se pudo copiar. Escribe esta dirección en tu navegador: {location.host}</p>}
+        </div>
+      )}
+
       <Pestanas
         elementos={[
           { id: "login", nombre: "Entrar" },
@@ -107,16 +128,26 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
       <form className="formulario" onSubmit={enviar} noValidate>
         {esRegistro && (
           <Campo etiqueta="Tu nombre">
-            <Entrada type="text" autoComplete="given-name" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+            <Entrada type="text" autoComplete="given-name" autoCapitalize="words" value={nombre} onChange={(e) => setNombre(e.target.value)} />
           </Campo>
         )}
         <Campo etiqueta="Correo">
-          <Entrada type="email" autoComplete="email" inputMode="email" value={correo} onChange={(e) => setCorreo(e.target.value)} />
+          <Entrada
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            value={correo} onChange={(e) => setCorreo(e.target.value)} />
         </Campo>
         <Campo etiqueta="Contraseña">
           <Entrada
             type="password"
             autoComplete={esRegistro ? "new-password" : "current-password"}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             value={contrasena}
             onChange={(e) => setContrasena(e.target.value)}
           />

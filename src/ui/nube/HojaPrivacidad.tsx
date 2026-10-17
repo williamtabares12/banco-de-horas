@@ -1,6 +1,7 @@
 import { useEffect, useId } from "react";
 import type { AvisoPrivacidad } from "../../dominio/aviso";
 import { Boton } from "../componentes/Boton";
+import { useCapa } from "../navegacion";
 import { TextoAviso } from "./TextoAviso";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
  */
 export function HojaPrivacidad({ aviso, alCerrar }: Props) {
   const idTitulo = useId();
+  useCapa(true, alCerrar); // el botón atrás la cierra
 
   useEffect(() => {
     const alTeclear = (e: KeyboardEvent) => {

@@ -1,4 +1,5 @@
 import { useEffect, useId } from "react";
+import { useCapa } from "../navegacion";
 import { Boton } from "./Boton";
 
 type Props = {
@@ -24,6 +25,7 @@ export function DialogoConfirmacion({
 }: Props) {
   const idTitulo = useId();
   const idMensaje = useId();
+  useCapa(true, onCancelar); // el botón atrás lo cierra, como Cancelar
 
   useEffect(() => {
     const alTeclear = (e: KeyboardEvent) => {

@@ -20,6 +20,7 @@ import {
 } from "../../almacenamiento/sesion";
 import App from "../../App";
 import { debeAnularse, mensajeDeErrorAcceso, mensajeDeErrorBorrado } from "../../dominio/acceso";
+import { esNavegadorEmbebido } from "../../dominio/navegadores";
 import { leerAviso } from "../../dominio/aviso";
 import { crearDatosIniciales, crearPerfil, pantallaDeCuenta } from "../../dominio/bienvenida";
 import { Aviso } from "../componentes/Aviso";
@@ -37,6 +38,12 @@ const nube = iniciarNube(usarEmuladores);
 const aviso = leerAviso(avisoMarkdown);
 // Los parámetros de la clínica se leen una sola vez por sesión (y la copia queda en este dispositivo).
 const leerParametros = lectorDeParametros(leerDeFirestore(nube.db), localStorage);
+
+/** ¿Se abrió dentro de otra app? La app instalada en la pantalla de inicio no cuenta. */
+const instalada =
+  typeof window !== "undefined" &&
+  ((navigator as Navigator & { standalone?: boolean }).standalone === true || window.matchMedia?.("(display-mode: standalone)").matches === true);
+const embebido = typeof navigator !== "undefined" && esNavegadorEmbebido(navigator.userAgent, { instalada });
 
 const SIN_CUENTA_GOOGLE =
   "Ese correo de Google no tenía cuenta aquí todavía. Para crearla, primero acepta el aviso de privacidad.";
@@ -109,6 +116,7 @@ export default function AppNube() {
         aviso={aviso}
         modoInicial={errorInicial === SIN_CUENTA_GOOGLE ? "registro" : "login"}
         errorInicial={errorInicial}
+        navegadorEmbebido={embebido}
         confirmacionInicial={cuentaBorrada ? "Tu cuenta y todos tus datos se borraron." : null}
         alIniciarConCorreo={(correo, contrasena) => iniciarSesionConCorreo(nube, correo, contrasena).then(bien, comoResultado)}
         alRegistrar={(nombre, correo, contrasena) => registrarConCorreo(nube, nombre, correo, contrasena).then(bien, comoResultado)}

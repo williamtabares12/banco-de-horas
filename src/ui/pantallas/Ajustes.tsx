@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import type { Datos } from "../../almacenamiento/repositorio";
 import { ErrorImportacion, exportarJSON, validarConfig } from "../../almacenamiento/respaldo";
 import { agregarFestivo, festivosEfectivos, quitarFestivo, festivosDelAnio } from "../../dominio/festivos";
@@ -15,6 +15,7 @@ import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { Interruptor } from "../componentes/Interruptor";
 import { useConfirmacion } from "../componentes/useConfirmacion";
 import { BorrarCuenta, type ResultadoBorrado } from "../nube/BorrarCuenta";
+import { useCapa } from "../navegacion";
 import { aTextoHoras, hoy, nuevoId } from "../utilidades";
 
 const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
@@ -32,11 +33,13 @@ type Props = {
   parametros?: Parametros;
   /** Solo en la versión con cuenta: lo que hace falta para ofrecer "Borrar mi cuenta". */
   cuenta?: { proveedor: "password" | "google.com" | "otro"; alBorrar: (clave: string) => Promise<ResultadoBorrado> };
+  /** Instalar la app (RF-C19): un botón en Android, la guía de tres pasos en iPhone, nada si ya está instalada. */
+  instalar?: ReactNode;
 };
 
 type Mensaje = { texto: string; error: boolean } | null;
 
-export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso, parametros, cuenta }: Props) {
+export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAviso, parametros, cuenta, instalar }: Props) {
   return (
     <section className="pantalla">
       <FormularioConfig
@@ -66,6 +69,7 @@ export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion, alVerAv
         importarTexto={importarTexto}
         alExportar={() => cambiar((d) => ({ ...d, ultimoRespaldo: hoy() }))}
       />
+      {instalar}
       {alCerrarSesion && (
         <section className="seccion">
           <h2 className="titulo-seccion">Sesión</h2>
@@ -197,6 +201,7 @@ export function Plantillas({
   onCambiar: (p: PlantillaTurno[]) => void;
 }) {
   const [edicion, setEdicion] = useState<EdicionPlantilla>(null);
+  useCapa(edicion !== null, () => setEdicion(null)); // atrás cierra el formulario de la plantilla (RF-C21)
   const { dialogo, preguntar } = useConfirmacion();
 
   function borrar(p: PlantillaTurno) {
@@ -342,6 +347,7 @@ function Festivos({
       <Campo etiqueta="Año">
         <Entrada
           type="number"
+          inputMode="numeric"
           min={2000}
           max={2100}
           value={anio}

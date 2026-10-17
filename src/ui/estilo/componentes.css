@@ -82,9 +82,25 @@
     cursor: pointer;
   }
 
-  .enlace:hover,
   .enlace:focus-visible {
     text-decoration: underline;
+  }
+
+  /* El efecto de pasar el cursor solo existe donde hay cursor: en el celular se quedaría pegado después de tocar */
+  @media (hover: hover) {
+    .enlace:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* ---------- Estado presionado propio (igual en iPhone y Android): baja la opacidad, sin transiciones ---------- */
+
+  .boton:active:not(:disabled),
+  .enlace:active,
+  .pestana:active,
+  .fila-lista__tocable:active,
+  .interruptor:active:not(:disabled) {
+    opacity: 0.7;
   }
 
   /* ---------- Foco de teclado ---------- */
