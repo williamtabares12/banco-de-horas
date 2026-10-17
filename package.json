@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "check:estilo": "node scripts/check-estilo.mjs --estricto",
-    "test": "vitest run"
+    "test": "vitest run",
+    "emuladores": "firebase emulators:start --only auth,firestore"
   },
   "dependencies": {
     "react": "^19.2.8",
@@ -20,6 +21,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "firebase-tools": "^15.34.0",
     "oxlint": "^1.81.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
