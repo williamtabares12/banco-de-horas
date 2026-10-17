@@ -1,0 +1,61 @@
+{
+  "fields": {
+    "version": { "integerValue": "1" },
+    "avisoVersion": { "integerValue": "1" },
+    "reglas": {
+      "mapValue": {
+        "fields": {
+          "2026-01-01": {
+            "mapValue": {
+              "fields": {
+                "nocturnoDesde": { "stringValue": "19:00" },
+                "nocturnoHasta": { "stringValue": "06:00" },
+                "minutosSemana": { "integerValue": "2520" },
+                "desfaseQuincenas": { "integerValue": "1" },
+                "extrasDescuentanDeuda": { "booleanValue": true }
+              }
+            }
+          }
+        }
+      }
+    },
+    "festivosAgregados": { "arrayValue": {} },
+    "festivosQuitados": { "arrayValue": {} },
+    "plantillasPorDefecto": {
+      "mapValue": {
+        "fields": {
+          "dia8": {
+            "mapValue": {
+              "fields": {
+                "nombre": { "stringValue": "Día 8 h" },
+                "inicio": { "stringValue": "07:00" },
+                "fin": { "stringValue": "16:00" },
+                "descansoMin": { "integerValue": "60" }
+              }
+            }
+          },
+          "dia12": {
+            "mapValue": {
+              "fields": {
+                "nombre": { "stringValue": "Día 12 h" },
+                "inicio": { "stringValue": "07:00" },
+                "fin": { "stringValue": "19:00" },
+                "descansoMin": { "integerValue": "120" }
+              }
+            }
+          },
+          "noche12": {
+            "mapValue": {
+              "fields": {
+                "nombre": { "stringValue": "Noche 12 h" },
+                "inicio": { "stringValue": "19:00" },
+                "fin": { "stringValue": "07:00" },
+                "descansoMin": { "integerValue": "120" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
