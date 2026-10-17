@@ -26,8 +26,8 @@ export default defineConfig({
       },
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
-        name: 'Banco de horas',
-        short_name: 'Banco de horas',
+        name: 'Arena',
+        short_name: 'Arena',
         description: 'Horas que se deben y se pagan, y horas nocturnas y dominicales por quincena.',
         lang: 'es',
         start_url: './',

@@ -453,6 +453,120 @@
     width: 100%;
   }
 
+  /* ---------- Reloj de arena (estilo-visual.md §6b): el único movimiento de la app ---------- */
+
+  .reloj-arena {
+    --ciclo: 5s;
+    display: block;
+    width: 96px;
+    height: 96px;
+  }
+
+  .reloj-arena__vidrio {
+    transform-box: view-box;
+    transform-origin: 32px 32px;
+    animation: reloj-arena-giro var(--ciclo) infinite;
+  }
+
+  .reloj-arena__contorno {
+    stroke: var(--color-texto);
+  }
+
+  .reloj-arena__arena {
+    fill: var(--color-decorativo);
+    transform-box: view-box;
+  }
+
+  .reloj-arena__arriba {
+    transform-origin: 32px 32px;
+    animation: reloj-arena-vaciar var(--ciclo) linear infinite;
+  }
+
+  .reloj-arena__abajo {
+    transform-origin: 32px 56px;
+    animation: reloj-arena-llenar var(--ciclo) linear infinite;
+  }
+
+  .reloj-arena__hilo {
+    stroke: var(--color-decorativo);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-dasharray: 3 3;
+    animation:
+      reloj-arena-cae 0.35s linear infinite,
+      reloj-arena-hilo var(--ciclo) infinite;
+  }
+
+  @keyframes reloj-arena-vaciar {
+    0% {
+      transform: scaleY(1);
+    }
+    70%,
+    100% {
+      transform: scaleY(0);
+    }
+  }
+
+  @keyframes reloj-arena-llenar {
+    0% {
+      transform: scaleY(0);
+    }
+    70%,
+    100% {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes reloj-arena-hilo {
+    0%,
+    2% {
+      opacity: 0;
+    }
+    5%,
+    66% {
+      opacity: 1;
+    }
+    70%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes reloj-arena-cae {
+    to {
+      stroke-dashoffset: -6;
+    }
+  }
+
+  @keyframes reloj-arena-giro {
+    0%,
+    74% {
+      transform: rotate(0);
+    }
+    90%,
+    100% {
+      transform: rotate(180deg);
+    }
+  }
+
+  /* Con "reducir movimiento" el reloj queda quieto, con la arena arriba */
+  @media (prefers-reduced-motion: reduce) {
+    .reloj-arena__vidrio,
+    .reloj-arena__arriba,
+    .reloj-arena__abajo,
+    .reloj-arena__hilo {
+      animation: none;
+    }
+
+    .reloj-arena__abajo {
+      transform: scaleY(0);
+    }
+
+    .reloj-arena__hilo {
+      opacity: 0;
+    }
+  }
+
   /* ---------- Vista de componentes (solo desarrollo) ---------- */
 
   .galeria {

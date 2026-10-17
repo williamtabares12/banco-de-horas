@@ -6,6 +6,8 @@ import { Boton } from "../componentes/Boton";
 import { Campo, Entrada } from "../componentes/Campo";
 import { Enlace } from "../componentes/Enlace";
 import { Interruptor } from "../componentes/Interruptor";
+import { Pestanas } from "../componentes/Pestanas";
+import { RelojArena } from "../componentes/RelojArena";
 import { HojaPrivacidad } from "./HojaPrivacidad";
 
 /** Lo que devuelve cada acción de acceso: salió bien, o un mensaje listo para mostrar. */
@@ -83,79 +85,74 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
   }
 
   return (
-    <main className="aplicacion">
-      <header className="encabezado">
-        <h1 className="titulo-app">Banco de horas</h1>
-      </header>
-      <section className="pantalla">
-        <div className="seccion">
-          <h2 className="titulo-seccion">{esRegistro ? "Crea tu cuenta" : "Entra con tu cuenta"}</h2>
-          <p>
-            Lleva tu banco de horas y tus horas nocturnas y dominicales. Tus datos son solo tuyos: nadie más los ve, y los
-            puedes exportar o borrar cuando quieras.
-          </p>
-        </div>
+    <main className="aplicacion acceso">
+      <div className="acceso__marca">
+        <RelojArena />
+        <h1 className="acceso__nombre">Arena</h1>
+        <p className="acceso__frase">Tus horas, claras y tuyas</p>
+      </div>
 
-        {mensaje && <Aviso tipo={mensaje.tipo}>{mensaje.texto}</Aviso>}
+      <Pestanas
+        elementos={[
+          { id: "login", nombre: "Entrar" },
+          { id: "registro", nombre: "Crear cuenta" },
+        ]}
+        activa={modo}
+        onCambiar={cambiarModo}
+        etiqueta="Entrar o crear cuenta"
+      />
 
-        <form className="formulario" onSubmit={enviar} noValidate>
-          {esRegistro && (
-            <Campo etiqueta="Tu nombre">
-              <Entrada type="text" autoComplete="given-name" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-            </Campo>
-          )}
-          <Campo etiqueta="Correo">
-            <Entrada type="email" autoComplete="email" inputMode="email" value={correo} onChange={(e) => setCorreo(e.target.value)} />
+      {mensaje && <Aviso tipo={mensaje.tipo}>{mensaje.texto}</Aviso>}
+
+      <form className="formulario" onSubmit={enviar} noValidate>
+        {esRegistro && (
+          <Campo etiqueta="Tu nombre">
+            <Entrada type="text" autoComplete="given-name" value={nombre} onChange={(e) => setNombre(e.target.value)} />
           </Campo>
-          <Campo etiqueta="Contraseña">
-            <Entrada
-              type="password"
-              autoComplete={esRegistro ? "new-password" : "current-password"}
-              value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-            />
-          </Campo>
+        )}
+        <Campo etiqueta="Correo">
+          <Entrada type="email" autoComplete="email" inputMode="email" value={correo} onChange={(e) => setCorreo(e.target.value)} />
+        </Campo>
+        <Campo etiqueta="Contraseña">
+          <Entrada
+            type="password"
+            autoComplete={esRegistro ? "new-password" : "current-password"}
+            value={contrasena}
+            onChange={(e) => setContrasena(e.target.value)}
+          />
+        </Campo>
 
-          {esRegistro && (
-            <div className="seccion">
-              <Interruptor etiqueta={aviso.textoAutorizacion} activo={avisoAceptado} onCambiar={setAvisoAceptado} />
-              <Enlace onClick={() => setHoja(true)}>Leer el aviso de privacidad</Enlace>
-            </div>
-          )}
-
-          <div className="acciones">
-            <Boton variante="relleno" type="submit" disabled={enviando || sinAceptar}>
-              {enviando ? "Un momento…" : esRegistro ? "Crear cuenta" : "Iniciar sesión"}
-            </Boton>
-          </div>
-        </form>
-
-        <p className="texto-suave">o</p>
-        <div className="acciones">
-          <Boton disabled={enviando || sinAceptar} onClick={() => void ejecutar(() => alEntrarConGoogle(avisoAceptado))}>
-            Continuar con Google
-          </Boton>
-        </div>
-        <p className="texto-suave">
-          Si Google no te deja entrar, abre este enlace en Safari o en Chrome en vez del navegador de WhatsApp u otra app.
-        </p>
-
-        {!esRegistro && (
-          <div className="acciones acciones--fila">
-            <Enlace onClick={recuperar}>¿Olvidaste tu contraseña?</Enlace>
+        {esRegistro && (
+          <div className="seccion">
+            <Interruptor etiqueta={aviso.textoAutorizacion} activo={avisoAceptado} onCambiar={setAvisoAceptado} />
+            <Enlace onClick={() => setHoja(true)}>Leer el aviso de privacidad</Enlace>
           </div>
         )}
 
-        <p className="texto-suave">
-          {esRegistro ? "¿Ya tienes cuenta? " : "¿Primera vez aquí? "}
-          <Enlace onClick={() => cambiarModo(esRegistro ? "login" : "registro")}>{esRegistro ? "Iniciar sesión" : "Crear cuenta"}</Enlace>
-        </p>
-
-        <div className="acciones acciones--fila">
-          <Enlace onClick={() => setHoja(true)}>Aviso de privacidad</Enlace>
+        <div className="acciones">
+          <Boton variante="relleno" type="submit" disabled={enviando || sinAceptar}>
+            {enviando ? "Un momento…" : esRegistro ? "Crear cuenta" : "Iniciar sesión"}
+          </Boton>
         </div>
-        <p className="texto-suave">Registro personal. No es una herramienta oficial de la clínica ni reemplaza sus registros.</p>
-      </section>
+      </form>
+
+      <p className="texto-suave acceso__o">o</p>
+      <div className="acciones">
+        <Boton disabled={enviando || sinAceptar} onClick={() => void ejecutar(() => alEntrarConGoogle(avisoAceptado))}>
+          Continuar con Google
+        </Boton>
+      </div>
+
+      {!esRegistro && (
+        <div className="acciones acciones--fila">
+          <Enlace onClick={recuperar}>¿Olvidaste tu contraseña?</Enlace>
+        </div>
+      )}
+
+      <footer className="acceso__pie">
+        <p className="texto-suave">Solo tú ves tus datos desde la app. Registro personal, no es una herramienta oficial de la clínica.</p>
+        <Enlace onClick={() => setHoja(true)}>Aviso de privacidad</Enlace>
+      </footer>
       {hoja && <HojaPrivacidad aviso={aviso} alCerrar={() => setHoja(false)} />}
     </main>
   );

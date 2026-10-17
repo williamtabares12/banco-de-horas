@@ -30,7 +30,7 @@ export function NuevoAviso({ aviso, alAceptar }: Props) {
   return (
     <main className="aplicacion">
       <header className="encabezado">
-        <h1 className="titulo-app">Banco de horas</h1>
+        <h1 className="titulo-app">Arena</h1>
       </header>
       <section className="pantalla">
         <p>El aviso de privacidad cambió. Léelo y confírmalo para seguir usando la app. Tus datos no se tocan.</p>

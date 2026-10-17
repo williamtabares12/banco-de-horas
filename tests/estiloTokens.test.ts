@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
-import { inflateSync } from "node:zlib";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -198,39 +197,4 @@ describe("el verificador de estilo", () => {
   });
 });
 
-describe("ícono de la app instalada", () => {
-  /** Decodifica un PNG RGB de 8 bits sin entrelazado (el que genera el script de íconos). */
-  function leerPng(ruta: string) {
-    const bytes = readFileSync(join(RAIZ, ruta));
-    let posicion = 8;
-    let ancho = 0;
-    const datos: Buffer[] = [];
-    while (posicion < bytes.length) {
-      const largo = bytes.readUInt32BE(posicion);
-      const tipo = bytes.toString("ascii", posicion + 4, posicion + 8);
-      const cuerpo = bytes.subarray(posicion + 8, posicion + 8 + largo);
-      if (tipo === "IHDR") ancho = cuerpo.readUInt32BE(0);
-      if (tipo === "IDAT") datos.push(cuerpo);
-      posicion += 12 + largo;
-    }
-    const crudo = inflateSync(Buffer.concat(datos));
-    const fila = 1 + ancho * 3;
-    return {
-      ancho,
-      pixel: (x: number, y: number) => [0, 1, 2].map((c) => crudo[y * fila + 1 + x * 3 + c]),
-    };
-  }
-  const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-
-  for (const archivo of ["icon-192.png", "icon-512.png", "apple-touch-icon.png"]) {
-    it(`${archivo}: fondo del azul de acción y reloj en el color de texto sobre acción`, () => {
-      const png = leerPng(`public/${archivo}`);
-      expect(png.pixel(0, 0)).toEqual(rgb(COLORES["--color-accion"]));
-      expect(png.pixel(png.ancho - 1, png.ancho - 1)).toEqual(rgb(COLORES["--color-accion"]));
-      // un punto del aro del reloj (a 31,5 % del ancho desde el centro, a la altura del centro)
-      const centro = Math.floor(png.ancho / 2);
-      const enElAro = centro - Math.round(png.ancho * 0.315);
-      expect(png.pixel(enElAro, centro)).toEqual(rgb(COLORES["--color-sobre-accion"]));
-    });
-  }
-});
+// El ícono de la app (ahora el reloj de arena, estilo-visual.md §6b) se comprueba en tests/marcaArena.test.ts.

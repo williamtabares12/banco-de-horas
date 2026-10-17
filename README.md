@@ -1,4 +1,4 @@
-# Banco de horas
+# Arena
 
 App web personal para llevar el banco de horas con una clínica: cuántas horas se deben, cuáles se han pagado y con qué turno, y cuántas horas nocturnas y dominicales o festivas se trabajaron en cada quincena. Funciona en el computador y en el celular, sin servidor ni cuentas.
 

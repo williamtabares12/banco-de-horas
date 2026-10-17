@@ -86,7 +86,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
     return (
       <main className="aplicacion">
         <header className="encabezado">
-          <h1 className="titulo-app">Banco de horas</h1>
+          <h1 className="titulo-app">Arena</h1>
         </header>
         <PantallaError
           mensaje={estado.error}
@@ -119,7 +119,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
   return (
     <main className="aplicacion">
       <header className="encabezado">
-        <h1 className="titulo-app">Banco de horas</h1>
+        <h1 className="titulo-app">Arena</h1>
         {pendienteDeSincronizar !== undefined && <IndicadorSincronizacion pendiente={pendienteDeSincronizar} />}
         <Pestanas
           elementos={alVerAviso ? [...PESTANAS, PESTANA_ACERCA] : PESTANAS}

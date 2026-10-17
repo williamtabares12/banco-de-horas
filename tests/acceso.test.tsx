@@ -34,7 +34,7 @@ describe("Acceso: iniciar sesión", () => {
   });
   it("tiene el enlace para recuperar la contraseña y el de crear cuenta", () => {
     expect(html).toContain("¿Olvidaste tu contraseña?");
-    expect(html).toContain("¿Primera vez aquí?");
+    expect(html).toMatch(/<button[^>]*>Entrar<\/button>/); // el selector Entrar | Crear cuenta (RF-C23)
     expect(boton(html, "Crear cuenta")).not.toBe("");
   });
   it("no pide nombre ni la casilla del aviso (eso es solo al crear la cuenta)", () => {
@@ -61,12 +61,12 @@ describe("Acceso: crear cuenta", () => {
     expect(html).toMatch(/role="switch"[^>]*aria-checked="false"/);
   });
   it("sin aceptar el aviso no se puede crear la cuenta, ni con correo ni con Google", () => {
-    expect(boton(html, "Crear cuenta")).toMatch(/disabled/);
+    expect(html).toMatch(/<button[^>]*disabled[^>]*>Crear cuenta<\/button>/); // el botón de envío (la pestaña "Crear cuenta" del selector no lleva disabled)
     expect(boton(html, "Continuar con Google")).toMatch(/disabled/);
   });
   it("no ofrece recuperar la contraseña y sí volver a iniciar sesión", () => {
     expect(html).not.toContain("¿Olvidaste tu contraseña?");
-    expect(html).toContain("¿Ya tienes cuenta?");
+    expect(html).toMatch(/<button[^>]*>Entrar<\/button>/); // el selector deja volver a Entrar
   });
 });
 

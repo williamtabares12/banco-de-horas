@@ -95,7 +95,7 @@ export function Bienvenida({ aviso, hoy, parametros, alTerminar, alImportar }: P
   return (
     <main className="aplicacion">
       <header className="encabezado">
-        <h1 className="titulo-app">Banco de horas</h1>
+        <h1 className="titulo-app">Arena</h1>
       </header>
       <section className="pantalla">
         <div className="seccion">

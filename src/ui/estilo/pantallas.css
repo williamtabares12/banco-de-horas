@@ -44,6 +44,61 @@
   gap: var(--esp-12);
 }
 
+/* ---------- Acceso (login): la marca arriba y todo en una pantalla de 360 x 640 sin desplazarse ---------- */
+
+.acceso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-4);
+  padding-top: var(--esp-8);
+  padding-bottom: var(--esp-8);
+}
+
+.acceso__marca {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
+/* Más compacto que el resto de la app, para que quepa sin desplazarse en 360 x 640 (CC21) */
+.acceso .pestanas {
+  padding: 0;
+}
+
+.acceso .formulario {
+  gap: var(--esp-8);
+}
+
+.acceso__nombre {
+  font-size: var(--texto-subtitulo);
+  font-weight: var(--peso-fuerte);
+  line-height: var(--interlinea-subtitulo);
+  letter-spacing: var(--espaciado-subtitulo);
+  color: var(--color-texto);
+}
+
+.acceso__frase {
+  font-size: var(--texto-cuerpo);
+  font-weight: var(--peso-ligero);
+  line-height: var(--interlinea-cuerpo);
+  letter-spacing: var(--espaciado-cuerpo);
+  color: var(--color-texto-suave);
+}
+
+.acceso__o {
+  text-align: center;
+}
+
+.acceso__pie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+}
+
 /* ---------- Texto ---------- */
 
 .titulo-seccion {

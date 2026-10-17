@@ -175,7 +175,7 @@ function Cuenta({ usuario, alBorrarCuenta }: { usuario: Usuario; alBorrarCuenta:
     return (
       <main className="aplicacion">
         <header className="encabezado">
-          <h1 className="titulo-app">Banco de horas</h1>
+          <h1 className="titulo-app">Arena</h1>
         </header>
         <section className="pantalla">
           <Aviso tipo="error">No se pudieron leer tus datos: {estado.error}. No se ha borrado nada.</Aviso>

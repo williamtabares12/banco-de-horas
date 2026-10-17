@@ -141,7 +141,7 @@ export class Pdf {
       cuerpos.push(`<< /Length ${contenido.length} >>\nstream\n${contenido}\nendstream`);
     });
     const info = cuerpos.length + 1;
-    cuerpos.push("<< /Title (Extracto de horas) /Producer (Banco de horas) >>");
+    cuerpos.push("<< /Title (Extracto de horas) /Producer (Arena) >>");
 
     let salida = "%PDF-1.4\n";
     const posiciones: number[] = [];

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256" fill="none" role="img" aria-label="Reloj de arena">
+  <path d="M16 8H48M16 56H48" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M20 8H44C44 22 36 27 32 32C36 37 44 42 44 56H20C20 42 28 37 32 32C28 27 20 22 20 8Z" stroke="#1d1d1f" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M26.5 18H37.5C36.5 23 34 26.5 32 29C30 26.5 27.5 23 26.5 18Z" fill="#2997ff"/>
+  <path d="M32 30V45" stroke="#2997ff" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M22.5 54.5C26 53 29 49.5 32 45C35 49.5 38 53 41.5 54.5Z" fill="#2997ff"/>
+</svg>
