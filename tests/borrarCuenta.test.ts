@@ -133,7 +133,7 @@ describe.skipIf(!hostAuth || !hostFirestore)("CC6: borrar la cuenta", () => {
     await borrarCuentaConClave(ana.nube, ana.repo, CLAVE);
     expect(await documentos(`usuarios/${ana.uid}/movimientos`)).toEqual([]);
     await ana.cerrar();
-  });
+  }, 60_000); // crea, lee por páginas y borra más de mil documentos: puede pasar de los 5 s por defecto
 
   it("borrar los datos se puede repetir: si se había cortado a medias, termina el trabajo", async () => {
     const ana = await persona();
