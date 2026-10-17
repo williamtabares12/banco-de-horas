@@ -18,10 +18,10 @@ describe("entorno de Firebase (T22)", () => {
     expect(firebase.emulators.firestore.port).toBe(8080);
   });
 
-  it("Firestore apunta a un archivo de reglas que existe y que, por ahora, lo deniega todo", () => {
+  it("Firestore apunta a un archivo de reglas que existe y que nunca abre una ruta a todo el mundo", () => {
     const archivo = firebase.firestore.rules;
     expect(existsSync(join(RAIZ, archivo))).toBe(true);
-    expect(leer(archivo)).toMatch(/allow read, write: if false/);
+    expect(leer(archivo)).not.toMatch(/allow [a-z, ]+:\s*if true/);
   });
 
   it("`npm run emuladores` levanta Auth y Firestore", () => {
