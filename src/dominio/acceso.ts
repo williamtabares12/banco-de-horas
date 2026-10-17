@@ -74,3 +74,15 @@ export function errorDeRecuperacion(correo: string): string | null {
 export function debeAnularse(r: { esNuevo: boolean; aceptoAviso: boolean }): boolean {
   return r.esNuevo && !r.aceptoAviso;
 }
+
+/**
+ * Dominio con el que Firebase maneja el acceso. Debe ser el MISMO de la página: si la app se abre en
+ * `proyecto.web.app` y el acceso va por `proyecto.firebaseapp.com`, la redirección de Google cruza de
+ * sitio y Safari (y los navegadores internos, como el de WhatsApp) le niegan el sessionStorage, y el
+ * ingreso falla con "missing initial state". Solo se acepta una dirección de este proyecto.
+ */
+export function authDomainPara(host: string, proyecto: string, porDefecto: string): string {
+  const actual = host.toLowerCase();
+  const propias = [`${proyecto}.web.app`, `${proyecto}.firebaseapp.com`];
+  return propias.includes(actual) ? actual : porDefecto;
+}

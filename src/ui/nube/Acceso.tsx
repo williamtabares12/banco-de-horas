@@ -132,6 +132,9 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, alIn
             Continuar con Google
           </Boton>
         </div>
+        <p className="texto-suave">
+          Si Google no te deja entrar, abre este enlace en Safari o en Chrome en vez del navegador de WhatsApp u otra app.
+        </p>
 
         {!esRegistro && (
           <div className="acciones acciones--fila">
