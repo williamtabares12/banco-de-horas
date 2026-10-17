@@ -22,11 +22,13 @@ type Props = {
   cambiar: (fn: (d: Datos) => Datos) => void;
   /** Valida y reemplaza todos los datos con el texto de un respaldo; lanza ErrorImportacion si es inválido. */
   importarTexto: (texto: string) => void;
+  /** Solo en la versión con cuenta. */
+  alCerrarSesion?: () => void;
 };
 
 type Mensaje = { texto: string; error: boolean } | null;
 
-export function Ajustes({ datos, cambiar, importarTexto }: Props) {
+export function Ajustes({ datos, cambiar, importarTexto, alCerrarSesion }: Props) {
   return (
     <section className="pantalla">
       <FormularioConfig
@@ -54,6 +56,14 @@ export function Ajustes({ datos, cambiar, importarTexto }: Props) {
         importarTexto={importarTexto}
         alExportar={() => cambiar((d) => ({ ...d, ultimoRespaldo: hoy() }))}
       />
+      {alCerrarSesion && (
+        <section className="seccion">
+          <h2 className="titulo-seccion">Sesión</h2>
+          <div className="acciones">
+            <Boton onClick={alCerrarSesion}>Cerrar sesión</Boton>
+          </div>
+        </section>
+      )}
     </section>
   );
 }
@@ -119,7 +129,7 @@ function FormularioConfig({ config, onGuardar }: { config: Config; onGuardar: (c
 
 type EdicionPlantilla = { plantilla?: PlantillaTurno } | null;
 
-function Plantillas({
+export function Plantillas({
   plantillas,
   onCambiar,
 }: {

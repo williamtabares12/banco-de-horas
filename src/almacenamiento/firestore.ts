@@ -6,6 +6,7 @@ import {
   onSnapshot,
   persistentLocalCache,
   persistentMultipleTabManager,
+  setDoc,
   waitForPendingWrites,
   writeBatch,
   type DocumentData,
@@ -13,6 +14,8 @@ import {
   type Unsubscribe,
 } from "firebase/firestore";
 import { CONFIG_POR_DEFECTO } from "../dominio/config";
+import type { PerfilNube } from "../dominio/bienvenida";
+import type { Config, MovimientoBanco } from "../dominio/tipos";
 import { VERSION_ESQUEMA } from "./migracion";
 import type { Datos, Repositorio } from "./repositorio";
 import { leerDatos } from "./respaldo";
@@ -171,11 +174,70 @@ export class RepositorioFirestore implements Repositorio {
     };
   }
 
+  /** Deja de escuchar y olvida lo leído. Se puede volver a llamar a `iniciar()`. */
   detener() {
     this.baja.forEach((b) => b());
     this.baja = [];
     this.oyentes.clear();
     this.oyentesError.clear();
+    this.listo = null;
+    this.yaLeyo = false;
+    this.perfil = this.config = this.turnos = this.movimientos = undefined;
+  }
+
+  /** El perfil de la persona, o null si todavía no hizo el primer ingreso (entonces va la bienvenida). */
+  perfilGuardado(): PerfilNube | null {
+    const p = this.perfil?.datos;
+    if (!p || typeof p.avisoVersion !== "number") return null;
+    return {
+      correo: p.correo,
+      creadoEn: p.creadoEn,
+      avisoVersion: p.avisoVersion,
+      avisoAceptadoEn: p.avisoAceptadoEn,
+      schemaVersion: 2,
+    };
+  }
+
+  /**
+   * Primer ingreso: escribe perfil, configuración y saldo inicial en un solo lote. Si algo falla no
+   * queda nada a medias, así que la bienvenida se puede repetir. Espera al servidor: entrar con
+   * Google ya exige conexión.
+   */
+  async crearCuenta(perfil: PerfilNube, inicial: { config: Config; movimientos: MovimientoBanco[] }): Promise<void> {
+    const lote = writeBatch(this.db);
+    lote.set(doc(this.db, this.base), perfil, { merge: true });
+    lote.set(doc(this.db, `${this.base}/config/principal`), sinUndefined(inicial.config));
+    for (const m of inicial.movimientos) lote.set(doc(this.db, `${this.base}/movimientos/${m.id}`), sinUndefined(m));
+    await lote.commit();
+    // El perfil, la configuración y el saldo llegan por oyentes distintos: se espera a verlos todos,
+    // para que la app no arranque con el perfil nuevo y la configuración vieja.
+    await this.hasta(
+      () =>
+        this.perfilGuardado() !== null &&
+        canonico(this.actual.config) === canonico(inicial.config) &&
+        inicial.movimientos.every((m) => this.actual.movimientos.some((x) => x.id === m.id)),
+    );
+  }
+
+  /** Vuelve a aceptar el aviso cuando cambió de versión. Solo toca esos dos campos del perfil. */
+  async aceptarAviso(version: number, ahora: string): Promise<void> {
+    await setDoc(doc(this.db, this.base), { avisoVersion: version, avisoAceptadoEn: ahora }, { merge: true });
+    await this.hasta(() => this.perfilGuardado()?.avisoVersion === version);
+  }
+
+  /** Resuelve cuando la lectura cumple la condición (o a los 5 s: lo escrito ya está en el servidor). */
+  private hasta(condicion: () => boolean): Promise<void> {
+    return new Promise((resolve) => {
+      if (condicion()) return resolve();
+      const terminar = () => {
+        clearTimeout(plazo);
+        this.oyentes.delete(revisar);
+        resolve();
+      };
+      const revisar = () => condicion() && terminar();
+      const plazo = setTimeout(terminar, 5000);
+      this.oyentes.add(revisar);
+    });
   }
 
   /** Lo último que se leyó. Antes de `iniciar()` son datos vacíos. */

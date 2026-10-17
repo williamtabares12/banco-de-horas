@@ -32,6 +32,23 @@ describe("entorno de Firebase (T22)", () => {
     expect(paquete.devDependencies["firebase-tools"]).toBeDefined();
   });
 
+  it("Hosting publica la versión con cuenta (dist-nube), no la personal", () => {
+    expect(firebase.hosting.public).toBe("dist-nube");
+    expect(JSON.parse(leer("package.json")).scripts["build:nube"]).toMatch(/--mode nube --outDir dist-nube/);
+  });
+
+  it("la app personal no incluye Firebase: la versión con cuenta se elige al compilar con comparaciones directas", () => {
+    const main = leer("src/main.tsx");
+    expect(main).toMatch(/import\.meta\.env\.MODE === 'nube'/);
+    expect(main).not.toMatch(/\.includes\(import\.meta\.env\.MODE\)/);
+  });
+
+  it("la configuración de Firebase en el código es la pública de la app web, sin llaves privadas", () => {
+    const c = leer("src/almacenamiento/configFirebase.ts");
+    expect(c).toMatch(/projectId: "banco-horas-f6890"/);
+    expect(c).not.toMatch(/private_key|client_secret|BEGIN PRIVATE/);
+  });
+
   it("no hay llaves de cuenta de servicio ni archivos de credenciales en el repositorio", () => {
     const sospechosos: string[] = [];
     const recorrer = (c: string) => {

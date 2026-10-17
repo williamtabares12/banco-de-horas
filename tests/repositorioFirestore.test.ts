@@ -10,6 +10,7 @@ import { disableNetwork, doc, enableNetwork, getDoc, setDoc } from "firebase/fir
 import { RepositorioFirestore } from "../src/almacenamiento/firestore";
 import type { Datos } from "../src/almacenamiento/repositorio";
 import { leerDatos } from "../src/almacenamiento/respaldo";
+import { crearDatosIniciales, crearPerfil, respuestasPorDefecto } from "../src/dominio/bienvenida";
 import { CONFIG_POR_DEFECTO } from "../src/dominio/config";
 import type { MovimientoBanco } from "../src/dominio/tipos";
 
@@ -197,6 +198,86 @@ describe.skipIf(!emulador)("RepositorioFirestore", () => {
     await expect(intruso.iniciar()).rejects.toThrow();
     ana.detener();
     beto.detener();
+  });
+
+  describe("primer ingreso (plan-nube.md §5)", () => {
+    const AHORA = "2026-10-16T08:00:00";
+    const inicial = () => crearDatosIniciales({ ...respuestasPorDefecto("2026-10-01"), avisoAceptado: true, saldoMinutos: 180 }, AHORA, () => "saldo-1");
+    const perfil = () => crearPerfil("ana@correo.com", 1, AHORA);
+
+    it("una persona nueva no tiene perfil", async () => {
+      const a = await abrir();
+      expect(a.perfilGuardado()).toBeNull();
+      a.detener();
+    });
+
+    it("crear la cuenta escribe perfil, configuración y saldo inicial, y ya se puede entrar", async () => {
+      const a = await abrir();
+      await a.crearCuenta(perfil(), inicial());
+      // al volver la promesa, la app ya ve todo junto: no hay un instante con perfil pero sin configuración ni saldo
+      expect(a.perfilGuardado()).toEqual(perfil());
+      expect(a.cargar().config).toEqual(inicial().config);
+      expect(a.cargar().movimientos).toEqual(inicial().movimientos);
+      const b = await abrir(); // otro dispositivo
+      expect(b.perfilGuardado()).toEqual(perfil());
+      expect(b.cargar().config).toEqual(inicial().config);
+      expect(b.cargar().movimientos).toEqual(inicial().movimientos);
+      a.detener();
+      b.detener();
+    });
+
+    it("todo o nada: si el saldo inicial no se puede escribir, no queda ni el perfil", async () => {
+      const a = await abrir();
+      const malo = inicial();
+      malo.movimientos = [{ ...malo.movimientos[0], id: "no/vale" }];
+      await expect(a.crearCuenta(perfil(), malo)).rejects.toThrow();
+      const b = await abrir();
+      expect(b.perfilGuardado()).toBeNull();
+      expect(b.cargar().movimientos).toEqual([]);
+      a.detener();
+      b.detener();
+    });
+
+    it("se puede detener y volver a iniciar (React monta los efectos dos veces en desarrollo)", async () => {
+      const a = await abrir();
+      await a.crearCuenta(perfil(), inicial());
+      a.detener();
+      await a.iniciar();
+      expect(a.perfilGuardado()).toEqual(perfil());
+      // y vuelve a escuchar: lo que guarda otro dispositivo le llega
+      const b = await abrir();
+      b.guardar({ ...b.cargar(), movimientos: [...b.cargar().movimientos, { ...inicial().movimientos[0], id: "otro", minutos: 60 }] });
+      await hasta(() => a.cargar().movimientos.length === 2);
+      a.detener();
+      b.detener();
+    });
+
+    it("aceptar una versión nueva del aviso cambia solo el perfil: no toca configuración, turnos ni saldo", async () => {
+      const a = await abrir();
+      await a.crearCuenta(perfil(), inicial());
+      a.guardar(copia());
+      await a.esperarEscrituras();
+      const antes = a.cargar();
+      await a.aceptarAviso(2, "2026-11-01T09:00:00");
+      expect(a.perfilGuardado()).toEqual({ ...perfil(), avisoVersion: 2, avisoAceptadoEn: "2026-11-01T09:00:00" });
+      const b = await abrir();
+      expect(b.cargar()).toEqual(antes);
+      expect(b.perfilGuardado()?.creadoEn).toBe(AHORA);
+      a.detener();
+      b.detener();
+    });
+
+    it("guardar después no pisa el perfil", async () => {
+      const a = await abrir();
+      await a.crearCuenta(perfil(), inicial());
+      await hasta(() => a.perfilGuardado() !== null);
+      a.guardar({ ...a.cargar(), ultimoRespaldo: "2026-10-16" });
+      await a.esperarEscrituras();
+      const b = await abrir();
+      expect(b.perfilGuardado()).toEqual(perfil());
+      a.detener();
+      b.detener();
+    });
   });
 
   it("un documento dañado en la nube da error, no datos inventados", async () => {

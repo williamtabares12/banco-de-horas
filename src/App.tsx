@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import { RepositorioLocal } from "./almacenamiento/local";
-import type { Datos } from "./almacenamiento/repositorio";
+import type { Datos, Repositorio } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { Aviso } from "./ui/componentes/Aviso";
@@ -15,7 +15,8 @@ import { Inicio } from "./ui/pantallas/Inicio";
 import { Quincena } from "./ui/pantallas/Quincena";
 import { Turnos } from "./ui/pantallas/Turnos";
 
-const repo = new RepositorioLocal(localStorage);
+// La app personal guarda en este dispositivo. La versión con cuenta le pasa su propio repositorio.
+const repoLocal = new RepositorioLocal(localStorage);
 
 // Vista de componentes: solo en desarrollo (npm run dev, dirección /#componentes). No entra en el build publicado.
 const Galeria = import.meta.env.DEV ? lazy(() => import("./ui/Galeria")) : null;
@@ -32,7 +33,7 @@ const PESTANAS: { id: Pestana; nombre: string }[] = [
 
 type Estado = { datos: Datos } | { error: string };
 
-function cargarInicial(): Estado {
+function cargarInicial(repo: Repositorio): Estado {
   try {
     return { datos: repo.cargar() };
   } catch (err) {
@@ -40,8 +41,14 @@ function cargarInicial(): Estado {
   }
 }
 
-export default function App() {
-  const [estado, setEstado] = useState<Estado>(cargarInicial);
+type Props = {
+  repo?: Repositorio;
+  /** Solo con cuenta: muestra el botón de cerrar sesión en Ajustes. */
+  alCerrarSesion?: () => void;
+};
+
+export default function App({ repo = repoLocal, alCerrarSesion }: Props) {
+  const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
   const [pestana, setPestana] = useState<Pestana>("inicio");
   const [abrirTurnoNuevo, setAbrirTurnoNuevo] = useState(false);
   const [fallaGuardado, setFallaGuardado] = useState(false);
@@ -126,6 +133,7 @@ export default function App() {
         <Ajustes
           datos={datos}
           cambiar={cambiar}
+          alCerrarSesion={alCerrarSesion}
           importarTexto={(texto) => {
             importar(repo, texto);
             setEstado({ datos: repo.cargar() });
