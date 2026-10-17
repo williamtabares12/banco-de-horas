@@ -122,6 +122,30 @@ Firebase Hosting, con el sitio de Bitácora AIDA aparte. La PWA (T11) se activa 
 
 Dirección de la app: `arena-horas.web.app`, un segundo sitio de Hosting del mismo proyecto (`arena.web.app` ya lo tiene otro proyecto; se eligió `arena-horas` el 17 de octubre de 2026). El sitio original, `banco-horas-f6890.web.app`, sigue existiendo y `firebase.json` publica solo en `arena-horas`. Cada dirección nueva exige tres pasos: agregarla a los dominios autorizados de Firebase Authentication, y en Google Cloud autorizar su origen y su `/__/auth/handler` (ver las lecciones de la sección 4).
 
+## 9b. Compatibilidad iPhone y Android (T36)
+
+Aquí va cómo se cumplen RF-C19 a RF-C22 de spec-companeros.md. Nada se da por bueno si solo se probó en uno de los dos sistemas.
+
+**Botón atrás (RF-C21).** Se usa la API de historial del navegador (`history.pushState` y el evento `popstate`), que es lo que responden el botón y el gesto de atrás de Android y el gesto de borde de Safari en iPhone. Lo que se puede cerrar o retroceder se llama capa:
+- Capas de encima: un diálogo de confirmación, la hoja del aviso de privacidad, el formulario de turno o de movimiento, y la pantalla de revisión de un turno.
+- Capas de pantalla: la pestaña en la que estás.
+
+Regla: al abrir una capa se agrega una entrada al historial; al tocar atrás se cierra primero la capa de más arriba; si no hay ninguna, se vuelve a la pestaña anterior; y desde Inicio, sin nada abierto, no queda entrada anterior y el navegador sale de la app. Si una capa se cierra con la interfaz (por ejemplo, el botón Cancelar), se quita también su entrada del historial para que un "atrás" posterior no haga nada raro. La lógica de la pila es pura (`src/dominio/navegacion.ts`) y se prueba sin navegador; el pegamento con el historial se prueba con un historial falso. La prueba real es en un Android y en un iPhone.
+
+**Instalar la app (RF-C19).** En Android (Chrome y otros basados en Chromium) se captura el evento `beforeinstallprompt`, se guarda, y el botón "Instalar app" lo lanza; el evento `appinstalled` lo oculta. En iPhone no existe esa API: en Safari, si la app no está instalada, se muestra una guía de tres pasos (Compartir, Añadir a pantalla de inicio, Añadir). Todo se oculta si la app ya está instalada (`display-mode: standalone` o `navigator.standalone`). Se muestra en una sección de Ajustes y como aviso que se puede descartar en Inicio; el descarte se recuerda en este dispositivo.
+
+**Navegadores dentro de otras apps (RF-C20).** Google no deja iniciar sesión desde el navegador interno de WhatsApp, Instagram, Facebook y similares. No existe una forma oficial de detectarlos, así que es una heurística sobre el `userAgent` (función pura `esNavegadorEmbebido`): marcas conocidas (Facebook, Instagram, Line, Snapchat, TikTok, WeChat, WhatsApp), Android WebView (`; wv)`) y, en iPhone, un navegador basado en WebKit sin la marca de Safari, Chrome ni Firefox. Si se detecta, la pantalla de acceso avisa "Ábrela en Chrome o Safari" y ofrece "Copiar enlace". Reemplaza al texto fijo que hoy acompaña al botón de Google. Es una ayuda, no un bloqueo: el aviso no impide intentar.
+
+**Hora en 24 horas (RF-C22).** El campo de hora del teléfono puede mostrarse con a. m. y p. m., pero su valor siempre es `HH:mm` en 24 horas. Bajo los campos de hora del turno se escribe una línea "En 24 horas: 07:00 a 19:00" calculada de esos valores, y la pantalla de revisión antes de guardar ya los muestra así.
+
+**Campos del teclado.** Correo: `type="email"`, `autocomplete="email"`, sin mayúscula automática ni corrector. Contraseña: `current-password` al entrar y `new-password` al crear. Nombre: `given-name`. Horas: `inputmode="decimal"`. Minutos: `inputmode="numeric"`.
+
+**Estado presionado propio.** Se quita el resaltado de toque del navegador (`-webkit-tap-highlight-color: transparent`) y cada elemento tocable (botones, enlaces, pestañas, interruptores y filas) baja su opacidad mientras se presiona, igual en iPhone y Android. El efecto de pasar el cursor solo se aplica donde existe un cursor (`@media (hover: hover)`).
+
+**Pruebas.** Automáticas: la pila de navegación, el historial falso, la detección de navegadores embebidos, la línea de 24 horas y las reglas de estilo. Manuales: un iPhone y un Android reales, con Chrome y con Samsung Internet en Android, y Chrome con la CPU limitada para simular un teléfono de gama baja.
+
+**Fuera de T36, aún pendiente del estilo nuevo (T18 ampliada):** Inter incluida en la app, tamaños en `rem`, y márgenes con `env(safe-area-inset-*)`.
+
 ## 10. Pruebas
 
 | Criterio | Dónde |
