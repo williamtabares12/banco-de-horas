@@ -192,11 +192,15 @@ export function validarConfig(v: unknown): Config {
     });
   const minutosSemana = entero(o, "minutosSemana", donde);
   if (minutosSemana <= 0) throw new ErrorImportacion(`${donde}: "minutosSemana" debe ser mayor que 0`);
+  // Las configuraciones guardadas antes de T39 no traen este campo: sin él la semana empieza el domingo
+  const primerDia = o.inicioSemana === undefined ? 0 : o.inicioSemana;
+  if (primerDia !== 0 && primerDia !== 1) throw new ErrorImportacion(`${donde}: "inicioSemana" debe ser 0 (domingo) o 1 (lunes)`);
   const desfase = entero(o, "desfaseQuincenas", donde);
   if (desfase !== 0 && desfase !== 1) throw new ErrorImportacion(`${donde}: "desfaseQuincenas" debe ser 0 o 1`);
 
   return {
     minutosSemana,
+    inicioSemana: primerDia,
     nocturnoDesde: texto(o, "nocturnoDesde", donde, HORA),
     nocturnoHasta: texto(o, "nocturnoHasta", donde, HORA),
     desfaseQuincenas: desfase,

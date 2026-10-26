@@ -71,6 +71,7 @@ type MovimientoBanco = {
 
 type Config = {
   minutosSemana: number           // 42 * 60
+  inicioSemana: 0 | 1             // 0 = domingo (por defecto), 1 = lunes
   nocturnoDesde: string           // "19:00"
   nocturnoHasta: string           // "06:00"
   desfaseQuincenas: 0 | 1         // 1
@@ -125,7 +126,7 @@ Si Alejandro edita un movimiento automático, `automatico` pasa a false y editar
 
 Pago por capacitación o reunión. Es un `MovimientoBanco` de tipo "pago" con `motivo: "capacitacion_reunion"`, sin `turnoId`, y `automatico: false`. No pasa por `segmentar.ts` ni `semana.ts`, así que no cuenta como categoría ni como horas de la semana. El campo `motivo` es opcional, por eso los datos viejos funcionan sin migración. El extracto muestra una etiqueta según el motivo.
 
-Semana (`semana.ts`). De lunes a domingo. Minutos de la semana = suma de minutosProgramados de los turnos ordinarios + minutos netos de los de alquiler con destino "semana". Los ordinarios cuentan lo programado porque las horas prestadas cuentan como cumplidas (confirmado).
+Semana (`semana.ts`). De domingo a sábado (parámetro `inicioSemana`, 0 = domingo). Un turno cuenta en la semana de su fecha de inicio. Minutos de la semana = suma de minutosProgramados de los turnos ordinarios + minutos netos de los de alquiler con destino "semana". Los ordinarios cuentan lo programado porque las horas prestadas cuentan como cumplidas (confirmado).
 
 ## 5. Pantallas
 

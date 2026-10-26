@@ -1,6 +1,6 @@
 # Spec: App de banco de horas
 
-Estado: borrador v0.9. Estilo visual nuevo (estilo-visual.md). Sin parte monetaria. Incluye los descansos (alimentación) que la clínica descuenta de cada turno y el pago de horas por capacitaciones o reuniones. Plan técnico en plan.md, tareas en tasks.md.
+Estado: borrador v0.10 (semana de domingo a sábado). Estilo visual nuevo (estilo-visual.md). Sin parte monetaria. Incluye los descansos (alimentación) que la clínica descuenta de cada turno y el pago de horas por capacitaciones o reuniones. Plan técnico en plan.md, tareas en tasks.md.
 
 ## 1. Problema
 
@@ -94,7 +94,7 @@ RF7. Historial de turnos y movimientos, editable y borrable. Cada registro guard
 
 RF8. Extracto de horas: una vista imprimible (guardable como PDF) con el saldo inicial, cada movimiento con fecha y nota, y el saldo después de cada uno.
 
-RF9. Configuración: horas semanales (42), inicio de jornada nocturna (19:00), desfase de pago de recargos (por defecto 1 quincena), interruptor de extras, festivos a agregar o quitar.
+RF9. Configuración: horas semanales (42), primer día de la semana (domingo), inicio de jornada nocturna (19:00), desfase de pago de recargos (por defecto 1 quincena), interruptor de extras, festivos a agregar o quitar.
 
 RF10. Festivos de Colombia calculados por código (ley Emiliani y Semana Santa), con opción de agregar o quitar fechas a mano.
 
@@ -111,12 +111,12 @@ RF14. Al registrar un pago en Banco, elegir el motivo: "Capacitación o reunión
 - Todo se mide en minutos enteros y se muestra en horas y minutos.
 - Cada minuto se clasifica por su fecha calendario y su hora. Domingo y festivo cuentan por la fecha en que cae el minuto. Confirmado: un turno de domingo a lunes cuenta como dominical nocturna hasta la medianoche y como nocturna ordinaria después.
 - El descanso se resta de los minutos de la categoría con más minutos en el turno, sin bajar de cero.
-- Semana de lunes a domingo, configurable. Horas de la semana = programadas netas de turnos ordinarios + netas de turnos de alquiler con destino "completar semana". Las horas prestadas cuentan como cumplidas (confirmado).
+- Semana de domingo a sábado (confirmado el 26 de octubre de 2026; antes se contaba de lunes a domingo por error). El primer día es configurable (`inicioSemana`, por defecto domingo). Un turno cuenta en la semana de su fecha de inicio, aunque termine en la semana siguiente. Horas de la semana = programadas netas de turnos ordinarios + netas de turnos de alquiler con destino "completar semana". Las horas prestadas cuentan como cumplidas (confirmado).
 - Cada fracción de hora cuenta en la quincena de la fecha en que se trabajó. Se cobra en la colilla de la quincena siguiente.
 
 ## 10. Requisitos no funcionales
 
-- Funciona en el navegador del computador y del celular, sin internet una vez cargada.
+- Funciona en el navegador del computador y del celular (Safari en iPhone; Chrome y Samsung Internet en Android), sin internet una vez cargada.
 - Datos guardados en el dispositivo. Sin servidor.
 - No guarda datos personales ni de pacientes: solo horas, fechas y notas que Alejandro escriba.
 - Se ejecuta en local con `npm run dev`, sin hosting de pago.
@@ -157,6 +157,10 @@ CA14. Con saldo de 33 h, un pago por capacitación de 2 h deja el saldo en 31 h 
 
 CA15. Un pago por capacitación o reunión no cambia las horas por categoría de ninguna quincena ni el avance de la semana, aunque su fecha sea domingo o festivo.
 
+CA22. Con la semana de domingo a sábado, un turno de alquiler del domingo 4 de octubre de 2026 con destino "completar semana" suma a la semana del 4 al 10 de octubre y no a la del 27 de septiembre al 3 de octubre. Un turno del sábado 3 de octubre de 19:00 a domingo 4 de octubre a las 07:00 cuenta completo en la semana del 27 de septiembre al 3 de octubre.
+
+CA23. Con `inicioSemana` en lunes, el turno de alquiler del domingo 4 de octubre suma a la semana del 28 de septiembre al 4 de octubre. Cambiar el parámetro no modifica el saldo ni los movimientos.
+
 ## 13. Preguntas abiertas
 
 1. Confirmar con la coordinadora si la hora extra seguirá compensándose en banco.
@@ -167,6 +171,7 @@ CA15. Un pago por capacitación o reunión no cambia las horas por categoría de
 6. Turnos de otras duraciones (6, 4, 10 h): sin descanso hasta que Alejandro cree una plantilla.
 7. Las horas de capacitación o reunión, ¿cuentan para las 42 semanales? Por ahora no.
 8. Si una capacitación o reunión cae de noche o en domingo, ¿la clínica la cuenta como recargo? Por ahora no se cuenta como categoría.
+10. Un turno que cruza de sábado a domingo (por ejemplo una noche), ¿la clínica lo cuenta en la semana donde empieza? Por ahora sí, entero en la semana del sábado. Se verifica contra una semana real.
 9. Avisos y errores sin color rojo, solo con texto y una palabra delante ("Aviso", "Error"). Si Alejandro prefiere un rojo para errores, se agrega un color a estilo-visual.md.
 
 ## 14. Estilo visual

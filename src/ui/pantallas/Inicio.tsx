@@ -1,6 +1,7 @@
 import type { Datos } from "../../almacenamiento/repositorio";
 import { necesitaRespaldo } from "../../almacenamiento/respaldo";
 import { cantidadProgramados, esProgramado, saldoActual, saldoCorto, saldoProyectado, textoDeSaldo, totales } from "../../dominio/banco";
+import { reglasDeConfig, reglasVigentes, type ReglasGlobales } from "../../dominio/reglas";
 import { minutosDeSemana } from "../../dominio/semana";
 import { formatearDuracion } from "../../dominio/tiempo";
 import type { ReactNode } from "react";
@@ -14,18 +15,21 @@ type Props = {
   datos: Datos;
   alRegistrar: () => void;
   alIrARespaldo: () => void;
+  /** Reglas de la clínica (nube): de ahí sale el primer día de la semana. Sin ellas, el de la configuración personal. */
+  reglas?: ReglasGlobales;
   /** Aviso para instalar la app (si corresponde y no se descartó). */
   instalar?: ReactNode;
 };
 
-export function Inicio({ datos, alRegistrar, alIrARespaldo, instalar }: Props) {
+export function Inicio({ datos, reglas, alRegistrar, alIrARespaldo, instalar }: Props) {
   const dia = hoy();
   // Lo programado (con fecha futura) todavía no cuenta: ni en el saldo actual ni en lo prestado y pagado.
   const vigentes = datos.movimientos.filter((m) => !esProgramado(m, dia));
   const { prestado, pagado } = totales(vigentes);
   const saldo = textoDeSaldo(saldoActual(datos.movimientos, dia));
   const programados = cantidadProgramados(datos.movimientos, dia);
-  const semana = minutosDeSemana(datos.turnos, dia);
+  const primerDia = reglasVigentes(reglas ?? reglasDeConfig(datos.config), dia).inicioSemana;
+  const semana = minutosDeSemana(datos.turnos, dia, primerDia);
   const meta = datos.config.minutosSemana;
 
   return (

@@ -25,9 +25,12 @@ export function diaSemana(fecha: string): number {
   return new Date(aUtc(fecha)).getUTCDay();
 }
 
-/** Lunes de la semana que contiene la fecha (semana lunes-domingo). */
-export function inicioSemana(fecha: string): string {
-  const atras = (diaSemana(fecha) + 6) % 7;
+/**
+ * Primer día de la semana que contiene la fecha. `primerDia` es 0 (domingo, por defecto: la semana va de
+ * domingo a sábado) o 1 (lunes, de lunes a domingo).
+ */
+export function inicioSemana(fecha: string, primerDia: 0 | 1 = 0): string {
+  const atras = (diaSemana(fecha) - primerDia + 7) % 7;
   return sumarDias(fecha, -atras);
 }
 

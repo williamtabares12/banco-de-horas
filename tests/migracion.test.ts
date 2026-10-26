@@ -77,12 +77,12 @@ describe("CA13: migración del formato 1 al 2", () => {
 
   it("conserva el resto de la configuración y la fecha del último respaldo", () => {
     const { plantillas: _p, ...resto } = migrado.config;
-    expect(resto).toEqual(original.config);
+    expect(resto).toEqual({ ...original.config, inicioSemana: 0 }); // lo único nuevo: la semana de domingo a sábado
     expect(migrado.ultimoRespaldo).toBe("2026-10-03");
   });
 
-  it("pasa a schemaVersion 2 y deja de usar el campo viejo", () => {
-    expect(migrado.schemaVersion).toBe(2);
+  it("pasa al schemaVersion actual (3) y deja de usar el campo viejo", () => {
+    expect(migrado.schemaVersion).toBe(3);
     expect(migrado).not.toHaveProperty("version");
   });
 
@@ -106,7 +106,7 @@ describe("RepositorioLocal con datos guardados en el formato 1", () => {
   it("cargar devuelve los datos migrados", () => {
     const repo = new RepositorioLocal(almacenFalso({ [CLAVE_DATOS]: FORMATO_1 }));
     const datos = repo.cargar();
-    expect(datos.schemaVersion).toBe(2);
+    expect(datos.schemaVersion).toBe(3);
     expect(datos.movimientos).toEqual(original.movimientos);
   });
 
@@ -127,7 +127,7 @@ describe("RepositorioLocal con datos guardados en el formato 1", () => {
     const repo = new RepositorioLocal(almacen);
     repo.guardar(repo.cargar());
     const guardado = JSON.parse(almacen.mapa.get(CLAVE_DATOS)!);
-    expect(guardado.schemaVersion).toBe(2);
+    expect(guardado.schemaVersion).toBe(3);
     expect(guardado.movimientos).toEqual(original.movimientos);
     expect(new RepositorioLocal(almacen).cargar().movimientos).toEqual(original.movimientos);
     expect(almacen.mapa.get(CLAVE_COPIA_FORMATO_1)).toBe(FORMATO_1);
@@ -177,7 +177,7 @@ describe("versiones desconocidas", () => {
 
   it("un archivo de una versión más nueva se rechaza con un mensaje claro", () => {
     const d = nuevo();
-    d.schemaVersion = 3;
+    d.schemaVersion = 4;
     expect(() => importarJSON(JSON.stringify(d))).toThrow(/versi/i);
   });
   it("un archivo sin ninguna versión se rechaza", () => {

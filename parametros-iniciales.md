@@ -13,6 +13,7 @@ Documento de Firestore: colección `configuracion`, documento `parametros`. Lo l
       "nocturnoDesde": "19:00",
       "nocturnoHasta": "06:00",
       "minutosSemana": 2520,
+      "inicioSemana": 0,
       "desfaseQuincenas": 1,
       "extrasDescuentanDeuda": true
     }
@@ -41,8 +42,8 @@ No edites una regla vieja. Agrega una nueva con su fecha de inicio, para que los
 
 ```json
 "reglas": {
-  "2026-01-01": { "nocturnoDesde": "19:00", "nocturnoHasta": "06:00", "minutosSemana": 2520, "desfaseQuincenas": 1, "extrasDescuentanDeuda": true },
-  "2027-01-01": { "nocturnoDesde": "21:00", "nocturnoHasta": "06:00", "minutosSemana": 2520, "desfaseQuincenas": 1, "extrasDescuentanDeuda": true }
+  "2026-01-01": { "nocturnoDesde": "19:00", "nocturnoHasta": "06:00", "minutosSemana": 2520, "inicioSemana": 0, "desfaseQuincenas": 1, "extrasDescuentanDeuda": true },
+  "2027-01-01": { "nocturnoDesde": "21:00", "nocturnoHasta": "06:00", "minutosSemana": 2520, "inicioSemana": 0, "desfaseQuincenas": 1, "extrasDescuentanDeuda": true }
 }
 ```
 
@@ -53,7 +54,7 @@ Solo se corrige una regla vieja si tiene un error de tipeo.
 1. Firebase Console, tu proyecto, Firestore Database, pestaña Datos.
 2. Iniciar colección: `configuracion`. ID del documento: `parametros`.
 3. Campos de primer nivel: `version` (number), `avisoVersion` (number), `reglas` (map), `festivosAgregados` (array vacío), `festivosQuitados` (array vacío), `plantillasPorDefecto` (map).
-4. Dentro de `reglas`: un campo `2026-01-01` de tipo map, con `nocturnoDesde` (string), `nocturnoHasta` (string), `minutosSemana` (number), `desfaseQuincenas` (number) y `extrasDescuentanDeuda` (boolean).
+4. Dentro de `reglas`: un campo `2026-01-01` de tipo map, con `nocturnoDesde` (string), `nocturnoHasta` (string), `minutosSemana` (number), `inicioSemana` (number, 0 = domingo), `desfaseQuincenas` (number) y `extrasDescuentanDeuda` (boolean).
 5. Dentro de `plantillasPorDefecto`: tres campos de tipo map (`dia8`, `dia12`, `noche12`), cada uno con `nombre`, `inicio`, `fin` (string) y `descansoMin` (number).
 
 Los tipos importan: un `minutosSemana` guardado como texto hace que la app lo rechace con un aviso y use sus reglas incluidas.

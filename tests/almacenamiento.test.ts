@@ -18,7 +18,7 @@ const AHORA = "2026-09-20T10:00:00";
 
 function datosEjemplo(): Datos {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     config: { ...CONFIG_POR_DEFECTO, festivosAgregados: ["2026-10-13"] },
     turnos: [
       {
@@ -72,7 +72,7 @@ function datosEjemplo(): Datos {
 describe("RepositorioLocal", () => {
   it("sin datos guardados devuelve datos vacíos con la configuración por defecto", () => {
     const repo = new RepositorioLocal(almacenFalso());
-    expect(repo.cargar()).toEqual({ schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+    expect(repo.cargar()).toEqual({ schemaVersion: 3, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
   });
 
   it("guarda y lee los mismos datos", () => {
@@ -102,7 +102,7 @@ describe("exportar e importar JSON", () => {
 
   it("el JSON exportado es texto legible con la versión", () => {
     const parsed = JSON.parse(exportarJSON(datosEjemplo()));
-    expect(parsed.schemaVersion).toBe(2);
+    expect(parsed.schemaVersion).toBe(3);
     expect(parsed.turnos).toHaveLength(2);
   });
 
@@ -167,7 +167,7 @@ describe("importar archivo inválido", () => {
 
   it("un archivo válido reemplaza los datos actuales", () => {
     const repo = new RepositorioLocal(almacenFalso());
-    repo.guardar({ schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+    repo.guardar({ schemaVersion: 3, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
     importar(repo, exportarJSON(datosEjemplo()));
     expect(repo.cargar()).toEqual(datosEjemplo());
   });

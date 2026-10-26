@@ -11,6 +11,7 @@
                 "nocturnoDesde": { "stringValue": "19:00" },
                 "nocturnoHasta": { "stringValue": "06:00" },
                 "minutosSemana": { "integerValue": "2520" },
+                "inicioSemana": { "integerValue": "0" },
                 "desfaseQuincenas": { "integerValue": "1" },
                 "extrasDescuentanDeuda": { "booleanValue": true }
               }

@@ -6,7 +6,7 @@ import { CONFIG_POR_DEFECTO } from "../src/dominio/config";
 const HOY = "2026-10-13";
 
 function datos(parcial: Partial<Datos> = {}): Datos {
-  return { schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [], ...parcial };
+  return { schemaVersion: 3, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [], ...parcial };
 }
 
 /** Datos con un movimiento creado en `creadoEn`. */

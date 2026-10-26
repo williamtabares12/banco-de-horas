@@ -62,6 +62,7 @@ describe("reglas por defecto", () => {
         nocturnoDesde: "19:00",
         nocturnoHasta: "06:00",
         minutosSemana: 2520,
+        inicioSemana: 0,
         desfaseQuincenas: 1,
         extrasDescuentanDeuda: true,
       },
@@ -174,11 +175,11 @@ describe("meta semanal versionada", () => {
   it("sin reglas, la meta es la de las reglas por defecto (42 h)", () => {
     expect(metaSemana("2026-10-15")).toBe(2520);
   });
-  it("se busca con el lunes de esa semana: una regla que arranca a mitad de semana empieza a regir la semana siguiente", () => {
+  it("se busca con el domingo de esa semana: una regla que arranca a mitad de semana empieza a regir la semana siguiente", () => {
     expect(metaSemana("2026-10-19", reglas)).toBe(2520); // lunes
     expect(metaSemana("2026-10-21", reglas)).toBe(2520); // el miércoles del cambio: la semana empezó antes
-    expect(metaSemana("2026-10-25", reglas)).toBe(2520); // domingo de esa semana
-    expect(metaSemana("2026-10-26", reglas)).toBe(2400); // lunes siguiente
+    expect(metaSemana("2026-10-24", reglas)).toBe(2520); // sábado de esa semana
+    expect(metaSemana("2026-10-25", reglas)).toBe(2400); // domingo siguiente
   });
 });
 

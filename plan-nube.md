@@ -90,7 +90,7 @@ Contenido:
 
 - `version`: número que sube cada vez que se edita.
 - `avisoVersion`: versión vigente del aviso de privacidad. Si sube, la app pide aceptar de nuevo.
-- `reglas`: mapa cuya clave es la fecha desde la que rige la regla y cuyo valor trae `nocturnoDesde`, `nocturnoHasta`, `minutosSemana`, `desfaseQuincenas` y `extrasDescuentanDeuda`. Son mapas y no arreglos porque la consola de Firebase los edita más fácil.
+- `reglas`: mapa cuya clave es la fecha desde la que rige la regla y cuyo valor trae `nocturnoDesde`, `nocturnoHasta`, `minutosSemana`, `inicioSemana`, `desfaseQuincenas` y `extrasDescuentanDeuda`. Son mapas y no arreglos porque la consola de Firebase los edita más fácil.
 - `festivosAgregados` y `festivosQuitados`: fechas que se suman o se restan a los festivos calculados por código.
 - `plantillasPorDefecto`: mapa de plantillas que se copian a una persona nueva en su primer ingreso. Cambiar el documento no cambia las plantillas de quienes ya se registraron.
 

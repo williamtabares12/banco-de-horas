@@ -64,16 +64,16 @@ describe("minutosDeSemana", () => {
     expect(minutosDeSemana([alquiler], "2026-09-14")).toBe(0);
   });
 
-  it("la semana arranca en lunes: el lunes entra y el domingo anterior no", () => {
+  it("la semana arranca en domingo: el domingo entra y el sábado anterior no", () => {
+    const sabado = turno({ inicio: "2026-09-12T07:00", fin: "2026-09-12T15:00" });
     const domingo = turno({ inicio: "2026-09-13T07:00", fin: "2026-09-13T15:00" });
-    const lunes = turno({ inicio: "2026-09-14T07:00", fin: "2026-09-14T15:00" });
-    expect(minutosDeSemana([domingo, lunes], "2026-09-16")).toBe(8 * H);
+    expect(minutosDeSemana([sabado, domingo], "2026-09-16")).toBe(8 * H);
   });
 
-  it("el domingo cierra la semana: entra en la semana que termina ese día", () => {
-    const domingo = turno({ inicio: "2026-09-20T07:00", fin: "2026-09-20T15:00" });
-    expect(minutosDeSemana([domingo], "2026-09-14")).toBe(8 * H);
-    expect(minutosDeSemana([domingo], "2026-09-21")).toBe(0);
+  it("el sábado cierra la semana: entra en la semana que termina ese día", () => {
+    const sabado = turno({ inicio: "2026-09-19T07:00", fin: "2026-09-19T15:00" });
+    expect(minutosDeSemana([sabado], "2026-09-14")).toBe(8 * H);
+    expect(minutosDeSemana([sabado], "2026-09-21")).toBe(0);
   });
 
   it("ignora turnos de otras semanas", () => {
@@ -82,8 +82,8 @@ describe("minutosDeSemana", () => {
     expect(minutosDeSemana([otra, esta], "2026-09-18")).toBe(8 * H);
   });
 
-  it("un turno que cruza de domingo a lunes cuenta en la semana donde empieza", () => {
-    const cruza = turno({ inicio: "2026-09-13T19:00", fin: "2026-09-14T03:00" });
+  it("un turno que cruza de sábado a domingo cuenta en la semana donde empieza", () => {
+    const cruza = turno({ inicio: "2026-09-12T19:00", fin: "2026-09-13T03:00" });
     expect(minutosDeSemana([cruza], "2026-09-10")).toBe(8 * H);
     expect(minutosDeSemana([cruza], "2026-09-15")).toBe(0);
   });

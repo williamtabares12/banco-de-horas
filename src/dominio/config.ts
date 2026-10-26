@@ -14,6 +14,7 @@ export const PLANTILLAS_POR_DEFECTO: readonly PlantillaTurno[] = copiarPlantilla
 /** Valores iniciales. Alejandro los puede cambiar en Ajustes. */
 export const CONFIG_POR_DEFECTO: Config = {
   minutosSemana: 42 * 60,
+  inicioSemana: 0,
   nocturnoDesde: "19:00",
   nocturnoHasta: "06:00",
   desfaseQuincenas: 1,

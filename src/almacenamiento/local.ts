@@ -1,5 +1,5 @@
 import { CONFIG_POR_DEFECTO } from "../dominio/config";
-import { VERSION_ESQUEMA } from "./migracion";
+import { esFormato1, VERSION_ESQUEMA } from "./migracion";
 import type { Datos, Repositorio } from "./repositorio";
 import { leerDatos } from "./respaldo";
 
@@ -25,7 +25,8 @@ export class RepositorioLocal implements Repositorio {
     // Se valida igual que una importación: si está dañado, no se inventan datos vacíos.
     // Leer NO reescribe lo guardado: el original sigue igual hasta el primer guardar().
     const { datos, migrado } = leerDatos(texto);
-    if (migrado && this.almacen.getItem(CLAVE_COPIA_FORMATO_1) === null) {
+    // Solo el formato 1 cambia datos; pasar del 2 al 3 apenas agrega un campo, sin riesgo de perder nada
+    if (migrado && esFormato1(JSON.parse(texto)) && this.almacen.getItem(CLAVE_COPIA_FORMATO_1) === null) {
       try {
         this.almacen.setItem(CLAVE_COPIA_FORMATO_1, texto);
       } catch {

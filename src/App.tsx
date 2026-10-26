@@ -125,7 +125,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
             setEstado({ datos: repo.cargar() });
           }}
           alEmpezarDeCero={() => {
-            repo.guardar({ schemaVersion: 2, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
+            repo.guardar({ schemaVersion: 3, config: CONFIG_POR_DEFECTO, turnos: [], movimientos: [] });
             setEstado({ datos: repo.cargar() });
           }}
         />
@@ -175,6 +175,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
       {pestana === "inicio" && (
         <Inicio
           datos={datos}
+          reglas={calculo!.reglas}
           instalar={descartada ? undefined : <InstalarApp opcion={instalacion.opcion} alInstalar={instalacion.instalar} alDescartar={descartarInstalacion} />}
           alRegistrar={() => {
             setAbrirTurnoNuevo(true);

@@ -75,10 +75,14 @@ function leerRegla(v: unknown, desde: string): ReglaGlobal {
   const desfase = v.desfaseQuincenas;
   if (desfase !== 0 && desfase !== 1) falla(`${donde}desfaseQuincenas`, "debe ser 0 o 1");
   if (typeof v.extrasDescuentanDeuda !== "boolean") falla(`${donde}extrasDescuentanDeuda`, "debe ser verdadero o falso");
+  // El documento publicado antes de T39 no trae este campo: sin él la semana empieza el domingo (valor por defecto del spec)
+  const primerDia = v.inicioSemana === undefined ? 0 : v.inicioSemana;
+  if (primerDia !== 0 && primerDia !== 1) falla(`${donde}inicioSemana`, "debe ser 0 (domingo) o 1 (lunes)");
   return {
     nocturnoDesde: hora(v, "nocturnoDesde", donde),
     nocturnoHasta: hora(v, "nocturnoHasta", donde),
     minutosSemana: entero(v, "minutosSemana", donde, 1, MINUTOS_SEMANA_MAX),
+    inicioSemana: primerDia,
     desfaseQuincenas: desfase,
     extrasDescuentanDeuda: v.extrasDescuentanDeuda,
   };
@@ -140,6 +144,7 @@ export const PARAMETROS_INCLUIDOS: Parametros = {
       nocturnoDesde: "19:00",
       nocturnoHasta: "06:00",
       minutosSemana: 2520,
+      inicioSemana: 0,
       desfaseQuincenas: 1,
       extrasDescuentanDeuda: true,
     },

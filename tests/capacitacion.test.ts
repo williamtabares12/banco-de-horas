@@ -56,7 +56,7 @@ describe("RF14: los datos que ya estaban guardados siguen funcionando", () => {
 
   it("los turnos, la configuración y el respaldo se conservan", () => {
     expect(datos.turnos).toEqual(original.turnos);
-    expect(datos.config).toEqual(original.config);
+    expect(datos.config).toEqual({ ...original.config, inicioSemana: 0 }); // lo único nuevo: la semana de domingo a sábado
     expect(datos.ultimoRespaldo).toBe("2026-10-12");
   });
 

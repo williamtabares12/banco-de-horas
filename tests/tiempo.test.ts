@@ -33,16 +33,16 @@ describe("quincenaDeCobro (CA6)", () => {
   });
 });
 
-describe("semana lunes-domingo", () => {
+describe("semana domingo-sábado", () => {
   it("diaSemana: 0 domingo ... 6 sábado", () => {
     expect(diaSemana("2026-09-13")).toBe(0); // domingo
     expect(diaSemana("2026-09-14")).toBe(1); // lunes
     expect(diaSemana("2026-09-12")).toBe(6); // sábado
   });
-  it("inicioSemana devuelve el lunes de esa semana", () => {
-    expect(inicioSemana("2026-09-14")).toBe("2026-09-14"); // lunes
-    expect(inicioSemana("2026-09-16")).toBe("2026-09-14"); // miércoles
-    expect(inicioSemana("2026-09-13")).toBe("2026-09-07"); // domingo cierra la semana
+  it("inicioSemana devuelve el domingo de esa semana", () => {
+    expect(inicioSemana("2026-09-13")).toBe("2026-09-13"); // domingo
+    expect(inicioSemana("2026-09-16")).toBe("2026-09-13"); // miércoles
+    expect(inicioSemana("2026-09-12")).toBe("2026-09-06"); // sábado cierra la semana
   });
   it("sumarDias cruza mes y año", () => {
     expect(sumarDias("2026-12-31", 1)).toBe("2027-01-01");

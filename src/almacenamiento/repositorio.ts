@@ -2,7 +2,7 @@ import type { Config, MovimientoBanco, Turno } from "../dominio/tipos";
 
 /** Todo lo que la app guarda. `schemaVersion` permite migrar el formato sin perder datos. */
 export type Datos = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   /** Fecha "AAAA-MM-DD" de la última vez que se exportó un respaldo. */
   ultimoRespaldo?: string;
   config: Config;

@@ -38,6 +38,7 @@ export type PlantillaTurno = {
 
 export type Config = {
   minutosSemana: number; // 42 * 60
+  inicioSemana: 0 | 1; // 0 = domingo (por defecto), 1 = lunes
   nocturnoDesde: string; // "19:00"
   nocturnoHasta: string; // "06:00"
   desfaseQuincenas: 0 | 1;
