@@ -85,8 +85,22 @@ export function parsearDuracion(texto: string): number | null {
     const minutos = Number(hm[2]);
     return minutos < 60 ? Number(hm[1]) * 60 + minutos : null;
   }
-  if (/^\d+([.,]\d+)?$/.test(t)) return Math.round(Number(t.replace(",", ".")) * 60);
+  // Un solo dígito después de la coma o el punto (7,5). Con dos o más no se sabe si son minutos o decimales (RF15).
+  if (/^\d+([.,]\d)?$/.test(t)) return Math.round(Number(t.replace(",", ".")) * 60);
   return null;
+}
+
+/**
+ * Por qué no se entiende una duración, o null si se entiende. "7.30" y "7,30" pueden ser minutos
+ * escritos con punto, así que se sugiere la forma con dos puntos (RF15, CA24).
+ */
+export function errorDeDuracion(texto: string): string | null {
+  if (parsearDuracion(texto) !== null) return null;
+  const parecidoAMinutos = /^(\d+)[.,](\d{2})$/.exec(texto.trim());
+  if (parecidoAMinutos && Number(parecidoAMinutos[2]) < 60) {
+    return `¿Quisiste decir ${parecidoAMinutos[1]}:${parecidoAMinutos[2]}? Escribe las horas como 7:30 o 7,5.`;
+  }
+  return "No entiendo esas horas. Escríbelas como 8, 7:30 o 7,5.";
 }
 
 /** 150 -> "2 h 30 min". */

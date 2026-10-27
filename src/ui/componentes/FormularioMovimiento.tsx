@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { motivoDe } from "../../dominio/banco";
-import { parsearDuracion } from "../../dominio/tiempo";
+import { errorDeDuracion, parsearDuracion } from "../../dominio/tiempo";
 import type { MotivoPago, MovimientoBanco } from "../../dominio/tipos";
 import { aTextoHoras, ETIQUETAS_MOTIVO, ETIQUETAS_MOVIMIENTO, hoy } from "../utilidades";
 import { Aviso } from "./Aviso";
@@ -39,7 +39,7 @@ export function FormularioMovimiento({ tipo, inicial, onGuardar, onCancelar }: P
     const minutos = parsearDuracion(horas);
     if (pideMotivo && motivo === "") return setError("Elige el motivo del pago.");
     if (!fecha) return setError("Falta la fecha.");
-    if (minutos === null) return setError("No entiendo esas horas. Escríbelas como 4, 4:30 o 4,5.");
+    if (minutos === null) return setError(errorDeDuracion(horas) ?? "Revisa las horas.");
     if (minutos === 0) return setError("Las horas deben ser más de 0.");
     onGuardar({
       fecha,

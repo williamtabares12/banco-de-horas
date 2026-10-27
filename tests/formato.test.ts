@@ -11,12 +11,11 @@ describe("parsearDuracion", () => {
     ["2,5", 150],
     ["2.5", 150],
     ["  3 ", 180],
-    ["0.33", 20],
   ])("lee %s como %i minutos", (texto, minutos) => {
     expect(parsearDuracion(texto)).toBe(minutos);
   });
 
-  it.each([[""], ["   "], ["abc"], ["-2"], ["2:75"], ["2:5"], ["1:2:3"], ["2h"], ["2,5,1"]])(
+  it.each([[""], ["   "], ["abc"], ["-2"], ["2:75"], ["2:5"], ["1:2:3"], ["2h"], ["2,5,1"], ["0.33"]])( // "0.33" antes valía 20 min; con RF15 es ambiguo (T41)
     "rechaza %j",
     (texto) => {
       expect(parsearDuracion(texto)).toBeNull();

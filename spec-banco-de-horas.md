@@ -106,6 +106,8 @@ RF13. Los datos ya guardados en el dispositivo se conservan al actualizar la app
 
 RF14. Al registrar un pago en Banco, elegir el motivo: "Capacitación o reunión" u "Otro". Para capacitación o reunión se piden fecha, duración (horas y minutos) y nota opcional (nombre del evento o quién lo convocó). El pago aparece en Banco y en el extracto con su etiqueta. Los pagos manuales que ya existen quedan como "Otro".
 
+RF15. Cómo se escriben las horas en cualquier campo de horas: un entero (8), horas y minutos con dos puntos (7:30) o un decimal con un solo dígito después de la coma o el punto (7,5 o 7.5). Con dos o más dígitos después de la coma o el punto (7.30, 2,25, 0.33, 1.500) no se sabe si son minutos o decimales, así que se rechaza. Si los dos dígitos pueden ser minutos, el mensaje lo sugiere ("¿Quisiste decir 7:30?"). Turnos y Banco usan el mismo mensaje. Decidido el 27 de octubre de 2026 (hallazgo 2 de informe-qa-2026-10-27.md).
+
 ## 9. Reglas de cálculo
 
 - Todo se mide en minutos enteros y se muestra en horas y minutos.
@@ -160,6 +162,8 @@ CA15. Un pago por capacitación o reunión no cambia las horas por categoría de
 CA22. Con la semana de domingo a sábado, un turno de alquiler del domingo 4 de octubre de 2026 con destino "completar semana" suma a la semana del 4 al 10 de octubre y no a la del 27 de septiembre al 3 de octubre. Un turno del sábado 3 de octubre de 19:00 a domingo 4 de octubre a las 07:00 cuenta completo en la semana del 27 de septiembre al 3 de octubre.
 
 CA23. Con `inicioSemana` en lunes, el turno de alquiler del domingo 4 de octubre suma a la semana del 28 de septiembre al 4 de octubre. Cambiar el parámetro no modifica el saldo ni los movimientos.
+
+CA24. "7.30" y "7,30" no se guardan: el formulario dice "¿Quisiste decir 7:30?". "7,5" y "7.5" se leen como 7 h 30 min y "7:30" sigue igual. "1.500" y "0.33" se rechazan con el mensaje general. Ningún texto se guarda como una cantidad distinta de la que la persona quiso escribir.
 
 ## 13. Preguntas abiertas
 

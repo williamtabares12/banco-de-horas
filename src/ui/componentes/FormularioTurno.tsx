@@ -1,7 +1,7 @@
 import { lineaEn24Horas } from "../../dominio/hora24";
 import { useState, type FormEvent } from "react";
 import { valoresDePlantilla } from "../../dominio/plantillas";
-import { parsearDuracion } from "../../dominio/tiempo";
+import { errorDeDuracion, parsearDuracion } from "../../dominio/tiempo";
 import type { PlantillaTurno } from "../../dominio/tipos";
 import { fechasDeTurno, type EntradaTurno } from "../../dominio/turnos";
 import { aTextoHoras, hoy } from "../utilidades";
@@ -50,7 +50,7 @@ export function FormularioTurno({ inicial, plantillas, onContinuar, onCancelar }
       let descansoMin = 0;
       if (tipo === "ordinario") {
         const m = parsearDuracion(programadas);
-        if (m === null) return setError("No entiendo las horas programadas. Escríbelas como 8 o 7:30.");
+        if (m === null) return setError(`Horas programadas: ${errorDeDuracion(programadas)}`);
         minutosProgramados = m;
         descansoMin = Number(descanso.trim() === "" ? "0" : descanso);
       }
