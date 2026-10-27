@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { RepositorioLocal } from "./almacenamiento/local";
 import type { Datos, Repositorio } from "./almacenamiento/repositorio";
 import { importar } from "./almacenamiento/respaldo";
+import { aplicarCambio, escucharDatos } from "./ui/datosVivos";
 import { CONFIG_POR_DEFECTO } from "./dominio/config";
 import { calculoDe, type Parametros } from "./dominio/parametros";
 import { Acerca } from "./ui/nube/Acerca";
@@ -72,6 +73,8 @@ type Props = {
 
 export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avisoParametros = null, parametros, pendienteDeSincronizar, cuenta }: Props) {
   const [estado, setEstado] = useState<Estado>(() => cargarInicial(repo));
+  // Lo que llega de otra pestaña u otro dispositivo se ve sin recargar (RF-C5, CC24)
+  useEffect(() => escucharDatos(repo, (datos) => setEstado({ datos })), [repo]);
   const [pestana, setPestana] = useState<Pestana>("inicio");
   // El botón atrás de Android y el gesto de iPhone vuelven a la pestaña anterior (RF-C21)
   useEffect(() => {
@@ -135,15 +138,15 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
 
   const { datos } = estado;
 
+  // Parte de lo último que tiene el repositorio, no de `datos`, que puede estar viejo (CC24)
   function cambiar(fn: (d: Datos) => Datos) {
-    const siguiente = fn(datos);
     try {
-      repo.guardar(siguiente);
+      setEstado({ datos: aplicarCambio(repo, fn) });
       setFallaGuardado(false);
     } catch {
       setFallaGuardado(true); // se ve en pantalla, pero no se pierde lo que acaba de hacer
+      setEstado({ datos: fn(datos) });
     }
-    setEstado({ datos: siguiente });
   }
 
   return (

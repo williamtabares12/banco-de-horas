@@ -42,7 +42,7 @@ RF-C3. Cada persona ve y modifica solo sus propios datos. Ninguna pantalla muest
 
 RF-C4. Funciona sin señal. Se puede registrar turnos y movimientos sin internet, y se sincronizan cuando vuelve la conexión. Un indicador pequeño dice si lo último está guardado solo en el dispositivo o ya sincronizado.
 
-RF-C5. Mismos datos en varios dispositivos (celular y computador). Si dos cambios chocan sobre el mismo registro, gana el más reciente.
+RF-C5. Mismos datos en varios dispositivos (celular y computador). Lo que se cambia en uno aparece en los demás sin recargar. Guardar en un dispositivo nunca deshace lo que otro cambió en registros que este no tocó. Si dos cambios chocan sobre el mismo registro, gana el más reciente.
 
 RF-C6. Saldo a favor. Cuando el saldo queda por debajo de cero, se muestra "La clínica te debe X h" en lugar de un aviso de error. Reemplaza el comportamiento de CA4 del spec base.
 
@@ -160,6 +160,8 @@ CC21. El login muestra el reloj de arena animado y todos sus elementos, sin desp
 CC22. Con la sesión resolviéndose en menos de 300 ms no aparece pantalla de carga. Con una espera simulada de 8 s aparece el reloj de arena, luego el mensaje de demora, y la app nunca queda en blanco.
 
 CC23. Con "reducir movimiento" activado en el teléfono, el reloj de arena queda quieto en login y en carga, y las dos pantallas siguen siendo comprensibles.
+
+CC24. Con la app abierta en dos pestañas o dispositivos, un movimiento editado en A aparece en B sin recargar, y guardar otra cosa en B no deshace lo que se hizo en A. Prueba automática con un repositorio de prueba y prueba manual en el emulador (hallazgo 1 de informe-qa-2026-10-27.md).
 
 ## 10. Preguntas abiertas
 

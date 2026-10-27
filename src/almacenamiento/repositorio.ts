@@ -18,4 +18,9 @@ export interface Repositorio {
   /** Sin datos guardados devuelve datos vacíos. Si lo guardado está dañado, lanza error. */
   cargar(): Datos;
   guardar(datos: Datos): void;
+  /**
+   * Opcional: avisa cuando los datos cambian, también si el cambio vino de otro dispositivo.
+   * El repositorio de la nube lo tiene; el local no lo necesita. Devuelve la función para dejar de escuchar.
+   */
+  suscribir?(alCambiar: (datos: Datos) => void): () => void;
 }
