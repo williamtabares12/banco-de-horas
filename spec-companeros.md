@@ -78,9 +78,11 @@ RF-C21. Botón atrás. En Android, y con el gesto de atrás en iPhone, primero s
 
 RF-C22. Hora en 24 horas. Antes de guardar un turno se muestran la hora de inicio y la de fin en formato de 24 horas, sin importar cómo las muestre el selector de hora del teléfono (a. m. y p. m. o 24 horas).
 
-RF-C23. Marca y login. La pantalla de inicio de sesión muestra el reloj de arena animado (arena-animado.html), el nombre "Arena" y la frase "Tus horas, claras y tuyas". Selector Entrar | Crear cuenta arriba de los botones. Los botones actuales no cambian ni de forma ni de orden. Todo cabe sin desplazarse en una pantalla de 360 x 640. El pie dice "Solo tú ves tus datos desde la app. Registro personal, no es una herramienta oficial de la clínica" y enlaza al aviso de privacidad.
+RF-C23. Marca y login. La pantalla de inicio de sesión muestra el reloj de arena animado (arena-animado.html), el nombre "Arena" y la frase "Tus horas, claras y tuyas". Selector Entrar | Crear cuenta arriba de los botones. Los botones actuales no cambian ni de forma ni de orden. En una ventana de 360 x 640 px el botón "Entrar" se ve sin desplazarse; el pie y la firma pueden quedar debajo. En pantallas de menos de 700 px de alto el reloj baja a 64 px y se oculta la frase "Tus horas, claras y tuyas" para ganar espacio. El pie dice "Solo tú ves tus datos desde la app. Registro personal, no es una herramienta oficial de la clínica" y enlaza al aviso de privacidad.
 
 RF-C24. Pantalla de carga. Mientras la app resuelve la sesión y trae los datos por primera vez se muestra el reloj de arena animado con la palabra "Arena" debajo, no un letrero de "Cargando". Si hay copia local de los datos, la app abre directo sin esta pantalla. La pantalla aparece solo si la espera pasa de 300 ms, para que no parpadee. Si la espera pasa de 6 segundos, se añade debajo "Está tardando más de lo normal. Revisa tu conexión." y el botón de contorno "Seguir sin conexión" cuando haya copia local. Un lector de pantalla anuncia "Abriendo Arena".
+
+RF-C25. Firma de autor. En la pantalla "Acerca de" y al pie del inicio de sesión se muestra el monograma AT de Alejandro Tabares y el texto "Hecho por Alejandro Tabares · v" con la versión de la app. El texto es texto real (no va dentro de la imagen) y el monograma es decorativo. Se usa la variante `at-monograma-claro.svg` sobre fondos claros; las variantes sin "-claro" son para fondos oscuros. La firma no aparece en el extracto que se imprime ni se exporta, ni en la pantalla de carga. El ícono de la app sigue siendo el reloj de arena, no el monograma.
 
 ## 6. Datos y privacidad
 
@@ -155,13 +157,15 @@ CC19. El botón atrás de Android cierra primero una hoja o diálogo abierto y d
 
 CC20. Un turno de 07:00 a 19:00 se confirma con el texto "07:00" y "19:00", aunque el selector del teléfono muestre p. m.
 
-CC21. El login muestra el reloj de arena animado y todos sus elementos, sin desplazamiento, en una pantalla de 360 x 640. Los botones existentes quedan en el mismo orden.
+CC21. El login muestra el reloj de arena animado y, en una ventana de 360 x 640 px, el botón "Entrar" queda visible sin desplazarse (con el reloj en 64 px y sin la frase). En pantallas más altas se ve todo, incluidos el pie y la firma. Los botones existentes quedan en el mismo orden.
 
 CC22. Con la sesión resolviéndose en menos de 300 ms no aparece pantalla de carga. Con una espera simulada de 8 s aparece el reloj de arena, luego el mensaje de demora, y la app nunca queda en blanco.
 
 CC23. Con "reducir movimiento" activado en el teléfono, el reloj de arena queda quieto en login y en carga, y las dos pantallas siguen siendo comprensibles.
 
 CC24. Con la app abierta en dos pestañas o dispositivos, un movimiento editado en A aparece en B sin recargar, y guardar otra cosa en B no deshace lo que se hizo en A. Prueba automática con un repositorio de prueba y prueba manual en el emulador (hallazgo 1 de informe-qa-2026-10-27.md).
+
+CC25. "Acerca de" muestra el monograma AT, "Hecho por Alejandro Tabares" y la versión que sale del `package.json`. El texto se puede seleccionar y un lector de pantalla lo lee una sola vez. El extracto en PDF no lleva la firma.
 
 ## 10. Preguntas abiertas
 

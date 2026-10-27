@@ -165,6 +165,10 @@ CA23. Con `inicioSemana` en lunes, el turno de alquiler del domingo 4 de octubre
 
 CA24. "7.30" y "7,30" no se guardan: el formulario dice "¿Quisiste decir 7:30?". "7,5" y "7.5" se leen como 7 h 30 min y "7:30" sigue igual. "1.500" y "0.33" se rechazan con el mensaje general. Ningún texto se guarda como una cantidad distinta de la que la persona quiso escribir.
 
+CA26. En un navegador sin soporte de `backdrop-filter`, y con "reducir transparencia" activado, las tarjetas se ven con fondo sólido y el texto sigue legible.
+
+CA27. Con "reducir movimiento" activado, el reloj de arena queda quieto y no hay ninguna otra animación en la app.
+
 ## 13. Preguntas abiertas
 
 1. Confirmar con la coordinadora si la hora extra seguirá compensándose en banco.
@@ -176,16 +180,16 @@ CA24. "7.30" y "7,30" no se guardan: el formulario dice "¿Quisiste decir 7:30?"
 7. Las horas de capacitación o reunión, ¿cuentan para las 42 semanales? Por ahora no.
 8. Si una capacitación o reunión cae de noche o en domingo, ¿la clínica la cuenta como recargo? Por ahora no se cuenta como categoría.
 10. Un turno que cruza de sábado a domingo (por ejemplo una noche), ¿la clínica lo cuenta en la semana donde empieza? Por ahora sí, entero en la semana del sábado. Se verifica contra una semana real.
-9. Avisos y errores sin color rojo, solo con texto y una palabra delante ("Aviso", "Error"). Si Alejandro prefiere un rojo para errores, se agrega un color a estilo-visual.md.
+9. Avisos y errores: con el estilo de vidrio llevan la palabra "Aviso" o "Error" delante y una línea vertical en rojo oscuro (#B3364C, `--aviso`). Incluido en el estilo que Alejandro aprobó el 27 de octubre de 2026; si lo quiere sin rojo, se quita la línea y queda solo la palabra.
 
 ## 14. Estilo visual
 
-La interfaz sigue estilo-visual.md (lienzo claro, tipografía como protagonista, un solo azul de acción). Reglas que cuentan como requisitos:
+La interfaz sigue estilo-visual.md (estilo de vidrio: fondo con degradado suave, tarjetas translúcidas, verde azulado como único color de acción). Reglas que cuentan como requisitos:
 
 - Solo tema claro. Se retira el tema oscuro actual.
 - Solo se usan los colores, tamaños de letra, radios y espacios de estilo-visual.md.
-- Sin sombras. La jerarquía sale del tamaño de letra, las líneas finas y las superficies.
-- El azul de acción (#0071e3) solo rellena botones principales y marca lo seleccionado.
+- Las sombras y los degradados salen solo de las variables del documento. El vidrio (`backdrop-filter`) va solo en tarjetas, con fondo sólido de respaldo.
+- El verde azulado de acción rellena botones principales y marca lo seleccionado. El color nunca es la única señal de algo.
 - Los datos no cambian: este cambio es solo de apariencia y no toca saldos, turnos ni movimientos guardados.
 
 Criterios de aceptación del estilo:
@@ -196,8 +200,8 @@ CA17. Botones, pestañas, filas que se pueden tocar y campos miden al menos 44 p
 
 CA18. Con una pantalla de 360 px de ancho se llega a todas las pestañas y ningún texto queda cortado.
 
-CA19. El texto tiene contraste mínimo de 4,5 a 1 sobre su fondo. El gris más claro permitido para texto es #707070.
+CA19. El texto tiene contraste mínimo de 4,5 a 1 sobre su fondo real (para una tarjeta de vidrio, la mezcla del blanco al 55 % sobre el degradado). El gris más claro permitido para texto es #566366.
 
 CA20. Los campos de formulario usan letra de 16 px o más, para que el iPhone no haga zoom al tocarlos.
 
-CA21. El extracto impreso sale en blanco y negro con líneas finas, sin azul.
+CA21. El extracto impreso sale en blanco y negro con líneas finas, sin vidrio, sombras, degradados ni color.
