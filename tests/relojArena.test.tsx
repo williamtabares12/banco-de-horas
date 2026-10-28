@@ -24,10 +24,10 @@ describe("RelojArena (estilo-visual.md §6b)", () => {
     for (const d of trazos) expect(html).toContain(`d="${d}"`);
   });
 
-  it("no lleva colores sueltos: usa solo los tokens (contorno --color-texto, arena --color-decorativo)", () => {
+  it("no lleva colores sueltos: usa solo los tokens (contorno --texto, arena --accion-clara)", () => {
     expect(html).not.toMatch(/#[0-9a-fA-F]{3,8}/);
-    expect(css).toMatch(/\.reloj-arena__contorno[^{]*\{[^}]*stroke:\s*var\(--color-texto\)/);
-    expect(css).toMatch(/\.reloj-arena__arena[^{]*\{[^}]*fill:\s*var\(--color-decorativo\)/);
+    expect(css).toMatch(/\.reloj-arena__contorno[^{]*\{[^}]*stroke:\s*var\(--texto\)/);
+    expect(css).toMatch(/\.reloj-arena__arena[^{]*\{[^}]*fill:\s*var\(--accion-clara\)/);
   });
 
   describe("tamaño y movimiento", () => {

@@ -113,6 +113,7 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
         </div>
       )}
 
+      <div className="seccion acceso__tarjeta">
       <Pestanas
         elementos={[
           { id: "login", nombre: "Entrar" },
@@ -179,6 +180,7 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
           <Enlace onClick={recuperar}>¿Olvidaste tu contraseña?</Enlace>
         </div>
       )}
+      </div>
 
       <footer className="acceso__pie">
         <p className="texto-suave">Solo tú ves tus datos desde la app. Registro personal, no es una herramienta oficial de la clínica.</p>

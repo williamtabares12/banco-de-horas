@@ -109,15 +109,16 @@ describe("estilo de la pantalla de carga (estilo-visual.md §6b)", () => {
     expect(c["justify-content"]).toBe("center");
     expect(css).toMatch(/\.carga\s*\{[^}]*min-height:\s*100dvh/);
   });
-  it("'Arena' va en 21 px y peso 600", () => {
+  it("'Arena' va en 22 px y peso 600", () => {
     const n = regla(".carga__nombre");
-    expect(n["font-size"]).toBe("var(--texto-subtitulo)");
+    expect(n["font-size"]).toBe("var(--tam-pantalla)");
     expect(n["font-weight"]).toBe("var(--peso-fuerte)");
   });
-  it("el mensaje de demora va en 17 px y peso 300", () => {
+  it("el mensaje de demora va en 17 px y peso 400, en --texto (sobre el degradado desnudo --texto-suave no llega a 4,5)", () => {
     const d = regla(".carga__demora");
-    expect(d["font-size"]).toBe("var(--texto-cuerpo)");
-    expect(d["font-weight"]).toBe("var(--peso-ligero)");
+    expect(d["font-size"]).toBe("var(--tam-cuerpo)");
+    expect(d["font-weight"]).toBe("var(--peso-normal)");
+    expect(d["color"]).toBe("var(--texto)");
   });
   it("el texto solo para lectores de pantalla existe y no se ve", () => {
     const s = regla(".solo-lectores");

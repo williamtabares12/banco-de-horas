@@ -1,4 +1,4 @@
-// T36 (estilo-visual.md §3): sin resaltado azul del navegador, y cada elemento tocable tiene su propio estado presionado.
+// T36 / T42 (estilo-visual.md §4 y §6): sin resaltado azul del navegador, y cada elemento tocable tiene su propio estado presionado.
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -23,7 +23,7 @@ describe("cada elemento tocable tiene su propio estado presionado", () => {
     it(`${selector}: baja su opacidad mientras se presiona`, () => {
       const m = new RegExp(`${selector.replace(".", "\\.")}:active[^{]*\\{([^}]*)\\}`).exec(componentes);
       expect(m, `${selector}:active`).not.toBeNull();
-      expect(m![1]).toMatch(/opacity:\s*0?\.[4-8]\d*/);
+      expect(m![1]).toMatch(/opacity:\s*0?\.8\s*;/); // opacidad al 80 %
     });
   }
 
@@ -34,8 +34,16 @@ describe("cada elemento tocable tiene su propio estado presionado", () => {
     }
   });
 
-  it("el cambio es inmediato: sin transiciones ni animaciones (el único movimiento de la app es el reloj de arena)", () => {
-    expect(todo).not.toMatch(/\btransition\s*:/);
+  it("el estado presionado es inmediato: ninguna regla :active lleva transición ni animación", () => {
+    for (const m of todo.matchAll(/[^{}]*:active[^{]*\{([^}]*)\}/g)) expect(m[1]).not.toMatch(/transition|animation/);
+  });
+
+  it("las únicas transiciones son de 150 a 200 ms, salen de la variable y no existen con 'reducir movimiento'", () => {
+    const transiciones = [...todo.matchAll(/\btransition\s*:\s*([^;]+);/g)].map((m) => m[1].trim());
+    expect(transiciones.length).toBeGreaterThan(0);
+    for (const t of transiciones) expect(t).toMatch(/var\(--transicion\)/);
+    // lo que se mueve al pasar el cursor solo se mueve si la persona no pidió reducir el movimiento
+    expect(leer("src/ui/estilo/pantallas.css")).toMatch(/@media \(hover: hover\) and \(prefers-reduced-motion: no-preference\)\s*\{[^}]*:hover[^}]*translateY\(var\(--elevacion\)\)/);
   });
 });
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AvisoPrivacidad } from "../../dominio/aviso";
+import { Marca } from "../componentes/Marca";
 import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
 import { Interruptor } from "../componentes/Interruptor";
@@ -30,7 +31,7 @@ export function NuevoAviso({ aviso, alAceptar }: Props) {
   return (
     <main className="aplicacion">
       <header className="encabezado">
-        <h1 className="titulo-app">Arena</h1>
+        <Marca />
       </header>
       <section className="pantalla">
         <p>El aviso de privacidad cambió. Léelo y confírmalo para seguir usando la app. Tus datos no se tocan.</p>

@@ -37,12 +37,14 @@ export function Quincena({ datos, calculo }: Props) {
         </Boton>
       </div>
 
-      <ListaFilas>
+      <div className="seccion">
+        <ListaFilas>
         <FilaLista titulo="Diurnas" valor={formatearDuracion(horas.diurno)} />
         <FilaLista titulo="Nocturnas" valor={formatearDuracion(horas.nocturno)} />
         <FilaLista titulo="Dominicales o festivas diurnas" valor={formatearDuracion(horas.dominicalDiurno)} />
         <FilaLista titulo="Dominicales o festivas nocturnas" valor={formatearDuracion(horas.dominicalNocturno)} />
-      </ListaFilas>
+        </ListaFilas>
+      </div>
 
       <div className="seccion">
         <p>

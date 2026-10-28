@@ -66,12 +66,22 @@ export function Inicio({ datos, reglas, alRegistrar, alIrARespaldo, instalar }: 
           </div>
         )}
 
-        <div className="bloque dos-columnas">
+        <div className="dos-columnas">
           <div className="par">
+            <span className="icono-kpi icono-kpi--prestado" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 19V5M5 12l7-7 7 7" />
+              </svg>
+            </span>
             <span className="etiqueta">Prestado</span>
             <span className="cifra cifra--media">{formatearDuracion(prestado)}</span>
           </div>
           <div className="par">
+            <span className="icono-kpi icono-kpi--pagado" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
+            </span>
             <span className="etiqueta">Pagado</span>
             <span className="cifra cifra--media">{formatearDuracion(pagado)}</span>
           </div>

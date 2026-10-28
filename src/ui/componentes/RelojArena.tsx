@@ -1,16 +1,17 @@
 import { useId } from "react";
 
 /**
- * El reloj de arena de la marca (estilo-visual.md §6b), animado con CSS: la arena baja durante 3,5 s, el reloj
- * gira 180° y se repite, en ciclos de 5 s. Con "reducir movimiento" queda quieto. Mide 96 px de lado y solo se
- * usa en el login y en la pantalla de carga. Es el mismo dibujo de arena-animado.html, con los colores de los tokens.
+ * El reloj de arena de la marca (estilo-visual.md §8), animado con CSS: la arena baja durante 3,5 s, el reloj
+ * gira 180° y se repite, en ciclos de 5 s. Con "reducir movimiento" queda quieto. Mide 96 px de lado y la animación
+ * es solo del login y de la pantalla de carga. En la cabecera de las demás pantallas (`cabecera`) mide 30 px y
+ * va quieto. Es el mismo dibujo de arena-animado.html, con los colores de los tokens.
  */
-export function RelojArena({ decorativo = false }: { decorativo?: boolean }) {
+export function RelojArena({ decorativo = false, cabecera = false }: { decorativo?: boolean; cabecera?: boolean }) {
   const id = useId().replace(/:/g, "");
   // Como dibujo decorativo (en la pantalla de carga, que ya anuncia "Abriendo Arena") no se anuncia aparte.
   const accesible = decorativo ? { "aria-hidden": true } : { role: "img", "aria-label": "Reloj de arena" };
   return (
-    <svg className="reloj-arena" viewBox="0 0 64 64" fill="none" {...accesible}>
+    <svg className={cabecera ? "reloj-arena reloj-arena--cabecera" : "reloj-arena"} viewBox="0 0 64 64" fill="none" {...accesible}>
       <defs>
         <clipPath id={`${id}-arriba`}>
           <path d="M22 10H42C42 21 36 26 32 30C28 26 22 21 22 10Z" />

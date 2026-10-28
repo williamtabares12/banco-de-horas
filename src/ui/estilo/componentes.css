@@ -1,5 +1,5 @@
 /*
- * Componentes (estilo-visual.md, sección 5). Solo usan los tokens de tokens.css.
+ * Componentes (estilo-visual.md, sección 6). Solo usan los tokens de tokens.css.
  *
  * Van en la capa "componentes", que gana a la capa "base" (los reinicios globales). Así un reinicio
  * como "h2 { font-size: inherit }" no le gana a la clase de un componente.
@@ -13,13 +13,12 @@
     justify-content: center;
     min-height: var(--zona-tactil);
     margin: 0;
-    padding: var(--relleno-boton);
+    padding: 0 var(--esp-24);
     font-family: var(--fuente);
-    font-size: var(--texto-cuerpo);
-    font-weight: var(--peso-normal);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-enlace);
+    font-size: var(--tam-cuerpo);
+    font-weight: var(--peso-fuerte);
+    line-height: var(--interlinea);
+    color: var(--enlace);
     background: transparent;
     border: 1px solid transparent;
     border-radius: var(--radio-pastilla);
@@ -29,30 +28,35 @@
     appearance: none;
   }
 
-  /* Acción principal: relleno azul. Una por pantalla. */
+  /* Acción principal: degradado de acción, texto blanco y sombra de acción. Una por pantalla, de 48 px de alto. */
   .boton--relleno {
-    color: var(--color-sobre-accion);
-    background: var(--color-accion);
+    min-height: var(--boton-alto);
+    color: var(--sobre-accion);
+    background: var(--degradado-accion);
+    box-shadow: var(--sombra-accion);
   }
 
-  /* Acción secundaria: contorno. Va junto al relleno, nunca dos rellenos. */
+  /*
+   * Acción secundaria: borde de acción y texto de enlace. Lleva un velo de vidrio detrás: el texto de enlace
+   * sobre el degradado desnudo no llega a 4,5 de contraste (3,9), sobre el vidrio sí (5,1).
+   */
   .boton--contorno {
-    color: var(--color-enlace);
-    background: transparent;
-    border-color: var(--color-enlace);
+    color: var(--enlace);
+    background: var(--vidrio);
+    border-color: var(--accion);
   }
 
-  /* Las acciones que borran usan contorno con el color del texto */
+  /* Las acciones que borran: borde y texto de aviso */
   .boton--contorno.boton--borra {
-    color: var(--color-texto);
-    border-color: var(--color-texto);
+    color: var(--aviso);
+    border-color: var(--aviso);
   }
 
+  /* Deshabilitado: opacidad al 50 % */
   .boton:disabled {
-    color: var(--color-texto-suave);
-    background: var(--color-relleno);
-    border-color: transparent;
+    box-shadow: none;
     cursor: default;
+    opacity: 0.5;
   }
 
   /* En el celular, el botón relleno ocupa el ancho completo */
@@ -71,11 +75,10 @@
     margin: 0;
     padding: 0;
     font-family: var(--fuente);
-    font-size: var(--texto-cuerpo);
+    font-size: var(--tam-cuerpo);
     font-weight: var(--peso-normal);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-enlace);
+    line-height: var(--interlinea);
+    color: var(--enlace);
     background: transparent;
     border: 0;
     text-decoration: none;
@@ -93,35 +96,40 @@
     }
   }
 
-  /* ---------- Estado presionado propio (igual en iPhone y Android): baja la opacidad, sin transiciones ---------- */
+  /* ---------- Estado presionado propio (igual en iPhone y Android): opacidad al 80 % ---------- */
 
   .boton:active:not(:disabled),
   .enlace:active,
   .pestana:active,
   .fila-lista__tocable:active,
   .interruptor:active:not(:disabled) {
-    opacity: 0.7;
+    opacity: 0.8;
   }
 
-  /* ---------- Foco de teclado ---------- */
+  /* ---------- Foco de teclado: aro de 2 px con 2 px de separación ---------- */
 
   .boton:focus-visible,
   .enlace:focus-visible,
   .pestana:focus-visible,
   .fila-lista__tocable:focus-visible,
   .interruptor:focus-visible {
-    outline: 2px solid var(--color-accion);
+    outline: 2px solid var(--accion-clara);
     outline-offset: 2px;
   }
 
-  /* ---------- Pestañas ---------- */
+  /* ---------- Pestañas: fila que se desplaza de lado, bajo el título ---------- */
 
   .pestanas {
     display: flex;
-    gap: var(--esp-4);
-    padding: var(--esp-8) 0;
+    gap: var(--esp-8);
+    /*
+     * La sombra de la pestaña activa se extiende unos 28 px hacia abajo y 20 a los lados, y un contenedor con
+     * desplazamiento la recorta en su borde interior (se vería como un rectángulo claro). Se le da sitio con
+     * relleno y se compensa con margen negativo, para que el espacio visible no cambie.
+     */
+    margin: 0 calc(-1 * var(--esp-16)) calc(-1 * var(--esp-24));
+    padding: var(--esp-8) var(--esp-16) var(--esp-40);
     overflow-x: auto;
-    border-bottom: 1px solid var(--color-linea);
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
   }
@@ -130,18 +138,18 @@
     display: none;
   }
 
+  /* Las inactivas van en --texto y no en --enlace: sobre el degradado desnudo el enlace llega a 3,9 de contraste */
   .pestana {
     flex: 0 0 auto;
     min-height: var(--zona-tactil);
     margin: 0;
     padding: 0 var(--esp-16);
     font-family: var(--fuente);
-    font-size: var(--texto-pequeno);
+    font-size: var(--tam-pequeno);
     font-weight: var(--peso-fuerte);
-    line-height: var(--interlinea-pequeno);
-    letter-spacing: var(--espaciado-pequeno);
+    line-height: var(--interlinea);
     white-space: nowrap;
-    color: var(--color-texto);
+    color: var(--texto);
     background: transparent;
     border: 0;
     border-radius: var(--radio-pastilla);
@@ -149,8 +157,9 @@
   }
 
   .pestana--activa {
-    color: var(--color-sobre-accion);
-    background: var(--color-accion);
+    color: var(--sobre-accion);
+    background: var(--degradado-accion);
+    box-shadow: var(--sombra-accion);
   }
 
   /* ---------- Campos de formulario ---------- */
@@ -162,17 +171,15 @@
   }
 
   .campo__etiqueta {
-    font-size: var(--texto-pequeno);
-    line-height: var(--interlinea-pequeno);
-    letter-spacing: var(--espaciado-pequeno);
-    color: var(--color-texto-suave);
+    font-size: var(--tam-pequeno);
+    line-height: var(--interlinea);
+    color: var(--texto-suave);
   }
 
   .campo__ayuda {
-    font-size: var(--texto-caption);
-    line-height: var(--interlinea-caption);
-    letter-spacing: var(--espaciado-caption);
-    color: var(--color-texto-suave);
+    font-size: var(--tam-caption);
+    line-height: var(--interlinea);
+    color: var(--texto-suave);
   }
 
   .campo__control {
@@ -182,14 +189,13 @@
     margin: 0;
     padding: var(--esp-12);
     font-family: var(--fuente);
-    font-size: var(--texto-cuerpo);
+    font-size: var(--tam-cuerpo);
     font-weight: var(--peso-normal);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-texto);
-    background: var(--color-lienzo);
-    border: 1px solid var(--color-linea);
-    border-radius: var(--radio-caja);
+    line-height: var(--interlinea);
+    color: var(--texto);
+    background: var(--vidrio);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-campo);
     -webkit-appearance: none;
     appearance: none;
   }
@@ -201,16 +207,16 @@
   }
 
   .campo__control::placeholder {
-    color: var(--color-texto-suave);
+    color: var(--texto-suave);
   }
 
-  /* Al enfocar: aro de 2 px de acción */
+  /* Al enfocar: aro de 2 px de acción clara, con 2 px de separación */
   .campo__control:focus {
-    outline: 2px solid var(--color-accion);
-    outline-offset: 0;
+    outline: 2px solid var(--accion-clara);
+    outline-offset: 2px;
   }
 
-  /* ---------- Filas de lista: sin fondo ni tarjeta, solo una línea fina entre filas ---------- */
+  /* ---------- Filas de lista: sin fondo ni tarjeta propia, solo una línea fina entre filas ---------- */
 
   .lista-filas {
     margin: 0;
@@ -219,7 +225,11 @@
   }
 
   .fila-lista {
-    border-bottom: 1px solid var(--color-linea);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .fila-lista:last-child {
+    border-bottom: 0;
   }
 
   .fila-lista__tocable,
@@ -233,10 +243,9 @@
     margin: 0;
     padding: var(--esp-12) 0;
     font-family: var(--fuente);
-    font-size: var(--texto-cuerpo);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-texto);
+    font-size: var(--tam-cuerpo);
+    line-height: var(--interlinea);
+    color: var(--texto);
     text-align: left;
     background: transparent;
     border: 0;
@@ -254,23 +263,22 @@
 
   .fila-lista__fecha,
   .fila-lista__detalle {
-    font-size: var(--texto-caption);
-    line-height: var(--interlinea-caption);
-    letter-spacing: var(--espaciado-caption);
-    color: var(--color-texto-suave);
+    font-size: var(--tam-caption);
+    line-height: var(--interlinea);
+    color: var(--texto-suave);
   }
 
   .fila-lista__titulo {
-    font-size: var(--texto-cuerpo);
-    color: var(--color-texto);
+    font-size: var(--tam-cuerpo);
+    color: var(--texto);
   }
 
   .fila-lista__valor {
     flex: 0 0 auto;
-    font-size: var(--texto-cuerpo);
+    font-size: var(--tam-cuerpo);
     font-weight: var(--peso-fuerte);
     white-space: nowrap;
-    color: var(--color-texto);
+    color: var(--texto);
   }
 
   .fila-lista__acciones {
@@ -284,17 +292,25 @@
     flex: 0 0 auto;
   }
 
-  /* ---------- Avisos: texto normal con la palabra Aviso o Error delante y una línea fina ---------- */
+  /* ---------- Avisos: la palabra Aviso o Error en peso 600 y una línea vertical de 3 px a la izquierda ---------- */
 
   .aviso {
     margin: 0;
-    padding: var(--esp-12) 0;
-    font-size: var(--texto-cuerpo);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-texto);
-    border-top: 1px solid var(--color-linea);
-    border-bottom: 1px solid var(--color-linea);
+    padding: var(--esp-8) 0 var(--esp-8) var(--esp-12);
+    font-size: var(--tam-cuerpo);
+    line-height: var(--interlinea);
+    color: var(--texto);
+    border-left: 3px solid var(--aviso);
+  }
+
+  /* Un enlace dentro del texto sigue midiendo 44 px para el toque, pero sin estirar la línea donde está */
+  .aviso .enlace {
+    margin: calc(-1 * var(--esp-12)) 0;
+  }
+
+  /* Un resultado normal (Guardado, PDF descargado) no lleva la palabra: tampoco la línea de aviso */
+  .aviso:not(:has(.aviso__palabra)) {
+    border-left-color: var(--linea);
   }
 
   .aviso__palabra {
@@ -308,7 +324,7 @@
   }
 
   .archivo:focus-within {
-    outline: 2px solid var(--color-accion);
+    outline: 2px solid var(--accion-clara);
     outline-offset: 2px;
   }
 
@@ -324,22 +340,22 @@
     opacity: 0;
   }
 
-  /* ---------- Barra de avance ---------- */
+  /* ---------- Barra de avance: 6 px, pista de relleno y relleno en degradado ---------- */
 
   .barra-avance {
     height: var(--barra-alto);
     overflow: hidden;
-    background: var(--color-relleno);
+    background: var(--relleno);
     border-radius: var(--radio-pastilla);
   }
 
   .barra-avance__relleno {
     height: 100%;
-    background: var(--color-decorativo);
+    background: var(--degradado-barra);
     border-radius: var(--radio-pastilla);
   }
 
-  /* ---------- Interruptor ---------- */
+  /* ---------- Interruptor: apagado en relleno, encendido en acción ---------- */
 
   .interruptor {
     display: flex;
@@ -351,10 +367,9 @@
     margin: 0;
     padding: 0;
     font-family: var(--fuente);
-    font-size: var(--texto-cuerpo);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-texto);
+    font-size: var(--tam-cuerpo);
+    line-height: var(--interlinea);
+    color: var(--texto);
     text-align: left;
     background: transparent;
     border: 0;
@@ -371,7 +386,7 @@
     flex: 0 0 auto;
     width: 51px;
     height: 31px;
-    background: var(--color-relleno);
+    background: var(--relleno);
     border-radius: var(--radio-pastilla);
   }
 
@@ -381,13 +396,13 @@
     left: 2px;
     width: 27px;
     height: 27px;
-    background: var(--color-sobre-accion);
-    border: 1px solid var(--color-linea);
+    background: var(--sobre-accion);
+    border: 1px solid var(--linea);
     border-radius: var(--radio-pastilla);
   }
 
   .interruptor--encendido .interruptor__pista {
-    background: var(--color-accion);
+    background: var(--accion);
   }
 
   .interruptor--encendido .interruptor__bolita {
@@ -412,17 +427,20 @@
       max(var(--esp-16), env(safe-area-inset-bottom, 0px)) max(var(--esp-16), env(safe-area-inset-left, 0px));
   }
 
-  /* El velo negro de 40 %: el negro del sistema (--color-texto) con 40 % de opacidad */
+  /* El velo: negro al 40 % */
   .dialogo__velo {
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    background: var(--color-texto);
-    opacity: 0.4;
+    background: var(--velo);
   }
 
+  /*
+   * La hoja es una tarjeta de vidrio con borde de 1 px y radio de 24 px. Sobre el velo oscuro el vidrio
+   * translúcido dejaría el texto suave sin contraste, así que usa el fondo sólido del vidrio.
+   */
   .dialogo__hoja {
     position: relative;
     display: flex;
@@ -431,9 +449,10 @@
     width: 100%;
     max-width: 400px;
     padding: var(--esp-24);
-    background: var(--color-lienzo);
-    border: 1px solid var(--color-linea);
-    border-radius: var(--radio-caja);
+    background: var(--vidrio-solido);
+    border: 1px solid var(--vidrio-borde);
+    border-radius: var(--radio-tarjeta);
+    box-shadow: var(--sombra);
   }
 
   /* Hoja con mucho texto (el aviso de privacidad): se desplaza dentro, sin salirse de la pantalla */
@@ -445,19 +464,17 @@
 
   .dialogo__titulo {
     margin: 0;
-    font-size: var(--texto-subtitulo);
+    font-size: var(--tam-pantalla);
     font-weight: var(--peso-fuerte);
-    line-height: var(--interlinea-subtitulo);
-    letter-spacing: var(--espaciado-subtitulo);
-    color: var(--color-texto);
+    line-height: var(--interlinea-compacta);
+    color: var(--texto);
   }
 
   .dialogo__mensaje {
     margin: 0;
-    font-size: var(--texto-cuerpo);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
-    color: var(--color-texto);
+    font-size: var(--tam-cuerpo);
+    line-height: var(--interlinea);
+    color: var(--texto);
   }
 
   .dialogo__acciones {
@@ -471,13 +488,34 @@
     width: 100%;
   }
 
-  /* ---------- Reloj de arena (estilo-visual.md §6b): el único movimiento de la app ---------- */
+  /* ---------- Reloj de arena (estilo-visual.md §8): el único movimiento propio de la app ---------- */
 
   .reloj-arena {
     --ciclo: 5s;
     display: block;
     width: 96px;
     height: 96px;
+  }
+
+  /* En la cabecera de las pantallas: 30 px y quieto, con la arena arriba (la animación es solo del login y la carga) */
+  .reloj-arena--cabecera {
+    width: 30px;
+    height: 30px;
+  }
+
+  .reloj-arena--cabecera .reloj-arena__vidrio,
+  .reloj-arena--cabecera .reloj-arena__arriba,
+  .reloj-arena--cabecera .reloj-arena__abajo,
+  .reloj-arena--cabecera .reloj-arena__hilo {
+    animation: none;
+  }
+
+  .reloj-arena--cabecera .reloj-arena__abajo {
+    transform: scaleY(0);
+  }
+
+  .reloj-arena--cabecera .reloj-arena__hilo {
+    opacity: 0;
   }
 
   .reloj-arena__vidrio {
@@ -487,11 +525,11 @@
   }
 
   .reloj-arena__contorno {
-    stroke: var(--color-texto);
+    stroke: var(--texto);
   }
 
   .reloj-arena__arena {
-    fill: var(--color-decorativo);
+    fill: var(--accion-clara);
     transform-box: view-box;
   }
 
@@ -506,7 +544,7 @@
   }
 
   .reloj-arena__hilo {
-    stroke: var(--color-decorativo);
+    stroke: var(--accion-clara);
     stroke-width: 1.6;
     stroke-linecap: round;
     stroke-dasharray: 3 3;
@@ -610,8 +648,8 @@
 
   .galeria__nota {
     margin: 0;
-    font-size: var(--texto-pequeno);
-    color: var(--color-texto-suave);
+    font-size: var(--tam-pequeno);
+    color: var(--texto-suave);
   }
 
   /* ---------- Impresión: sin menús ni botones ---------- */

@@ -1,41 +1,90 @@
 /*
- * Pantallas (estilo-visual.md, secciones 4 y 6). Solo usan los tokens de tokens.css.
- * Sin tarjetas con fondo, sin sombras y sin tema oscuro: la jerarquía sale del tamaño de letra,
- * de las líneas finas de 1 px y de los cambios de superficie.
+ * Pantallas (estilo-visual.md, secciones 4 y 7). Solo usan los tokens de tokens.css.
+ * Tarjetas de vidrio sobre un fondo en degradado: la jerarquía sale del tamaño de letra, las líneas finas
+ * de 1 px y las tarjetas. Máximo 4 o 5 tarjetas por pantalla; las listas largas van dentro de una sola.
+ *
+ * Contraste (CA19): el texto suave y el de enlace llegan a 4,5 sobre una tarjeta, pero no sobre el degradado
+ * desnudo (3,7 a 3,9). Por eso lo que queda fuera de una tarjeta va en --texto.
  */
 
-/* ---------- Estructura: margen lateral de 16 px y 40 px entre secciones ---------- */
+/* ---------- Estructura: márgenes laterales de 16 px y 16 px entre tarjetas ---------- */
 
 .aplicacion {
   max-width: 640px;
   margin: 0 auto;
-  padding: 0 var(--esp-16) var(--esp-56);
+  padding: var(--esp-20) var(--esp-16) var(--esp-56);
 }
 
-/* Título de la app y pestañas: una barra fija con línea fina (la línea es la de las pestañas) */
+/* Cabecera: el reloj de arena quieto y "Arena", el estado de sincronización en caption y las pestañas */
 .encabezado {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  margin: 0 calc(-1 * var(--esp-16));
-  padding: var(--esp-16) var(--esp-16) 0;
-  background: var(--color-lienzo);
+  margin: 0;
+  padding: 0;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-12);
+  margin-bottom: var(--esp-4);
 }
 
 .titulo-app {
-  margin-bottom: var(--esp-4);
-  font-size: var(--texto-subtitulo);
+  font-size: var(--tam-pantalla);
   font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-subtitulo);
-  letter-spacing: var(--espaciado-subtitulo);
-  color: var(--color-texto);
+  line-height: var(--interlinea-compacta);
+  color: var(--texto);
+}
+
+.encabezado .texto-suave {
+  margin: 0 0 var(--esp-8) calc(30px + var(--esp-12)); /* alineado con "Arena", después del reloj de 30 px */
+  font-size: var(--tam-caption);
+  color: var(--texto);
 }
 
 .pantalla {
   display: flex;
   flex-direction: column;
-  gap: var(--esp-40);
-  padding-top: var(--esp-24);
+  gap: var(--esp-16);
+  padding-top: var(--esp-8);
+}
+
+/* ---------- Tarjeta de vidrio (sección 4): borde de 1 px, radio de 24 px, sombra suave y desenfoque ---------- */
+
+.tarjeta,
+.seccion,
+.bloque,
+.par,
+.vacio,
+.formulario {
+  padding: var(--esp-20);
+  background: var(--vidrio);
+  border: 1px solid var(--vidrio-borde);
+  border-radius: var(--radio-tarjeta);
+  box-shadow: var(--sombra);
+  -webkit-backdrop-filter: blur(var(--desenfoque));
+  backdrop-filter: blur(var(--desenfoque));
+  transition: transform var(--transicion);
+}
+
+/* Sin vidrio apilado sobre vidrio: lo que va dentro de una tarjeta no es otra tarjeta */
+:is(.tarjeta, .seccion, .bloque, .par, .vacio, .formulario) :is(.tarjeta, .seccion, .bloque, .par, .vacio, .formulario) {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Hover con cursor (no en táctil): la tarjeta sube 2 px. Con "reducir movimiento" no se mueve. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tarjeta:hover,
+  .seccion:hover,
+  .bloque:hover,
+  .par:hover {
+    transform: translateY(var(--elevacion));
+  }
 }
 
 .seccion {
@@ -44,47 +93,74 @@
   gap: var(--esp-12);
 }
 
-/* ---------- Acceso (login): la marca arriba y todo en una pantalla de 360 x 640 sin desplazarse ---------- */
+/* ---------- Acceso (login): la marca arriba y, en una tarjeta, el selector, Google y los campos ---------- */
 
 .acceso {
   display: flex;
   flex-direction: column;
-  gap: var(--esp-4);
-  padding-top: var(--esp-8);
-  padding-bottom: var(--esp-8);
+  gap: var(--esp-16);
+  padding-top: var(--esp-24);
+  padding-bottom: var(--esp-24);
 }
 
 .acceso__marca {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
+  gap: var(--esp-4);
   text-align: center;
 }
 
-/* Más compacto que el resto de la app, para que quepa sin desplazarse en 360 x 640 (CC21) */
-.acceso .pestanas {
-  padding: 0;
-}
-
-.acceso .formulario {
-  gap: var(--esp-8);
-}
-
 .acceso__nombre {
-  font-size: var(--texto-subtitulo);
-  font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-subtitulo);
-  letter-spacing: var(--espaciado-subtitulo);
-  color: var(--color-texto);
+  font-size: var(--tam-seccion);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlinea-compacta);
+  color: var(--texto);
 }
 
 .acceso__frase {
-  font-size: var(--texto-cuerpo);
-  font-weight: var(--peso-ligero);
-  line-height: var(--interlinea-cuerpo);
-  letter-spacing: var(--espaciado-cuerpo);
-  color: var(--color-texto-suave);
+  font-size: var(--tam-cuerpo);
+  font-weight: var(--peso-normal);
+  line-height: var(--interlinea);
+  color: var(--texto);
+}
+
+/* Con menos de 700 px de alto el reloj baja a 64 px y la frase se oculta, para que "Entrar" se vea sin desplazarse */
+@media (max-height: 700px) {
+  .acceso .reloj-arena {
+    width: 64px;
+    height: 64px;
+  }
+
+  .acceso__frase {
+    display: none;
+  }
+}
+
+.acceso__tarjeta {
+  gap: var(--esp-12);
+}
+
+/* El selector Entrar | Crear cuenta: dos pastillas en una pista de relleno, la activa con degradado */
+.acceso__tarjeta .pestanas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--esp-4);
+  margin: 0;
+  padding: var(--esp-4);
+  overflow: visible;
+  background: var(--relleno);
+  border-radius: var(--radio-pastilla);
+}
+
+.acceso__tarjeta .pestana {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.acceso__tarjeta .formulario {
+  gap: var(--esp-12);
 }
 
 .acceso__o {
@@ -96,10 +172,24 @@
   flex-direction: column;
   align-items: center;
   gap: 0;
+  font-size: var(--tam-caption);
   text-align: center;
+  color: var(--texto);
 }
 
-/* ---------- Pantalla de carga (estilo-visual.md §6b): reloj de arena centrado, "Arena" y, si tarda, un aviso ---------- */
+.acceso__pie .texto-suave {
+  font-size: var(--tam-caption);
+  color: var(--texto);
+}
+
+/* Fuera de una tarjeta el enlace va en --texto y subrayado: --enlace no llega a 4,5 sobre el degradado */
+.acceso__pie .enlace {
+  font-size: var(--tam-caption);
+  color: var(--texto);
+  text-decoration: underline;
+}
+
+/* ---------- Pantalla de carga (sección 7): fondo en degradado, reloj de arena de 96 px y "Arena" ---------- */
 
 .carga {
   display: flex;
@@ -114,20 +204,18 @@
 }
 
 .carga__nombre {
-  font-size: var(--texto-subtitulo);
+  font-size: var(--tam-pantalla);
   font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-subtitulo);
-  letter-spacing: var(--espaciado-subtitulo);
-  color: var(--color-texto);
+  line-height: var(--interlinea-compacta);
+  color: var(--texto);
 }
 
 .carga__demora {
   max-width: 320px;
-  font-size: var(--texto-cuerpo);
-  font-weight: var(--peso-ligero);
-  line-height: var(--interlinea-cuerpo);
-  letter-spacing: var(--espaciado-cuerpo);
-  color: var(--color-texto-suave);
+  font-size: var(--tam-cuerpo);
+  font-weight: var(--peso-normal);
+  line-height: var(--interlinea);
+  color: var(--texto);
 }
 
 /* Texto que se lee en voz alta pero no se ve */
@@ -146,64 +234,67 @@
 /* ---------- Texto ---------- */
 
 .titulo-seccion {
-  font-size: var(--texto-titulo);
+  font-size: var(--tam-pantalla);
   font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-titulo);
-  letter-spacing: var(--espaciado-titulo);
-  color: var(--color-texto);
+  line-height: var(--interlinea-compacta);
+  color: var(--texto);
 }
 
+/* Título de tarjeta */
 .subtitulo {
-  font-size: var(--texto-subtitulo);
-  font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-subtitulo);
-  letter-spacing: var(--espaciado-subtitulo);
-  color: var(--color-texto);
+  font-size: var(--tam-cuerpo);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlinea);
+  color: var(--texto);
 }
 
-.etiqueta,
+/* Etiqueta de KPI: 11 px, peso 500, mayúsculas */
+.etiqueta {
+  font-size: var(--tam-etiqueta);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlinea);
+  text-transform: uppercase;
+  letter-spacing: var(--espaciado-etiqueta);
+  color: var(--texto-suave);
+}
+
 .texto-suave {
-  font-size: var(--texto-pequeno);
-  line-height: var(--interlinea-pequeno);
-  letter-spacing: var(--espaciado-pequeno);
-  color: var(--color-texto-suave);
+  font-size: var(--tam-pequeno);
+  line-height: var(--interlinea);
+  color: var(--texto-suave);
 }
 
+/* Cifra grande (el saldo): 44 px, peso 500 */
 .cifra {
-  font-size: var(--texto-cifra);
-  font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-cifra);
-  letter-spacing: var(--espaciado-cifra);
-  color: var(--color-texto);
+  font-size: var(--tam-cifra);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlinea-compacta);
+  color: var(--texto);
   overflow-wrap: anywhere;
 }
 
+/* Cifra de KPI (prestado, pagado): 28 px */
 .cifra--media {
-  font-size: var(--texto-titulo);
-  line-height: var(--interlinea-titulo);
-  letter-spacing: var(--espaciado-titulo);
+  font-size: var(--tam-cifra-kpi);
 }
 
-/* ---------- Bloques tipográficos separados por líneas finas ---------- */
+/* ---------- Inicio y Banco: una tarjeta por bloque, con 16 px entre ellas ---------- */
 
 .bloques {
   display: flex;
   flex-direction: column;
+  gap: var(--esp-16);
 }
 
 .bloque {
   display: flex;
   flex-direction: column;
   gap: var(--esp-4);
-  padding: var(--esp-20) 0;
-  border-bottom: 1px solid var(--color-linea);
 }
 
-/* El saldo: bloque destacado, con su fondo hasta los bordes de la pantalla */
+/* La tarjeta del saldo: la etiqueta, la cifra de 44 px y su línea de contexto */
 .bloque--realce {
-  margin: 0 calc(-1 * var(--esp-16));
-  padding: var(--esp-20) var(--esp-16);
-  background: var(--color-realce);
+  gap: var(--esp-8);
 }
 
 .dos-columnas {
@@ -216,6 +307,35 @@
   display: flex;
   flex-direction: column;
   gap: var(--esp-4);
+  min-width: 0;
+}
+
+/* Cuadro de 36 px con degradado y trazo blanco de 1,8 px: violeta para lo prestado, verde azulado para lo pagado */
+.icono-kpi {
+  display: grid;
+  place-items: center;
+  width: var(--kpi-icono);
+  height: var(--kpi-icono);
+  margin-bottom: var(--esp-8);
+  border-radius: var(--radio-campo);
+}
+
+.icono-kpi--prestado {
+  background: var(--degradado-kpi-violeta);
+}
+
+.icono-kpi--pagado {
+  background: var(--degradado-kpi-verde);
+}
+
+.icono-kpi svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--sobre-accion);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .etiqueta-valor {
@@ -227,7 +347,7 @@
 
 .etiqueta-valor__valor {
   font-weight: var(--peso-fuerte);
-  color: var(--color-texto);
+  color: var(--texto);
 }
 
 /* ---------- Formularios y acciones ---------- */
@@ -252,10 +372,15 @@
   gap: var(--esp-8);
 }
 
-/* Varios botones de contorno en una fila (Banco) */
+/* Varios botones de contorno en una cuadrícula de 2 (Banco: saldo inicial, préstamo, pago, ajuste) */
 .acciones--fila {
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Una sola acción en la fila (un enlace, por ejemplo): ocupa todo el ancho en vez de media cuadrícula */
+.acciones--fila:has(> :only-child) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* Un enlace como acción secundaria: centrado bajo el botón */
@@ -263,7 +388,7 @@
   justify-content: center;
 }
 
-/* ---------- Estados vacíos: una frase en peso 300 y el botón relleno que lleva a la acción ---------- */
+/* ---------- Estados vacíos: una frase en --texto-suave dentro de una tarjeta y el botón que lleva a la acción ---------- */
 
 .vacio {
   display: flex;
@@ -272,14 +397,13 @@
 }
 
 .vacio__texto {
-  font-size: var(--texto-cuerpo);
-  font-weight: var(--peso-ligero);
-  line-height: var(--interlinea-cuerpo);
-  letter-spacing: var(--espaciado-cuerpo);
-  color: var(--color-texto);
+  font-size: var(--tam-cuerpo);
+  font-weight: var(--peso-normal);
+  line-height: var(--interlinea);
+  color: var(--texto-suave);
 }
 
-/* ---------- Quincena ---------- */
+/* ---------- Quincena: dos botones circulares de 44 px y el nombre al centro ---------- */
 
 .selector-quincena {
   display: flex;
@@ -288,13 +412,18 @@
   gap: var(--esp-8);
 }
 
+.selector-quincena .boton {
+  width: var(--zona-tactil);
+  padding: 0;
+  font-size: var(--tam-pantalla);
+}
+
 .selector-quincena__nombre {
-  font-size: var(--texto-subtitulo);
-  font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-subtitulo);
-  letter-spacing: var(--espaciado-subtitulo);
+  font-size: var(--tam-pantalla);
+  font-weight: var(--peso-medio);
+  line-height: var(--interlinea-compacta);
   text-align: center;
-  color: var(--color-texto);
+  color: var(--texto);
 }
 
 /* ---------- Extracto ---------- */
@@ -313,15 +442,14 @@
   padding: var(--esp-12) var(--esp-4);
   text-align: left;
   vertical-align: top;
-  border-bottom: 1px solid var(--color-linea);
+  border-bottom: 1px solid var(--linea);
 }
 
 .tabla-extracto th {
-  font-size: var(--texto-caption);
+  font-size: var(--tam-caption);
   font-weight: var(--peso-fuerte);
-  line-height: var(--interlinea-caption);
-  letter-spacing: var(--espaciado-caption);
-  color: var(--color-texto-suave);
+  line-height: var(--interlinea);
+  color: var(--texto-suave);
 }
 
 .tabla-extracto .num {
@@ -338,10 +466,9 @@
 .tabla-extracto__fecha,
 .tabla-extracto__detalle {
   display: block;
-  font-size: var(--texto-caption);
-  line-height: var(--interlinea-caption);
-  letter-spacing: var(--espaciado-caption);
-  color: var(--color-texto-suave);
+  font-size: var(--tam-caption);
+  line-height: var(--interlinea);
+  color: var(--texto-suave);
 }
 
 .tabla-extracto__tipo {
@@ -363,6 +490,17 @@
 
   .solo-imprimir {
     display: block;
+  }
+
+  /* Nada de tarjetas al imprimir: texto y líneas finas sobre blanco */
+  .tarjeta,
+  .seccion,
+  .bloque,
+  .par,
+  .vacio,
+  .formulario {
+    padding: 0;
+    border: 0;
   }
 
   .tabla-extracto tr {

@@ -6,6 +6,7 @@ import type { AvisoPrivacidad } from "../../dominio/aviso";
 import { PASOS, errorDelPaso, puedeContinuar, respuestasPorDefecto, type Respuestas } from "../../dominio/bienvenida";
 import type { Parametros } from "../../dominio/parametros";
 import { formatearDuracion, parsearDuracion } from "../../dominio/tiempo";
+import { Marca } from "../componentes/Marca";
 import { Aviso } from "../componentes/Aviso";
 import { BarraAvance } from "../componentes/BarraAvance";
 import { Boton } from "../componentes/Boton";
@@ -95,7 +96,7 @@ export function Bienvenida({ aviso, hoy, parametros, alTerminar, alImportar }: P
   return (
     <main className="aplicacion">
       <header className="encabezado">
-        <h1 className="titulo-app">Arena</h1>
+        <Marca />
       </header>
       <section className="pantalla">
         <div className="seccion">

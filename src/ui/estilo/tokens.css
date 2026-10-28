@@ -1,55 +1,78 @@
 /*
- * Tokens de estilo. Salen de estilo-visual.md: ese documento manda.
- * Los componentes usan solo estas variables: no llevan colores, tamaños de letra ni radios propios.
- * Un script (npm run check:estilo) falla si aparece un color que no esté definido aquí.
+ * Tokens de estilo. Salen de estilo-visual.md (estilo de vidrio): ese documento manda.
+ * Los componentes usan solo estas variables: no llevan colores, sombras, degradados, tamaños de letra
+ * ni radios propios. Un script (npm run check:estilo) falla si aparece algo que no salga de aquí.
  */
 
 :root {
-  /* Colores (sección 2). No hay verde ni rojo. */
-  --color-texto: #1d1d1f;
-  --color-texto-suave: #707070;
-  --color-lienzo: #f5f5f7;
-  --color-realce: #f4f8fb;
-  --color-relleno: #e2e2e5;
-  --color-linea: #d2d2d7;
-  --color-accion: #0071e3;
-  --color-sobre-accion: #ffffff;
-  --color-enlace: #0066cc;
-  --color-decorativo: #2997ff;
-  --color-icono: #858585;
+  color-scheme: light;
 
-  /* Letra del sistema (sección 3): no se descarga ninguna fuente, así la app funciona sin internet. */
-  --fuente: "SF Pro Text", -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+  /* Colores (secciones 2 y 10) */
+  --fondo-base: #B9D2D2;
+  --fondo-lila: #C9C3E6;
+  --fondo-claro: #DDEAE6;
+  --vidrio: rgba(255,255,255,.55);
+  --vidrio-borde: rgba(255,255,255,.65);
+  --vidrio-solido: #E4ECEC;
+  --texto: #1F2A2E;
+  --texto-suave: #566366;
+  --accion: #2F7480;
+  --accion-clara: #3D8B94;
+  --enlace: #256A74;
+  --aviso: #B3364C;
+  --linea: rgba(0,0,0,.08);
+  --relleno: rgba(31,42,46,.10);
+  --velo: rgba(0,0,0,.40);
+  --sobre-accion: #FFFFFF; /* texto y trazos blancos sobre el degradado de acción (el documento los pide blancos) */
 
-  /* Tamaño, interlineado y espaciado de letras de cada rol */
-  --texto-caption: 12px;
-  --interlinea-caption: 1.33;
-  --espaciado-caption: -0.264px;
+  /* Íconos de KPI (sección 2): violeta para lo prestado, verde azulado para lo pagado (su extremo oscuro es --accion-clara) */
+  --kpi-violeta-claro: #B7A8FA;
+  --kpi-violeta: #8E7CF0;
+  --kpi-verde-claro: #8FC9C9;
 
-  --texto-pequeno: 14px;
-  --interlinea-pequeno: 1.29;
-  --espaciado-pequeno: -0.224px;
+  /* Sombras */
+  --sombra: 0 10px 30px rgba(60,90,100,.10);
+  --sombra-accion: 0 8px 20px rgba(47,116,128,.30);
 
-  --texto-cuerpo: 17px;
-  --interlinea-cuerpo: 1.47;
-  --espaciado-cuerpo: -0.272px;
+  /*
+   * Degradados. El del botón y la pestaña activa llega al color oscuro al 30 % del recorrido: el texto blanco
+   * nunca queda sobre el extremo claro (3,95 de contraste), solo sobre mezclas que ya pasan de 4,5.
+   */
+  --degradado-accion: linear-gradient(135deg, var(--accion-clara) 0%, var(--accion) 30%);
+  --degradado-kpi-violeta: linear-gradient(135deg, var(--kpi-violeta-claro), var(--kpi-violeta));
+  --degradado-kpi-verde: linear-gradient(135deg, var(--kpi-verde-claro), var(--accion-clara));
+  --degradado-barra: linear-gradient(90deg, var(--accion-clara), var(--accion));
 
-  --texto-subtitulo: 21px;
-  --interlinea-subtitulo: 1.24;
-  --espaciado-subtitulo: -0.105px;
+  /* Fondo de la app (sección 10): manchas radiales de CSS sobre el color base, sin imágenes */
+  --fondo-app:
+    radial-gradient(120% 70% at 0% 0%, var(--fondo-claro) 0%, transparent 60%),
+    radial-gradient(90% 60% at 100% 35%, var(--fondo-lila) 0%, transparent 65%),
+    var(--fondo-base);
 
-  --texto-titulo: 28px;
-  --interlinea-titulo: 1.18;
-  --espaciado-titulo: 0.196px;
+  /* Letra (sección 3). Inter se usa solo si el teléfono ya la tiene: la app no la descarga ni la empaqueta. */
+  --fuente: -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
 
-  --texto-cifra: 44px;
-  --interlinea-cifra: 1.18;
-  --espaciado-cifra: -0.44px;
+  /* Tamaños de letra, en rem para respetar el tamaño que cada persona eligió en su teléfono (1 rem = 16 px) */
+  --tam-etiqueta: 0.6875rem; /* 11 px, etiqueta de KPI */
+  --tam-caption: 0.8125rem; /* 13 px */
+  --tam-pequeno: 0.875rem; /* 14 px */
+  --tam-cuerpo: 1.0625rem; /* 17 px */
+  --tam-unidad-kpi: 1rem; /* 16 px */
+  --tam-unidad: 1.125rem; /* 18 px */
+  --tam-pantalla: 1.375rem; /* 22 px, título de la app y de pantalla */
+  --tam-seccion: 1.75rem; /* 28 px */
+  --tam-cifra-kpi: 1.75rem; /* 28 px */
+  --tam-cifra: 2.75rem; /* 44 px, el saldo */
 
-  /* Pesos permitidos: nunca 700 */
-  --peso-ligero: 300;
+  /* Pesos permitidos: nunca 300 ni 700 */
   --peso-normal: 400;
+  --peso-medio: 500;
   --peso-fuerte: 600;
+
+  /* El documento da 1,45 para el cuerpo; los títulos y las cifras grandes lo cierran para no quedar flotando */
+  --interlinea: 1.45;
+  --interlinea-compacta: 1.2;
+  --espaciado-etiqueta: 0.06em;
 
   /* Espacio (sección 4): unidad base de 4 px */
   --esp-4: 4px;
@@ -62,32 +85,68 @@
   --esp-48: 48px;
   --esp-56: 56px;
 
-  /* Radios: solo dos */
-  --radio-pastilla: 980px;
-  --radio-caja: 8px;
+  /* Radios: tres */
+  --radio-tarjeta: 24px;
+  --radio-campo: 12px;
+  --radio-pastilla: 999px;
 
-  /* Medidas de los componentes que da el documento (secciones 4 y 5) */
+  /* Medidas de los componentes que da el documento (secciones 4 y 6) */
   --zona-tactil: 44px; /* alto mínimo de todo lo que se toca */
+  --boton-alto: 48px; /* botón principal */
   --barra-alto: 6px; /* barra de avance */
-  --relleno-boton: 11px 15px;
+  --kpi-icono: 36px; /* cuadro del ícono de KPI */
+  --desenfoque: 20px; /* backdrop-filter de las tarjetas */
+
+  /* Movimiento (sección 6): hover y transiciones de 150 a 200 ms; el reloj de arena tiene el suyo */
+  --transicion: 180ms;
+  --elevacion: -2px;
 }
 
 /*
- * Al imprimir (CA21): fondo blanco, texto negro, líneas finas y nada de azul.
+ * Vidrio sin romper celulares viejos (sección 5): si el navegador no sabe hacer el desenfoque, o la persona
+ * pidió "reducir transparencia", las tarjetas usan el fondo sólido. El iPhone con iOS 17 o anterior solo
+ * entiende la versión con prefijo, por eso se pregunta por las dos.
+ */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --vidrio: var(--vidrio-solido);
+    --desenfoque: 0px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --vidrio: var(--vidrio-solido);
+    --desenfoque: 0px;
+  }
+}
+
+/*
+ * Al imprimir (CA21): fondo blanco, texto negro, líneas finas y nada de vidrio, sombras, degradados ni color.
  * Se logra cambiando los tokens, así los componentes no necesitan reglas de impresión para el color.
  */
 @media print {
   :root {
-    --color-texto: #000;
-    --color-texto-suave: #000;
-    --color-lienzo: #fff;
-    --color-realce: #fff;
-    --color-relleno: #fff;
-    --color-linea: #000;
-    --color-accion: #000;
-    --color-sobre-accion: #fff;
-    --color-enlace: #000;
-    --color-decorativo: #000;
-    --color-icono: #000;
+    --fondo-app: #fff;
+    --vidrio: #fff;
+    --vidrio-borde: #000;
+    --vidrio-solido: #fff;
+    --texto: #000;
+    --texto-suave: #000;
+    --accion: #000;
+    --accion-clara: #000;
+    --enlace: #000;
+    --aviso: #000;
+    --linea: #000;
+    --relleno: #fff;
+    --velo: #000;
+    --sobre-accion: #fff;
+    --sombra: none;
+    --sombra-accion: none;
+    --degradado-accion: #000;
+    --degradado-kpi-violeta: #000;
+    --degradado-kpi-verde: #000;
+    --degradado-barra: #000;
+    --desenfoque: 0px;
   }
 }

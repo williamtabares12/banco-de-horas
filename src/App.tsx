@@ -15,6 +15,7 @@ import { Aviso } from "./ui/componentes/Aviso";
 import { Boton } from "./ui/componentes/Boton";
 import { IndicadorSincronizacion } from "./ui/componentes/IndicadorSincronizacion";
 import { BotonArchivo } from "./ui/componentes/BotonArchivo";
+import { Marca } from "./ui/componentes/Marca";
 import { Pestanas } from "./ui/componentes/Pestanas";
 import { useConfirmacion } from "./ui/componentes/useConfirmacion";
 import { Ajustes } from "./ui/pantallas/Ajustes";
@@ -119,7 +120,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
     return (
       <main className="aplicacion">
         <header className="encabezado">
-          <h1 className="titulo-app">Arena</h1>
+          <Marca />
         </header>
         <PantallaError
           mensaje={estado.error}
@@ -152,7 +153,7 @@ export default function App({ repo = repoLocal, alCerrarSesion, alVerAviso, avis
   return (
     <main className="aplicacion">
       <header className="encabezado">
-        <h1 className="titulo-app">Arena</h1>
+        <Marca />
         {pendienteDeSincronizar !== undefined && <IndicadorSincronizacion pendiente={pendienteDeSincronizar} />}
         <Pestanas
           elementos={alVerAviso ? [...PESTANAS, PESTANA_ACERCA] : PESTANAS}

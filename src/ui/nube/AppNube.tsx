@@ -23,6 +23,7 @@ import { debeAnularse, mensajeDeErrorAcceso, mensajeDeErrorBorrado } from "../..
 import { esNavegadorEmbebido } from "../../dominio/navegadores";
 import { leerAviso } from "../../dominio/aviso";
 import { crearDatosIniciales, crearPerfil, pantallaDeCuenta } from "../../dominio/bienvenida";
+import { Marca } from "../componentes/Marca";
 import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
 import { PantallaDeCarga } from "../PantallaDeCarga";
@@ -176,7 +177,7 @@ function Cuenta({ usuario, alBorrarCuenta }: { usuario: Usuario; alBorrarCuenta:
     return (
       <main className="aplicacion">
         <header className="encabezado">
-          <h1 className="titulo-app">Arena</h1>
+          <Marca />
         </header>
         <section className="pantalla">
           <Aviso tipo="error">No se pudieron leer tus datos: {estado.error}. No se ha borrado nada.</Aviso>

@@ -29,9 +29,9 @@ describe("la app se llama Arena", () => {
     expect(encontrados).toEqual([]);
   });
 
-  it("el color de la barra del navegador no cambia (sigue siendo el lienzo)", () => {
-    expect(leer("index.html")).toContain('content="#f5f5f7"');
-    expect(leer("vite.config.ts")).toMatch(/theme_color:\s*'#f5f5f7'/);
+  it("el color de la barra del navegador es el color base del fondo de vidrio (#B9D2D2)", () => {
+    expect(leer("index.html")).toContain('content="#B9D2D2"');
+    expect(leer("vite.config.ts")).toMatch(/theme_color:\s*'#B9D2D2'/);
   });
 });
 
@@ -91,9 +91,9 @@ function leerPng(ruta: string) {
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
 const cerca = (a: number[], b: number[], tolerancia = 6) => a.every((v, i) => Math.abs(v - b[i]) <= tolerancia);
 
-const TEXTO = rgb("#1d1d1f"); // --color-texto: el fondo del ícono
-const LIENZO = rgb("#f5f5f7"); // --color-lienzo: el contorno del reloj
-const DECORATIVO = rgb("#2997ff"); // --color-decorativo: la arena
+const TEXTO = rgb("#1F2A2E"); // --texto: el fondo del ícono
+const CONTORNO = rgb("#F2F6F6"); // el contorno del reloj en el ícono (estilo-visual.md §8)
+const ARENA = rgb("#5FA8A8"); // la arena en el ícono (estilo-visual.md §8)
 
 describe("íconos de la app (icono-app-oscuro.svg)", () => {
   const casos: [string, number][] = [
@@ -116,13 +116,13 @@ describe("íconos de la app (icono-app-oscuro.svg)", () => {
           expect(png.alfa(x, y)).toBe(255);
         }
       });
-      it("el contorno del reloj es el color de lienzo (la tapa de arriba, a la mitad del ancho)", () => {
+      it("el contorno del reloj es #F2F6F6 (la tapa de arriba, a la mitad del ancho)", () => {
         const y = Math.round((160 / 512) * lado);
-        expect(cerca(png.pixel(Math.round(lado / 2), y), LIENZO)).toBe(true);
+        expect(cerca(png.pixel(Math.round(lado / 2), y), CONTORNO)).toBe(true);
       });
-      it("la arena es el azul decorativo", () => {
+      it("la arena es #5FA8A8", () => {
         const y = Math.round((208 / 512) * lado);
-        expect(cerca(png.pixel(Math.round(lado / 2), y), DECORATIVO)).toBe(true);
+        expect(cerca(png.pixel(Math.round(lado / 2), y), ARENA)).toBe(true);
       });
       it("todo el dibujo cabe dentro del círculo central del 80 % (así sirve como ícono 'maskable')", () => {
         const centro = (lado - 1) / 2;

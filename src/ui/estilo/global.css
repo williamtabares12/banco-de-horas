@@ -1,4 +1,4 @@
-/* Estilos globales: lienzo, letra del sistema y cifras tabulares. Solo tema claro. */
+/* Estilos globales: fondo en degradado, letra del documento y cifras tabulares. Solo tema claro. */
 
 /*
  * Orden de las capas: la base va primero y los componentes la superan. Sin capas, un reinicio global
@@ -33,7 +33,7 @@
     font-weight: inherit;
   }
 
-  /* El navegador pone la negrita en 700; el estilo solo permite 300, 400 y 600 */
+  /* El navegador pone la negrita en 700; el estilo solo permite 400, 500 y 600 */
   strong,
   b {
     font-weight: var(--peso-fuerte);
@@ -44,13 +44,13 @@
     /* Zona segura: el notch, la barra de gestos y las esquinas no tapan el contenido (en 0 si el teléfono no tiene) */
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px)
       env(safe-area-inset-left, 0px);
-    background: var(--color-lienzo);
-    color: var(--color-texto);
+    min-height: 100dvh;
+    background: var(--fondo-app);
+    color: var(--texto);
     font-family: var(--fuente);
-    font-size: var(--texto-cuerpo);
+    font-size: var(--tam-cuerpo);
     font-weight: var(--peso-normal);
-    line-height: var(--interlinea-cuerpo);
-    letter-spacing: var(--espaciado-cuerpo);
+    line-height: var(--interlinea);
     /* Las cifras de horas ocupan siempre el mismo ancho: las columnas del extracto quedan alineadas */
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;

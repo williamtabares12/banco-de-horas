@@ -7,14 +7,20 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 const TOKENS = `
 :root {
-  --color-texto: #1d1d1f;
-  --color-accion: #0071e3;
+  --texto: #1F2A2E;
+  --accion: #2F7480;
   --esp-8: 8px;
-  --radio-caja: 8px;
-  --radio-pastilla: 980px;
-  --texto-cuerpo: 17px;
+  --radio-tarjeta: 24px;
+  --radio-campo: 12px;
+  --radio-pastilla: 999px;
+  --tam-cuerpo: 1.0625rem;
+  --sombra: 0 10px 30px rgba(60,90,100,.10);
+  --sombra-accion: 0 8px 20px rgba(47,116,128,.30);
+  --degradado-accion: linear-gradient(135deg, var(--accion), var(--texto));
+  --desenfoque: 20px;
+  --transicion: 180ms;
 }
-@media print { :root { --color-texto: #000; } }
+@media print { :root { --texto: #000; } }
 `;
 const tokens = { ruta: "src/ui/estilo/tokens.css", contenido: TOKENS };
 const css = (contenido: string, ruta = "src/ui/x.css") => ({ ruta, contenido });
@@ -53,8 +59,8 @@ describe("CA16: colores que no están en tokens.css", () => {
   it("falla con un color con nombre dentro de un degradado de máscara", () => {
     expect(categorias(revisar([css("a { mask-image: linear-gradient(to right, black, transparent); }")]))).toEqual(["color"]);
   });
-  it("no falla con var(--color-…) definidos en tokens.css", () => {
-    const r = revisar([css("a { color: var(--color-texto); background: var(--color-accion); border: 1px solid var(--color-texto); }")]);
+  it("no falla con var(--…) definidos en tokens.css", () => {
+    const r = revisar([css("a { color: var(--texto); background: var(--accion); border: 1px solid var(--texto); }")]);
     expect(r.errores).toEqual([]);
   });
   it("permite transparent, currentColor, inherit, initial y none", () => {
@@ -65,11 +71,11 @@ describe("CA16: colores que no están en tokens.css", () => {
     expect(revisarEstilo([tokens]).errores).toEqual([]);
   });
   it("ignora lo que está en comentarios", () => {
-    const r = revisar([css("/* antes era #fff */\na { color: var(--color-texto); } /* rgb(0 0 0) */"), tsx("// #fff\n/* rgba(0,0,0,.5) */\nconst a = 1;")]);
+    const r = revisar([css("/* antes era #fff */\na { color: var(--texto); } /* rgb(0 0 0) */"), tsx("// #fff\n/* rgba(0,0,0,.5) */\nconst a = 1;")]);
     expect(r.errores).toEqual([]);
   });
   it("detecta colores en TypeScript y en estilos en línea", () => {
-    expect(categorias(revisar([tsx('const c = "#0071e3";')]))).toEqual(["color"]);
+    expect(categorias(revisar([tsx('const c = "#2F7480";')]))).toEqual(["color"]);
     expect(categorias(revisar([tsx('<div style={{ color: "red" }} />')]))).toEqual(["color"]);
     expect(categorias(revisar([tsx("<div style={{ background: 'rgb(1,2,3)' }} />")]))).toEqual(["color"]);
   });
@@ -78,40 +84,53 @@ describe("CA16: colores que no están en tokens.css", () => {
     expect(r.errores).toEqual([]);
   });
   it("indica la línea correcta", () => {
-    const r = revisar([css("a { color: var(--color-texto); }\n\nb {\n  background: #123456;\n}")]);
+    const r = revisar([css("a { color: var(--texto); }\n\nb {\n  background: #123456;\n}")]);
     expect(r.errores[0].linea).toBe(4);
   });
 });
 
 describe("variables que no existen", () => {
-  it("falla con un var(--color-…) que no está definido", () => {
-    const r = revisar([css("a { color: var(--color-inventado); }")]);
+  it("falla con una variable var(--…) que no está definida", () => {
+    const r = revisar([css("a { color: var(--inventada); }")]);
     expect(categorias(r)).toEqual(["variable"]);
-    expect(r.errores[0].mensaje).toContain("--color-inventado");
+    expect(r.errores[0].mensaje).toContain("--inventada");
   });
   it("acepta una variable definida en otro archivo CSS", () => {
-    const r = revisar([css("a { color: var(--puente); }"), css(":root { --puente: var(--color-texto); }", "src/ui/estilo/puente.css")]);
+    const r = revisar([css("a { color: var(--puente); }"), css(":root { --puente: var(--texto); }", "src/ui/estilo/puente.css")]);
     expect(r.errores).toEqual([]);
   });
   it("un color de respaldo suelto dentro de var() también falla", () => {
-    expect(categorias(revisar([css("a { color: var(--color-texto, #fff); }")]))).toEqual(["color"]);
+    expect(categorias(revisar([css("a { color: var(--texto, #fff); }")]))).toEqual(["color"]);
   });
 });
 
-describe("reglas del documento de estilo (avisos hasta T20, errores en modo estricto)", () => {
-  const casos: [string, string, string][] = [
-    ["sombra", "a { box-shadow: 0 1px 2px var(--color-texto); }", "box-shadow"],
-    ["sombra", "a { text-shadow: 0 0 1px var(--color-texto); }", "text-shadow"],
-    ["sombra", "a { filter: drop-shadow(0 0 1px var(--color-texto)); }", "drop-shadow"],
-    ["tema-oscuro", "@media (prefers-color-scheme: dark) { a { color: var(--color-texto); } }", "tema oscuro"],
-    ["peso", "a { font-weight: 700; }", "700"],
-    ["peso", "a { font-weight: bold; }", "bold"],
-    ["peso", "a { font-weight: 900; }", "900"],
-    ["radio", "a { border-radius: 10px; }", "radio"],
-    ["radio", "a { border-radius: 50%; }", "radio"],
-    ["radio", "a { border-top-left-radius: 28px; }", "radio"],
-    ["tamano-letra", "a { font-size: 1rem; }", "tamaño"],
-    ["tamano-letra", "a { font-size: 17px; }", "tamaño"],
+describe("reglas del documento de estilo (avisos hasta T42, errores en modo estricto)", () => {
+  const casos: [string, string][] = [
+    // sombras: solo las del documento, por su variable
+    ["sombra", "a { box-shadow: 0 1px 2px var(--texto); }"],
+    ["sombra", "a { box-shadow: 0 10px 30px var(--accion); }"],
+    ["sombra", "a { text-shadow: 0 0 1px var(--texto); }"],
+    ["sombra", "a { filter: drop-shadow(0 0 1px var(--texto)); }"],
+    // degradados: solo los que salen de una variable
+    ["degradado", "a { background: linear-gradient(90deg, var(--accion), var(--texto)); }"],
+    ["degradado", "a { background-image: radial-gradient(circle, var(--accion), transparent); }"],
+    ["tema-oscuro", "@media (prefers-color-scheme: dark) { a { color: var(--texto); } }"],
+    ["peso", "a { font-weight: 700; }"],
+    ["peso", "a { font-weight: bold; }"],
+    ["peso", "a { font-weight: 300; }"],
+    ["radio", "a { border-radius: 10px; }"],
+    ["radio", "a { border-radius: 50%; }"],
+    ["radio", "a { border-radius: 8px; }"],
+    ["radio", "a { border-top-left-radius: 28px; }"],
+    ["tamano-letra", "a { font-size: 1rem; }"],
+    ["tamano-letra", "a { font-size: 17px; }"],
+    // vidrio: solo con la variable del desenfoque, nunca en el fondo ni en las filas de una lista
+    ["vidrio", ".tarjeta { backdrop-filter: blur(20px); }"],
+    ["vidrio", "body { backdrop-filter: blur(var(--desenfoque)); }"],
+    ["vidrio", ".fila-lista { backdrop-filter: blur(var(--desenfoque)); }"],
+    // movimiento: solo el reloj de arena y las transiciones de la variable
+    ["movimiento", "a { transition: opacity 300ms; }"],
+    ["movimiento", "a { animation: pulso 1s infinite; }"],
   ];
   it.each(casos)("%s: %s", (categoria, codigo) => {
     const normal = revisar([css(codigo)]);
@@ -121,25 +140,58 @@ describe("reglas del documento de estilo (avisos hasta T20, errores en modo estr
     expect(estricto.errores.map((h: { categoria: string }) => h.categoria)).toEqual([categoria]);
     expect(estricto.avisos).toEqual([]);
   });
-  it("permite los pesos 300, 400 y 600", () => {
-    for (const w of ["300", "400", "600", "normal"]) expect(revisar([css(`a { font-weight: ${w}; }`)], { estricto: true }).errores, w).toEqual([]);
+  it("permite las sombras que salen de las variables del documento, o ninguna", () => {
+    for (const v of ["var(--sombra)", "var(--sombra-accion)", "none", "inherit"]) {
+      expect(revisar([css(`a { box-shadow: ${v}; }`)], { estricto: true }).errores, v).toEqual([]);
+    }
+  });
+  it("permite degradados que salen de una variable", () => {
+    const r = revisar([css("a { background: var(--degradado-accion); }")], { estricto: true });
+    expect(r.errores).toEqual([]);
+  });
+  it("permite los pesos 400, 500 y 600", () => {
+    for (const w of ["400", "500", "600", "normal", "inherit"]) {
+      expect(revisar([css(`a { font-weight: ${w}; }`)], { estricto: true }).errores, w).toEqual([]);
+    }
   });
   it("permite los radios del documento", () => {
-    for (const r of ["8px", "980px", "0", "var(--radio-caja)", "var(--radio-pastilla)"]) {
+    for (const r of ["0", "var(--radio-tarjeta)", "var(--radio-campo)", "var(--radio-pastilla)", "var(--radio-campo) var(--radio-campo) 0 0"]) {
       expect(revisar([css(`a { border-radius: ${r}; }`)], { estricto: true }).errores, r).toEqual([]);
     }
   });
   it("permite tamaños de letra tomados de los tokens", () => {
-    for (const s of ["var(--texto-cuerpo)", "inherit", "100%"]) {
+    for (const s of ["var(--tam-cuerpo)", "inherit", "100%"]) {
       expect(revisar([css(`a { font-size: ${s}; }`)], { estricto: true }).errores, s).toEqual([]);
     }
   });
+  it("permite el vidrio en una tarjeta con la variable del desenfoque", () => {
+    const r = revisar([css(".tarjeta { backdrop-filter: blur(var(--desenfoque)); -webkit-backdrop-filter: blur(var(--desenfoque)); }")], { estricto: true });
+    expect(r.errores).toEqual([]);
+  });
+  it("permite las transiciones con la variable y la animación del reloj de arena", () => {
+    const r = revisar(
+      [
+        css(
+          [
+            "a { transition: transform var(--transicion), opacity var(--transicion); }",
+            ".reloj-arena__vidrio { animation: giro 5s infinite; }",
+            "@keyframes giro { 0% { opacity: 1; } }",
+          ].join("\n"),
+        ),
+      ],
+      { estricto: true },
+    );
+    expect(r.errores).toEqual([]);
+  });
   it("no confunde una variable personalizada con la propiedad", () => {
-    const r = revisar([css(":root { --mi-font-size: 1rem; --mi-box-shadow: none; }")], { estricto: true });
+    const r = revisar([css(":root { --mi-font-size: 1rem; --mi-box-shadow: 0 1px 2px red; }")], { estricto: true });
     expect(r.errores).toEqual([]);
   });
   it("los colores siguen siendo error aunque no sea modo estricto", () => {
     expect(revisar([css("a { color: #fff; box-shadow: none; }")]).errores).toHaveLength(1);
+  });
+  it("tokens.css puede definir sombras y degradados (ahí nacen las variables)", () => {
+    expect(revisarEstilo([tokens], { estricto: true }).errores).toEqual([]);
   });
 });
 

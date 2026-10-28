@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Revisa que el código siga estilo-visual.md.
+// Revisa que el código siga estilo-visual.md (estilo de vidrio).
 //
 //  - Errores (siempre): un color que no esté definido en src/ui/estilo/tokens.css (CA16) y variables
 //    de CSS que se usan sin estar definidas.
-//  - Avisos: sombras, tema oscuro, pesos de letra, radios y tamaños de letra fuera del documento.
-//    Con --estricto los avisos también son errores.
+//  - Avisos: sombras y degradados que no salgan de una variable, vidrio fuera de una tarjeta o sin la variable
+//    del desenfoque, movimiento que no sea el reloj de arena ni una transición de la variable, tema oscuro,
+//    pesos de letra, radios y tamaños de letra fuera del documento. Con --estricto los avisos también son errores.
 //
 // Uso:  npm run check:estilo   |   node scripts/check-estilo.mjs --estricto
 
@@ -12,7 +13,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CATEGORIAS_AVISO = new Set(["sombra", "tema-oscuro", "peso", "radio", "tamano-letra"]);
+const CATEGORIAS_AVISO = new Set(["sombra", "degradado", "vidrio", "movimiento", "tema-oscuro", "peso", "radio", "tamano-letra"]);
 
 /** Colores con nombre de CSS. Solo se buscan como valor de propiedades de color. */
 const COLORES_CON_NOMBRE = new Set(
@@ -37,8 +38,11 @@ const COLORES_CON_NOMBRE = new Set(
 const HEX = /(?<![&\w])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
 const FUNCION_DE_COLOR = /\b(?:rgb|rgba|hsl|hsla|hwb|lab|lch|oklab|oklch|color-mix)\(/gi;
 
-const PESOS_PERMITIDOS = new Set(["300", "400", "600", "normal", "inherit", "initial", "unset"]);
-const RADIOS_PERMITIDOS = new Set(["0", "0px", "8px", "980px", "inherit", "var(--radio-caja)", "var(--radio-pastilla)"]);
+const PESOS_PERMITIDOS = new Set(["400", "500", "600", "normal", "inherit", "initial", "unset"]);
+const RADIOS_PERMITIDOS = new Set(["0", "0px", "inherit", "var(--radio-tarjeta)", "var(--radio-campo)", "var(--radio-pastilla)"]);
+const SOMBRAS_PERMITIDAS = /^(none|inherit|initial|unset|var\(--sombra(-accion)?\))$/;
+/** El vidrio no va en el fondo ni en las filas de una lista (estilo-visual.md, sección 5). */
+const SELECTOR_SIN_VIDRIO = /(^|[\s,>+~])(html|body|li|tr|td|th)\b|fila-lista|lista-filas|tabla-extracto/;
 
 const normalizar = (ruta) => ruta.split(sep).join("/").replace(/\\/g, "/");
 const esTokens = (ruta) => normalizar(ruta).endsWith("src/ui/estilo/tokens.css");
@@ -62,12 +66,20 @@ function estilosDeHtml(contenido) {
   return bloques;
 }
 
-/** Declaraciones "propiedad: valor" de un CSS ya sin comentarios. Ignora las variables personalizadas. */
+/**
+ * Declaraciones "propiedad: valor" de un CSS ya sin comentarios, con el selector de la regla donde están.
+ * Ignora las variables personalizadas.
+ */
 function* declaraciones(css) {
-  for (const m of css.matchAll(/([a-zA-Z-]+)\s*:\s*([^;{}]*)/g)) {
-    const propiedad = m[1].toLowerCase();
-    if (propiedad.startsWith("--")) continue;
-    yield { propiedad, valor: m[2].trim(), indice: m.index };
+  // Las reglas más internas: cubre lo que está dentro de @media, @supports y @layer sin entender su anidación
+  for (const regla of css.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
+    const selector = regla[1].trim();
+    const inicioCuerpo = regla.index + regla[1].length + 1;
+    for (const m of regla[2].matchAll(/([a-zA-Z-]+)\s*:\s*([^;]*)/g)) {
+      const propiedad = m[1].toLowerCase();
+      if (propiedad.startsWith("--")) continue;
+      yield { propiedad, valor: m[2].trim(), indice: inicioCuerpo + m.index, selector };
+    }
   }
 }
 
@@ -125,12 +137,12 @@ export function revisarEstilo(archivos, { estricto = false } = {}) {
 
     // CA16: colores sueltos. En tokens.css se definen, así que ahí no cuentan.
     if (!enTokens) {
-      for (const m of u.texto.matchAll(HEX)) agregarUnidad(u, m.index, "color", `Color suelto ${m[0]}: usa una variable --color-… de tokens.css`);
-      for (const m of u.texto.matchAll(FUNCION_DE_COLOR)) agregarUnidad(u, m.index, "color", `Color suelto con ${m[0]}…): usa una variable --color-… de tokens.css`);
+      for (const m of u.texto.matchAll(HEX)) agregarUnidad(u, m.index, "color", `Color suelto ${m[0]}: usa una variable de tokens.css`);
+      for (const m of u.texto.matchAll(FUNCION_DE_COLOR)) agregarUnidad(u, m.index, "color", `Color suelto con ${m[0]}…): usa una variable de tokens.css`);
       if (u.tipo === "css") {
         for (const d of declaraciones(u.texto)) {
           if (!esPropiedadDeColor(d.propiedad)) continue;
-          for (const nombre of coloresConNombre(d.valor)) agregarUnidad(u, d.indice, "color", `Color con nombre "${nombre}" en ${d.propiedad}: usa una variable --color-… de tokens.css`);
+          for (const nombre of coloresConNombre(d.valor)) agregarUnidad(u, d.indice, "color", `Color con nombre "${nombre}" en ${d.propiedad}: usa una variable de tokens.css`);
         }
       } else {
         // TypeScript: estilos en línea como { color: "red" }
@@ -146,19 +158,34 @@ export function revisarEstilo(archivos, { estricto = false } = {}) {
     for (const d of declaraciones(u.texto)) {
       const v = d.valor.toLowerCase();
       if (d.propiedad === "color-scheme" && v.includes("dark")) agregarUnidad(u, d.indice, "tema-oscuro", "Tema oscuro: la app es solo tema claro");
-      if (d.propiedad === "box-shadow" || d.propiedad === "text-shadow" || ((d.propiedad === "filter" || d.propiedad === "backdrop-filter") && v.includes("drop-shadow("))) {
-        agregarUnidad(u, d.indice, "sombra", `Sombra (${d.propiedad}): el estilo no usa sombras`);
+      if (d.propiedad === "box-shadow" || d.propiedad === "text-shadow") {
+        if (!SOMBRAS_PERMITIDAS.test(v)) agregarUnidad(u, d.indice, "sombra", `Sombra (${d.propiedad}): solo var(--sombra) o var(--sombra-accion)`);
+      } else if ((d.propiedad === "filter" || d.propiedad === "backdrop-filter") && v.includes("drop-shadow(")) {
+        agregarUnidad(u, d.indice, "sombra", `Sombra (${d.propiedad}): solo var(--sombra) o var(--sombra-accion)`);
+      }
+      if (!enTokens && /-gradient\(/.test(v.replace(/var\([^)]*\)/g, " "))) {
+        agregarUnidad(u, d.indice, "degradado", `Degradado en ${d.propiedad}: define una variable en tokens.css y úsala con var(--…)`);
+      }
+      if (/^(-webkit-)?backdrop-filter$/.test(d.propiedad) && v !== "none") {
+        if (v !== "blur(var(--desenfoque))") agregarUnidad(u, d.indice, "vidrio", `Vidrio (${d.propiedad}): solo blur(var(--desenfoque))`);
+        if (SELECTOR_SIN_VIDRIO.test(d.selector)) agregarUnidad(u, d.indice, "vidrio", `Vidrio en "${d.selector}": va solo en tarjetas, no en el fondo ni en las filas de una lista`);
+      }
+      if ((d.propiedad === "transition" || d.propiedad === "transition-duration") && !/^(none|0s?|0ms)$/.test(v) && !v.includes("var(--transicion)")) {
+        agregarUnidad(u, d.indice, "movimiento", `Transición (${d.propiedad}): usa var(--transicion), de 150 a 200 ms`);
+      }
+      if (/^animation(-name|-duration)?$/.test(d.propiedad) && v !== "none" && !d.selector.includes("reloj-arena")) {
+        agregarUnidad(u, d.indice, "movimiento", `Animación en "${d.selector}": el único movimiento propio de la app es el reloj de arena`);
       }
       if (d.propiedad === "font-weight" && !PESOS_PERMITIDOS.has(v) && !v.startsWith("var(")) {
-        agregarUnidad(u, d.indice, "peso", `Peso de letra ${d.valor}: solo 300, 400 y 600`);
+        agregarUnidad(u, d.indice, "peso", `Peso de letra ${d.valor}: solo 400, 500 y 600`);
       }
       if (/^border(-[a-z]+)*-radius$/.test(d.propiedad)) {
         for (const parte of v.split(/[\s/]+/).filter(Boolean)) {
-          if (!RADIOS_PERMITIDOS.has(parte)) agregarUnidad(u, d.indice, "radio", `Radio ${parte}: solo 8px y 980px (--radio-caja y --radio-pastilla)`);
+          if (!RADIOS_PERMITIDOS.has(parte)) agregarUnidad(u, d.indice, "radio", `Radio ${parte}: solo --radio-tarjeta, --radio-campo y --radio-pastilla`);
         }
       }
-      if (d.propiedad === "font-size" && !/^var\(--texto-[a-z-]+\)$/.test(v) && !["inherit", "100%", "initial", "unset"].includes(v)) {
-        agregarUnidad(u, d.indice, "tamano-letra", `Tamaño de letra ${d.valor}: usa una variable --texto-… de tokens.css`);
+      if (d.propiedad === "font-size" && !/^var\(--tam-[a-z-]+\)$/.test(v) && !["inherit", "100%", "initial", "unset"].includes(v)) {
+        agregarUnidad(u, d.indice, "tamano-letra", `Tamaño de letra ${d.valor}: usa una variable --tam-… de tokens.css`);
       }
     }
   }
