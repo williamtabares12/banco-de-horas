@@ -24,7 +24,7 @@ export default defineConfig({
         // Si el service worker las respondiera con index.html, la ventana de Google quedaría en blanco.
         navigateFallbackDenylist: [/^\/__\//],
       },
-      includeAssets: ['apple-touch-icon.png'],
+      includeAssets: ['apple-touch-icon.png', 'marca/at-monograma-claro.svg'],
       manifest: {
         name: 'Arena',
         short_name: 'Arena',

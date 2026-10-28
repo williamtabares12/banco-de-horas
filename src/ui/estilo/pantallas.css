@@ -189,6 +189,31 @@
   text-decoration: underline;
 }
 
+/* ---------- Firma de autor (sección 8): el monograma AT y "Hecho por Alejandro Tabares · v" ---------- */
+
+/* Queda fuera de una tarjeta, sobre el degradado: el texto va en --texto porque --texto-suave no llega a 4,5 ahí */
+.firma {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--esp-8);
+  margin-top: var(--esp-16);
+  font-size: var(--tam-caption);
+  font-weight: var(--peso-normal);
+  line-height: var(--interlinea);
+  color: var(--texto);
+}
+
+.firma strong {
+  font-weight: var(--peso-fuerte);
+}
+
+.firma__monograma {
+  display: block;
+  width: auto;
+  height: 24px;
+}
+
 /* ---------- Pantalla de carga (sección 7): fondo en degradado, reloj de arena de 96 px y "Arena" ---------- */
 
 .carga {
@@ -484,7 +509,8 @@
   }
 
   .encabezado,
-  .no-imprimir {
+  .no-imprimir,
+  .firma {
     display: none;
   }
 

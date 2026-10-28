@@ -28,6 +28,7 @@ import { Aviso } from "../componentes/Aviso";
 import { Boton } from "../componentes/Boton";
 import { PantallaDeCarga } from "../PantallaDeCarga";
 import { ahora, hoy, nuevoId } from "../utilidades";
+import { versionDeLaApp } from "../version";
 import { Acceso, type ResultadoAcceso } from "./Acceso";
 import { Bienvenida } from "./Bienvenida";
 import { HojaPrivacidad } from "./HojaPrivacidad";
@@ -118,6 +119,7 @@ export default function AppNube() {
         modoInicial={errorInicial === SIN_CUENTA_GOOGLE ? "registro" : "login"}
         errorInicial={errorInicial}
         navegadorEmbebido={embebido}
+        version={versionDeLaApp().version}
         confirmacionInicial={cuentaBorrada ? "Tu cuenta y todos tus datos se borraron." : null}
         alIniciarConCorreo={(correo, contrasena) => iniciarSesionConCorreo(nube, correo, contrasena).then(bien, comoResultado)}
         alRegistrar={(nombre, correo, contrasena) => registrarConCorreo(nube, nombre, correo, contrasena).then(bien, comoResultado)}

@@ -1,6 +1,7 @@
 import { DATOS_AVISO } from "../../dominio/aviso";
 import { enlaceDeReporte, CORREO_REPORTES } from "../../dominio/acerca";
 import { Enlace } from "../componentes/Enlace";
+import { Firma } from "../componentes/Firma";
 
 type Props = {
   version: string;
@@ -51,6 +52,8 @@ export function Acerca({ version, compilado, alVerAviso }: Props) {
           Si el celular no abre el correo, escribe a {CORREO_REPORTES}. No escribas nombres ni documentos de pacientes.
         </p>
       </div>
+
+      <Firma version={version} />
     </section>
   );
 }

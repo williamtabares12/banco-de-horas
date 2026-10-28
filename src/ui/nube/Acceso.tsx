@@ -9,6 +9,7 @@ import { Interruptor } from "../componentes/Interruptor";
 import { Pestanas } from "../componentes/Pestanas";
 import { RelojArena } from "../componentes/RelojArena";
 import { copiarTexto } from "../copiar";
+import { Firma } from "../componentes/Firma";
 import { HojaPrivacidad } from "./HojaPrivacidad";
 
 /** Lo que devuelve cada acción de acceso: salió bien, o un mensaje listo para mostrar. */
@@ -26,6 +27,8 @@ type Props = {
   /** `aceptoAviso`: si marcó la casilla antes de abrir Google (solo existe en "Crear cuenta"). */
   alEntrarConGoogle: (aceptoAviso: boolean) => Promise<ResultadoAcceso>;
   alRecuperar: (correo: string) => Promise<ResultadoAcceso>;
+  /** La versión de la app, para la firma del pie. Sin ella no se dibuja la firma. */
+  version?: string;
   /** Se abrió dentro del navegador de otra app (WhatsApp, Instagram...): ahí Google no deja entrar, y se avisa (RF-C20). */
   navegadorEmbebido?: boolean;
 };
@@ -36,7 +39,7 @@ type Mensaje = { tipo: "error" | "confirmacion"; texto: string } | null;
  * Pantalla sin sesión (portada del login de Bitácora AIDA v2): iniciar sesión, crear cuenta, entrar
  * con Google y recuperar la contraseña. Crear la cuenta exige marcar la casilla del aviso de privacidad.
  */
-export function Acceso({ aviso, modoInicial = "login", errorInicial = null, confirmacionInicial = null, alIniciarConCorreo, alRegistrar, alEntrarConGoogle, alRecuperar, navegadorEmbebido = false }: Props) {
+export function Acceso({ aviso, modoInicial = "login", errorInicial = null, confirmacionInicial = null, alIniciarConCorreo, alRegistrar, alEntrarConGoogle, alRecuperar, navegadorEmbebido = false, version }: Props) {
   const [modo, setModo] = useState<ModoAcceso>(modoInicial);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
@@ -185,6 +188,7 @@ export function Acceso({ aviso, modoInicial = "login", errorInicial = null, conf
       <footer className="acceso__pie">
         <p className="texto-suave">Solo tú ves tus datos desde la app. Registro personal, no es una herramienta oficial de la clínica.</p>
         <Enlace onClick={() => setHoja(true)}>Aviso de privacidad</Enlace>
+        {version && <Firma version={version} />}
       </footer>
       {hoja && <HojaPrivacidad aviso={aviso} alCerrar={() => setHoja(false)} />}
     </main>

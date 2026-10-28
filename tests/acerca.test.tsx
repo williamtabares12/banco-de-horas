@@ -40,8 +40,12 @@ describe("Acerca de (RF-C11)", () => {
   });
 
   describe("sin nombre ni logo de la clínica (RF-C12)", () => {
-    it("no hay imágenes ni el nombre de la clínica", () => {
-      expect(m).not.toMatch(/<img|<svg|logo/i);
+    // T43 (RF-C25): la única imagen permitida es el monograma de la firma de autor; nada de la clínica
+    it("no hay imágenes ni el nombre de la clínica (salvo el monograma de la firma de autor)", () => {
+      const imagenes = [...m.matchAll(/<img[^>]*>/g)].map((x) => x[0]);
+      expect(imagenes).toHaveLength(1);
+      expect(imagenes[0]).toContain("at-monograma");
+      expect(m).not.toMatch(/<svg|logo/i);
       expect(sinCorreos(m)).not.toMatch(/comfamiliar/i);
     });
   });
