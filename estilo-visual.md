@@ -182,3 +182,11 @@ body {
   min-height: 100dvh;
 }
 ```
+
+## Colores de la deuda (RF21)
+
+- Pagar horas: verde #1B6B43. Deber horas: rojo #B3364C (el mismo de avisos y errores). Saldo a favor: el acento de la app.
+- Cada color va con palabra y signo ("Pagaste 8 h", "Debes 12 h", "+" y "-"). El color nunca es la única señal.
+- Los avisos y errores llevan la palabra "Aviso" o "Error" y un ícono, para no confundirlos con la deuda.
+- Contraste de 4,5 o más sobre el vidrio y sobre el respaldo sólido #E4ECEC; `check:estilo` lo valida.
+- El extracto impreso se queda en blanco y negro.

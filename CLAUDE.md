@@ -11,6 +11,7 @@ Arena es el nombre de la app (antes "Banco de horas"). App web personal para lle
 - spec-companeros.md y plan-nube.md: versión con cuenta y nube para compañeros (Fase 6, desde T22).
 - aviso-privacidad.md: borrador del aviso que la app muestra y hace aceptar.
 - parametros-iniciales.md: valores y forma del documento de parámetros globales.
+- decisiones-del-piloto.md: memoria del proyecto: decisiones y hallazgos del piloto. Vale tanto como el spec.
 - arena-animado.html: reloj de arena animado de referencia (login y pantalla de carga). Los íconos están en icono-reloj-arena.svg e icono-app-oscuro.svg.
 
 Lee spec, plan, tasks y estilo-visual antes de escribir código. Para la Fase 6 lee también los cuatro últimos.
@@ -22,6 +23,8 @@ Lee spec, plan, tasks y estilo-visual antes de escribir código. Para la Fase 6 
 3. Escribe el código mínimo para que pase.
 4. Corre `npm test`. Si hay algo en rojo, no sigas.
 5. Marca la tarea en tasks.md y haz un commit con el número de la tarea.
+
+Antes de empezar cualquier tarea, lee decisiones-del-piloto.md completo. Si la tarea choca con una decisión de ese archivo, avísame antes de programar. Cuando una tarea corrija una falla reportada por un usuario, agrega la entrada al final de ese archivo en el mismo commit.
 
 Si el spec no alcanza para decidir una regla, pregunta. No inventes horarios ni reglas de la clínica. No agregues cálculos de dinero: salario, recargos en pesos y nómina están fuera del alcance. Si cambia una regla, se actualiza el spec primero y después el código.
 

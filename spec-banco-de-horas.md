@@ -22,6 +22,7 @@ Una app personal que responda cuatro preguntas, con fechas y respaldo:
 - Dinero de cualquier tipo: salario, valor hora, porcentajes de recargo, descuentos.
 - Servidor, cuentas o login.
 - Conexión con la clínica o con nómina.
+- Horas extras como función propia (29 de octubre de 2026). Cuando el saldo llega a 0 y la persona sigue trabajando de más, el saldo pasa a negativo y la pantalla dice "La clínica te debe X h". No hay un apartado de extras, ni su pago, ni su regla de recargos, y nadie debe implementarlos sin una especificación nueva.
 
 ## 4. Usuario y contexto de uso
 
@@ -108,6 +109,18 @@ RF14. Al registrar un pago en Banco, elegir el motivo: "Capacitación o reunión
 
 RF15. Cómo se escriben las horas en cualquier campo de horas: un entero (8), horas y minutos con dos puntos (7:30) o un decimal con un solo dígito después de la coma o el punto (7,5 o 7.5). Con dos o más dígitos después de la coma o el punto (7.30, 2,25, 0.33, 1.500) no se sabe si son minutos o decimales, así que se rechaza. Si los dos dígitos pueden ser minutos, el mensaje lo sugiere ("¿Quisiste decir 7:30?"). Turnos y Banco usan el mismo mensaje. Decidido el 27 de octubre de 2026 (hallazgo 2 de informe-qa-2026-10-27.md).
 
+RF16. Horario del turno obligatorio. En pantalla lo que internamente es la "plantilla" se llama "horario". Al registrar un turno ordinario, el primer campo es "¿Qué horario hiciste?" y es obligatorio: botones grandes y visibles (no una lista desplegable) con cada plantilla (Día 8 h, Día 12 h, Noche 12 h y las que cree la persona) y "Otro horario". Sin elegir uno no se puede guardar, y el mensaje dice "Elige un horario". Al elegir una plantilla se rellenan inicio, fin, descanso y horas programadas, y esos campos quedan ocultos detrás de "Cambiar horas". Con "Otro horario" aparecen los campos y se exigen inicio, fin, descanso y horas programadas: el descanso vacío no se toma como 0, el mensaje dice "Escribe 0 si no tuviste descanso". Un turno de alquiler no pide horario: pide inicio, fin y destino, con descanso 0. Los turnos ordinarios ya guardados con descanso 0 y más de 6 horas netas muestran en el historial la etiqueta "Revisa el descanso", que lleva a editarlos.
+
+RF17. Detalle de la semana. Al tocar la barra de avance de la semana se abre una hoja con la semana (domingo a sábado) y flechas para ver las anteriores y las siguientes. Muestra, día por día, lo que suma: fecha, horario y horas que cuenta cada turno, con el total ("27 h de 42 h") y lo que falta. Una línea explica que los turnos ordinarios cuentan lo programado, no lo trabajado. Aparte, una sección "No cuenta para la semana" con los turnos de alquiler con destino "pagar deuda" y las capacitaciones o reuniones. Tocar un renglón abre el turno para editarlo.
+
+RF18. Extracto con filtro. Antes de ver o imprimir el extracto se elige el periodo: "Todo el historial", "Quincena" (con el mismo selector de anterior y siguiente de la pantalla Quincena) o "Rango de fechas" (desde y hasta). El extracto filtrado muestra el periodo en el encabezado, el saldo al inicio del periodo, los movimientos del periodo con el saldo después de cada uno, el saldo al final y los totales prestado y pagado del periodo. Si el filtro es una quincena, un interruptor "Incluir horas por categoría" (encendido por defecto) agrega las horas diurnas, nocturnas y dominicales o festivas de esa quincena y la colilla donde deberían aparecer. Un periodo sin movimientos muestra el mismo saldo al inicio y al final y la frase "Sin movimientos en este periodo". El nombre del PDF guardado incluye el periodo.
+
+RF19. Tipos de turno con los nombres de la clínica. En pantalla, el tipo "ordinario" se llama CARPA, y el de alquiler se divide en dos: MEGACENTRO y CALCULASER. En el código y en los datos guardados el tipo sigue siendo "ordinario" o "alquiler"; el turno de alquiler guarda además `sede` ("MEGACENTRO" o "CALCULASER"). MEGACENTRO y CALCULASER siguen las reglas del turno de alquiler: llevan destino ("pagar deuda" o "completar semana"), no tienen horas programadas y el descanso es un campo que empieza en 0 y se puede cambiar. Con destino "pagar deuda", todos los minutos netos generan un pago en el banco desde que se guarda el turno, y con "completar semana" no se genera movimiento. Al guardar, la pantalla dice cuál de los dos pasó: "Se registró un pago de X h en Banco" o "Suma X h a la semana". Los turnos de alquiler ya guardados no tienen sede: se conservan igual y el historial les pone la etiqueta "Elige la sede" hasta que la persona la complete. Un alquiler sin sede se abre y se edita sin pedirla; solo los alquileres nuevos la exigen. Antes de guardar se mantiene el texto de la revisión ("Pago de X h: la deuda baja"), y el aviso "Se registró un pago de X h en Banco" aparece después de guardar.
+
+RF20. Los turnos de alquiler con destino "pagar deuda" no suman a la quincena. Esas horas pagan una deuda con la clínica, así que no entran en las horas nocturnas, dominicales ni en ningún otro recargo de la quincena, ni en la semana de 42 h. Solo generan su pago en el banco y aparecen en el extracto. Lo mismo vale para el exceso de un turno ordinario mientras `extrasDescuentanDeuda` esté activo: los minutos que pasan de las horas programadas pagan deuda y no cuentan en los recargos de la quincena. Las horas programadas se cuentan desde el inicio del turno, así que el exceso es el final. El resumen de la quincena existe para compararlo con la colilla de pago, y la colilla no incluye recargos por horas que ya se pagaron con deuda. Con destino "completar semana" el turno sigue sumando a la quincena como hasta ahora. En el detalle del turno con destino "pagar deuda" la pantalla dice "Paga deuda: no suma a la quincena".
+
+RF21. Colores de la deuda. Todo lo que tiene que ver con pagar horas usa un verde, y todo lo que tiene que ver con deber horas usa el rojo. Aplica a la tarjeta de saldo, a los movimientos del banco, a las etiquetas de préstamo y pago y a la opción "pagar deuda" del formulario. Cuando el saldo es a favor ("La clínica te debe X h") se usa el acento de la app, no el rojo. Los avisos y errores siguen en el mismo rojo, pero siempre llevan la palabra "Aviso" o "Error" y un ícono. Valores de partida: verde #1B6B43 y rojo #B3364C, que `check:estilo` debe validar.
+
 ## 9. Reglas de cálculo
 
 - Todo se mide en minutos enteros y se muestra en horas y minutos.
@@ -129,7 +142,7 @@ Cada compañero tendría su propio banco en su dispositivo, sin compartir nada. 
 
 ## 12. Criterios de aceptación
 
-CA1. Un turno de alquiler de sábado 19:00 a domingo 03:00 (descanso 0) se parte en 5 h nocturnas de sábado y 3 h dominicales nocturnas.
+CA1. Un turno de alquiler de sábado 19:00 a domingo 03:00 (descanso 0, destino "completar semana") se parte en 5 h nocturnas de sábado y 3 h dominicales nocturnas.
 
 CA2. Turno de 07:00 a 16:00 con 60 min de descanso (8 h programadas) y salida real a las 19:00 genera un pago de 3 h.
 
@@ -168,6 +181,48 @@ CA24. "7.30" y "7,30" no se guardan: el formulario dice "¿Quisiste decir 7:30?"
 CA26. En un navegador sin soporte de `backdrop-filter`, y con "reducir transparencia" activado, las tarjetas se ven con fondo sólido y el texto sigue legible.
 
 CA27. Con "reducir movimiento" activado, el reloj de arena queda quieto y no hay ninguna otra animación en la app.
+
+CA28. En un turno ordinario no se puede guardar sin elegir un horario, y el mensaje dice "Elige un horario".
+
+CA29. Elegir "Día 12 h" deja inicio 07:00, fin 19:00, descanso 120 y 10 h programadas ya rellenos, y los campos solo se ven al tocar "Cambiar horas".
+
+CA30. Con "Otro horario" no se guarda con el descanso vacío ni con las horas programadas vacías. El mensaje del descanso dice "Escribe 0 si no tuviste descanso".
+
+CA31. Un turno de alquiler no pide horario y se guarda con descanso 0.
+
+CA32. Un turno ordinario guardado con descanso 0 y 9 h netas muestra la etiqueta "Revisa el descanso" en el historial. Uno con descanso 60 no la muestra.
+
+CA33. Con el respaldo del 21 de octubre de 2026, la semana del 4 al 10 de octubre muestra cinco renglones que suman 42 h: alquiler del 4 (8 h), turnos del 5 (8 h), del 6 (10 h), del 8 (8 h) y del 9 (8 h). En "No cuenta" aparece el alquiler del 10 con destino "pagar deuda". Los renglones suman exactamente lo que marca la barra.
+
+CA34. Con el mismo respaldo, el extracto de la 1.ª quincena de octubre de 2026 muestra saldo al inicio de 44 h, un préstamo de +3 h, cuatro pagos que suman -16 h y saldo al final de 31 h. Con "Incluir horas por categoría" muestra 62 h diurnas, 9 nocturnas, 18 dominicales diurnas y 6 dominicales nocturnas.
+
+CA35. El extracto del rango del 5 al 10 de octubre de 2026 muestra saldo al inicio de 47 h y saldo al final de 33 h. Un rango sin movimientos muestra el mismo saldo al inicio y al final y la frase "Sin movimientos en este periodo".
+
+CA36. El extracto filtrado se imprime con las mismas reglas de CA21 y el periodo aparece en el encabezado.
+
+CA37. Un turno de MEGACENTRO de 08:00 a 17:00 con descanso 0 y destino "pagar deuda" genera un pago de 9 h que aparece en Banco y en el extracto con la fecha del turno, y la pantalla lo avisa al guardar.
+
+CA38. El mismo turno con destino "completar semana" no genera movimiento, y la pantalla dice "Suma 9 h a la semana".
+
+CA39. En el formulario, el tipo se elige entre CARPA, MEGACENTRO y CALCULASER. Un turno CARPA pide horario (RF16); uno de MEGACENTRO o CALCULASER pide inicio, fin, descanso y destino.
+
+CA40. Con el respaldo del 21 de octubre de 2026, los cinco turnos de alquiler ya guardados se abren sin errores, conservan sus fechas y su destino, y muestran la etiqueta "Elige la sede". Elegir la sede la quita y no cambia el saldo.
+
+CA41. Con el respaldo del 29 de octubre de 2026, la quincena del 16 al 31 de octubre no cuenta las 3 h nocturnas (19:00 a 22:00) del turno de alquiler del 29 de octubre, que tiene destino "pagar deuda". Los demás turnos de esa quincena quedan igual.
+
+CA42. Un turno de alquiler con destino "pagar deuda" en domingo o festivo no suma horas dominicales a la quincena. El mismo turno con destino "completar semana" sí las suma.
+
+CA43. Con ese mismo respaldo, el pago de 8 h del 29 de octubre sigue apareciendo en Banco y en el extracto, y el saldo es de 13 h.
+
+CA44. Un turno CARPA de 12:00 a 22:00, sin descanso y con 8 h programadas, suma 1 h nocturna a la quincena (19:00 a 20:00). Las 2 h entre 20:00 y 22:00 pagan deuda y no suman recargos.
+
+CA45. Con `extrasDescuentanDeuda` desactivado, el mismo turno suma 3 h nocturnas a la quincena.
+
+CA46. En el banco y en el extracto en pantalla, los préstamos (horas que debes) se ven en rojo y los pagos (horas que pagas) en verde, y cada uno lleva su palabra ("Debes", "Pagaste") y su signo. El color nunca es la única señal.
+
+CA47. Los colores nuevos cumplen contraste de 4,5 o más sobre el vidrio y sobre el respaldo sólido, y `npm run check:estilo` lo comprueba. El extracto impreso sigue en blanco y negro.
+
+CA48. Un turno CARPA de 07:00 a 21:00 con 2 h de descanso y 10 h programadas tiene 12 h netas. El descanso sale de la categoría con más minutos (la diurna), así que quedan 10 h diurnas y 2 h nocturnas. Las 10 h programadas cubren las diurnas y el exceso de 2 h son las nocturnas: la quincena suma 0 h nocturnas y el banco registra un pago de 2 h.
 
 ## 13. Preguntas abiertas
 
