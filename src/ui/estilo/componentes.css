@@ -216,6 +216,51 @@
     outline-offset: 2px;
   }
 
+  /* ---------- Opciones: botones grandes y visibles de los que se elige uno (pastillas elegibles) ---------- */
+
+  .opciones {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--esp-8);
+  }
+
+  .opcion {
+    min-height: var(--boton-alto);
+    margin: 0;
+    padding: 0 var(--esp-12);
+    font-family: var(--fuente);
+    font-size: var(--tam-cuerpo);
+    font-weight: var(--peso-fuerte);
+    line-height: var(--interlinea);
+    color: var(--enlace);
+    background: var(--vidrio);
+    border: 1px solid var(--accion);
+    border-radius: var(--radio-pastilla);
+    cursor: pointer;
+  }
+
+  .opcion--activa {
+    color: var(--sobre-accion);
+    background: var(--degradado-accion);
+    box-shadow: var(--sombra-accion);
+  }
+
+  .opcion:active {
+    opacity: 0.8;
+  }
+
+  .opcion:focus-visible {
+    outline: 2px solid var(--accion-clara);
+    outline-offset: 2px;
+  }
+
+  /* Lo que quedó rellenado al elegir un horario, con su botón "Cambiar horas" */
+  .resumen-horario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-8);
+  }
+
   /* ---------- Filas de lista: sin fondo ni tarjeta propia, solo una línea fina entre filas ---------- */
 
   .lista-filas {

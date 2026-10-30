@@ -1,6 +1,6 @@
-import { duracionMinutos } from "./tiempo";
+import { duracionMinutos, errorDeDuracion, parsearDuracion } from "./tiempo";
 import type { PlantillaTurno } from "./tipos";
-import { fechasDeTurno } from "./turnos";
+import { fechasDeTurno, type EntradaTurno } from "./turnos";
 
 export type EntradaPlantilla = {
   nombre: string;
@@ -58,4 +58,52 @@ export function valoresDePlantilla(p: PlantillaTurno): {
     descansoMin: p.descansoMin,
     minutosProgramados: duracionPlantilla(p) - p.descansoMin,
   };
+}
+
+/** Lo que se elige en "¿Qué horario hiciste?" cuando ninguna plantilla sirve (RF16). Las plantillas se eligen por su id. */
+export const OTRO_HORARIO = "otro";
+
+export type ResultadoHorario =
+  | { ok: true; descansoMin: number; minutosProgramados: number }
+  | { ok: false; campo: "horario" | "descanso" | "programadas"; mensaje: string };
+
+/**
+ * Valida lo que el formulario de turno pide sobre el horario (RF16). Un turno ordinario necesita haber elegido un
+ * horario (una plantilla u "Otro horario"), y el descanso y las horas programadas escritos: el descanso vacío no se
+ * toma como 0. Un turno de alquiler no pide horario y va con descanso 0.
+ *
+ * Los textos del descanso y de las horas son los que ve la persona: "horas programadas" son los minutos netos.
+ */
+export function validarHorarioDeTurno(datos: {
+  tipo: EntradaTurno["tipo"];
+  horario: string;
+  descanso: string;
+  programadas: string;
+}): ResultadoHorario {
+  if (datos.tipo === "alquiler") return { ok: true, descansoMin: 0, minutosProgramados: 0 };
+  if (datos.horario === "") return { ok: false, campo: "horario", mensaje: "Elige un horario" };
+  if (datos.descanso.trim() === "") return { ok: false, campo: "descanso", mensaje: "Escribe 0 si no tuviste descanso" };
+  const programadas = parsearDuracion(datos.programadas);
+  if (programadas === null) {
+    const motivo = datos.programadas.trim() === "" ? "escríbelas, por ejemplo 8 o 7:30." : errorDeDuracion(datos.programadas);
+    return { ok: false, campo: "programadas", mensaje: `Horas programadas: ${motivo}` };
+  }
+  return { ok: true, descansoMin: Number(datos.descanso), minutosProgramados: programadas };
+}
+
+/**
+ * Qué horario le toca a un turno que ya tiene sus horas (al editarlo): la plantilla que dé exactamente su inicio,
+ * su fin, su descanso y sus horas programadas, o "otro" si ninguna coincide.
+ */
+export function plantillaElegida(entrada: EntradaTurno, plantillas: PlantillaTurno[]): string {
+  const coincide = plantillas.find((p) => {
+    const v = valoresDePlantilla(p);
+    return (
+      v.horaInicio === entrada.inicio.slice(11) &&
+      v.horaFin === entrada.fin.slice(11) &&
+      v.descansoMin === (entrada.descansoMin ?? 0) &&
+      v.minutosProgramados === entrada.minutosProgramados
+    );
+  });
+  return coincide ? coincide.id : OTRO_HORARIO;
 }

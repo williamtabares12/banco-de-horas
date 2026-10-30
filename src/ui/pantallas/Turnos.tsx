@@ -5,7 +5,7 @@ import type { Calculo } from "../../dominio/parametros";
 import { segmentar } from "../../dominio/segmentar";
 import { duracionMinutos, formatearDuracion } from "../../dominio/tiempo";
 import type { Turno } from "../../dominio/tipos";
-import { borrarTurno, editarTurno, minutosNetos, nuevoTurno, type EntradaTurno } from "../../dominio/turnos";
+import { borrarTurno, editarTurno, minutosNetos, necesitaRevisarDescanso, nuevoTurno, type EntradaTurno } from "../../dominio/turnos";
 import { Boton } from "../componentes/Boton";
 import { FilaLista, ListaFilas } from "../componentes/FilaLista";
 import { FormularioTurno } from "../componentes/FormularioTurno";
@@ -139,6 +139,9 @@ export function Turnos({ datos, calculo, cambiar, abrirNuevo }: Props) {
               valor={formatearDuracion(minutosNetos(t))}
               acciones={
                 <>
+                  {necesitaRevisarDescanso(t) && (
+                    <Boton onClick={() => setVista({ paso: "formulario", editando: t })}>Revisa el descanso</Boton>
+                  )}
                   <Boton onClick={() => setVista({ paso: "formulario", editando: t })}>Editar</Boton>
                   <Boton borra onClick={() => borrar(t)}>
                     Borrar

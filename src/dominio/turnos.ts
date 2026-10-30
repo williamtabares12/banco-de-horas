@@ -33,6 +33,17 @@ export function minutosNetos(turno: Pick<Turno, "inicio" | "fin" | "descansoMin"
   return duracionMinutos(turno.inicio, turno.fin) - turno.descansoMin;
 }
 
+/** Con más horas netas que estas, un turno ordinario sin descanso se marca para revisarlo (RF16). */
+export const HORAS_NETAS_SIN_DESCANSO = 6;
+
+/**
+ * ¿Hay que revisar el descanso de este turno? Los ordinarios guardados con descanso 0 y más de 6 horas netas
+ * probablemente no son 0: es el descanso que antes se quedaba en blanco. El alquiler no lleva descanso.
+ */
+export function necesitaRevisarDescanso(turno: Pick<Turno, "inicio" | "fin" | "descansoMin" | "tipo">): boolean {
+  return turno.tipo === "ordinario" && turno.descansoMin === 0 && minutosNetos(turno) > HORAS_NETAS_SIN_DESCANSO * 60;
+}
+
 type TurnoNormalizado = Omit<Turno, "id" | "creadoEn" | "modificadoEn">;
 
 /** Valida y deja la entrada lista para guardar (sin id ni fechas de registro). */
