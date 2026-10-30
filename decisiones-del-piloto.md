@@ -70,3 +70,10 @@ El chat principal y el chat de QA usaban los mismos números para cosas distinta
 
 ### 2026-10-29 Ajustes que pidió el chat de QA
 CA1 ahora dice destino "completar semana", para que T48 no la ponga en rojo. CA48 cubre el exceso con descanso. En T47, "Elige la sede" no bloquea abrir ni editar un alquiler viejo, y el aviso de pago sale después de guardar, sin quitar el texto de la revisión.
+
+### 2026-10-30 T41 hecha y probada en el emulador
+Quién lo reportó: Alejandro, al probarla él mismo en el emulador (comprobación de la entrada del 2026-10-27 "Horas ambiguas").
+Qué pasó: T41 tenía commit pero seguía sin marcar y sin probar. Alejandro la probó el 30 de octubre en Turnos y en Banco.
+Regla correcta según Alejandro: la de la entrada del 2026-10-27, sin cambios. "7.30" y "7,30" ya no se guardan y sugieren "¿Quisiste decir 7:30?"; "1.500" y "0.33" se rechazan con el mensaje general; "7,5", "7.5" y "7:30" se leen como 7 h 30 min.
+Qué se cambió: T41 marcada como hecha (commit 94cca57). La nota "pendiente de probar en el emulador y de commit" de la entrada del 2026-10-27 ya no aplica.
+Datos de prueba: ninguno; se probó a mano en el emulador con una cuenta de prueba.

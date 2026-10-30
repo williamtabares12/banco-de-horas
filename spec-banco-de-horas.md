@@ -192,7 +192,7 @@ CA31. Un turno de alquiler no pide horario y se guarda con descanso 0.
 
 CA32. Un turno ordinario guardado con descanso 0 y 9 h netas muestra la etiqueta "Revisa el descanso" en el historial. Uno con descanso 60 no la muestra.
 
-CA33. Con el respaldo del 21 de octubre de 2026, la semana del 4 al 10 de octubre muestra cinco renglones que suman 42 h: alquiler del 4 (8 h), turnos del 5 (8 h), del 6 (10 h), del 8 (8 h) y del 9 (8 h). En "No cuenta" aparece el alquiler del 10 con destino "pagar deuda". Los renglones suman exactamente lo que marca la barra.
+CA33. Con `tests/fixtures/respaldo-2026-10-29.json`, la semana del 4 al 10 de octubre muestra cinco renglones que suman 42 h: alquiler del 4 (8 h), turnos del 5 (8 h), del 6 (10 h), del 8 (8 h) y del 9 (8 h). En "No cuenta" aparece el alquiler del 10 con destino "pagar deuda". Los renglones suman exactamente lo que marca la barra.
 
 CA34. Con el mismo respaldo, el extracto de la 1.ª quincena de octubre de 2026 muestra saldo al inicio de 44 h, un préstamo de +3 h, cuatro pagos que suman -16 h y saldo al final de 31 h. Con "Incluir horas por categoría" muestra 62 h diurnas, 9 nocturnas, 18 dominicales diurnas y 6 dominicales nocturnas.
 
@@ -206,7 +206,7 @@ CA38. El mismo turno con destino "completar semana" no genera movimiento, y la p
 
 CA39. En el formulario, el tipo se elige entre CARPA, MEGACENTRO y CALCULASER. Un turno CARPA pide horario (RF16); uno de MEGACENTRO o CALCULASER pide inicio, fin, descanso y destino.
 
-CA40. Con el respaldo del 21 de octubre de 2026, los cinco turnos de alquiler ya guardados se abren sin errores, conservan sus fechas y su destino, y muestran la etiqueta "Elige la sede". Elegir la sede la quita y no cambia el saldo.
+CA40. Con `tests/fixtures/respaldo-2026-10-29.json`, los diez turnos de alquiler ya guardados se abren sin errores, conservan sus fechas y su destino, y muestran la etiqueta "Elige la sede". Elegir la sede la quita y no cambia el saldo.
 
 CA41. Con el respaldo del 29 de octubre de 2026, la quincena del 16 al 31 de octubre no cuenta las 3 h nocturnas (19:00 a 22:00) del turno de alquiler del 29 de octubre, que tiene destino "pagar deuda". Los demás turnos de esa quincena quedan igual.
 
