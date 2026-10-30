@@ -208,11 +208,11 @@ CA39. En el formulario, el tipo se elige entre CARPA, MEGACENTRO y CALCULASER. U
 
 CA40. Con `tests/fixtures/respaldo-2026-10-29.json`, los diez turnos de alquiler ya guardados se abren sin errores, conservan sus fechas y su destino, y muestran la etiqueta "Elige la sede". Elegir la sede la quita y no cambia el saldo.
 
-CA41. Con el respaldo del 29 de octubre de 2026, la quincena del 16 al 31 de octubre no cuenta las 3 h nocturnas (19:00 a 22:00) del turno de alquiler del 29 de octubre, que tiene destino "pagar deuda". Los demás turnos de esa quincena quedan igual.
+CA41. Con `tests/fixtures/respaldo-2026-10-29.json`, la quincena del 16 al 31 de octubre no cuenta las 3 h nocturnas (19:00 a 22:00) del turno de alquiler del 29 de octubre, que tiene destino "pagar deuda". Los demás turnos de esa quincena quedan igual.
 
 CA42. Un turno de alquiler con destino "pagar deuda" en domingo o festivo no suma horas dominicales a la quincena. El mismo turno con destino "completar semana" sí las suma.
 
-CA43. Con ese mismo respaldo, el pago de 8 h del 29 de octubre sigue apareciendo en Banco y en el extracto, y el saldo es de 13 h.
+CA43. Con `tests/fixtures/respaldo-2026-10-29.json`, el pago de 8 h del 29 de octubre sigue apareciendo en Banco y en el extracto, y el saldo es de 13 h.
 
 CA44. Un turno CARPA de 12:00 a 22:00, sin descanso y con 8 h programadas, suma 1 h nocturna a la quincena (19:00 a 20:00). Las 2 h entre 20:00 y 22:00 pagan deuda y no suman recargos.
 
